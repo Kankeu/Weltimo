@@ -1,7 +1,7 @@
 <template>
     <v-card>
         <v-card-title primary-title>
-            <v-layout row wrap>
+            <v-layout style="width:100px" row wrap>
                 <v-flex lg2>
                     <v-avatar
                             size="40px"
@@ -10,34 +10,21 @@
                     </v-avatar>
                 </v-flex>
                 <v-flex lg10>
-                  <div class="span6">
+                <v-card-text>
+                  <div class="span6" @click="enlarge">
                     <textarea class="emojionearea"></textarea>
                   </div>
-                  <div class="textarea_feedback"></div>
+                </v-card-text>
                 </v-flex>
             </v-layout>
         </v-card-title>
         <v-card-actions>
-            <v-btn flat color="primary" @click.native="dialog=true" dark>Enlarge</v-btn>
-            <v-menu
-                offset-x
-                :close-on-content-click="false"
-                :nudge-width="200"
-                
-            >
-            <v-btn flat color="primary" @click.native="openSwatches()" slot="activator" dark><v-icon>color_lens</v-icon>Color</v-btn>
-                <v-card>
-                    <swatches v-if="hasSwacthes" v-model="colors"></swatches>
-                </v-card>
-            </v-menu>
-            <v-spacer></v-spacer>
-            <v-btn flat color="orange">Publish</v-btn>
-        </v-card-actions> 
-    <v-dialog width="50%" scrollable v-model="dialog">
+             <v-dialog width="50%" scrollable v-model="dialog">
+    <v-btn flat color="primary" slot="activator" dark>Enlarge</v-btn>
       <v-card>
         <v-card-title class="headline">Publication</v-card-title>
         <v-card-text>
-            <div class="span6">
+            <div class="span6" @click="enlarge">
                <textarea class="emojionearea"></textarea>
             </div>
             <v-card-actions>
@@ -51,7 +38,7 @@
                     :close-on-content-click="false"
                     :nudge-width="200"
                     >
-                    <v-btn flat color="primary" slot="activator" @click.native="openSwatches('.emojionearea-editor')" dark><v-icon>color_lens</v-icon>Color</v-btn>
+                    <v-btn flat color="primary" slot="activator" @click.native="openSwatches('.dialog__content__active .emojionearea-editor')" dark><v-icon>color_lens</v-icon>Color</v-btn>
                         <v-card>
                             <swatches v-if="hasSwacthes" v-model="colors"></swatches>
                         </v-card>
@@ -63,15 +50,28 @@
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn flat="flat" @click.native="dialog = false">Cancel</v-btn>
-          <v-btn color="orange" flat="flat" @click.native="dialog = false">Publish</v-btn>
+          <v-btn color="orange" flat="flat" @click.native="dialog = false;publish('.dialog__content__active .emojionearea-editor')">Publish</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
+            <v-menu
+                offset-x
+                :close-on-content-click="false"
+                :nudge-width="200"
+                
+            >
+            <v-btn flat color="primary" @click.native="openSwatches()" slot="activator" dark><v-icon>color_lens</v-icon>Color</v-btn>
+                <v-card>
+                    <swatches v-if="hasSwacthes" v-model="colors"></swatches>
+                </v-card>
+            </v-menu>
+            <v-spacer></v-spacer>
+            <v-btn flat color="orange" @click.native="publish">Publish</v-btn>
+        </v-card-actions> 
     </v-card>
 </template>
 
 <script>
-    import "./limitText"
     import "emojionearea"
     import "emojionearea/dist/emojionearea.css"
     import $ from "jquery"
@@ -98,14 +98,28 @@
                     this.$options.components['swatches'] = Swatches
                     this.hasSwacthes = true
                     let textarea = null
-                    if(el){
+                    if(typeof el === "string"){
                          textarea = document.querySelector(el)
+                         this.picker2 = true
                     }else{
                          textarea = this.$el.querySelector('.emojionearea-editor')
+                         this.picker1 = true
                     }
                     this.colors = {}
                     this.box = textarea.parentNode
-                    })
+                })
+            },
+            enlarge(event){
+                event.target.style.transition = "font-size 1s"
+                event.target.style.fontSize = "25px"
+            },
+            publish(el){
+                el = (typeof el === "string") ? el : '.emojionearea-editor'
+                let html = document.querySelector(el).innerHTML
+                let result = html.match(new RegExp("(\<img .*? class=\"emojioneemoji\" src=\"(.*?)\"\>)"))
+                if(result){
+                    html = html.replace(result[1],"![Img]("+result[2]+")")
+                }
             }
         },
         mounted(){
@@ -118,8 +132,8 @@
             });
         },
         watch:{
+            // match(new RegExp("\<img(.*?) src=\"(.*?)\"\>"))
             colors(data){
-                $(".emojionearea-editor").limitText({selector: ".textarea_feedback", text : "/150"})
                 let textarea = this.box.querySelector('.emojionearea-editor')
                 if(data.hex !== "#FFFFFF"){
                     textarea.style.color = "#FFFFFF"
@@ -133,8 +147,7 @@
 </script>
 
 <style >
-.emojionearea-editor:focus{
-    transition: font-size .5s;
-    font-size: 25px;
+.emojionearea-editor{
+    text-align: center
 }
 </style>

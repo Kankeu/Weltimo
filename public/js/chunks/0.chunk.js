@@ -10988,7 +10988,7 @@ exports = module.exports = __webpack_require__(1)(undefined);
 
 
 // module
-exports.push([module.i, "\n.emojionearea-editor:focus{\n    transition: font-size .5s;\n    font-size: 25px;\n}\n", ""]);
+exports.push([module.i, "\n.emojionearea-editor{\n    text-align: center\n}\n", ""]);
 
 // exports
 
@@ -11000,13 +11000,12 @@ exports.push([module.i, "\n.emojionearea-editor:focus{\n    transition: font-siz
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-throw new Error("Cannot find module \"./limitText\"");
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_emojionearea__ = __webpack_require__(300);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_emojionearea___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_emojionearea__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_emojionearea_dist_emojionearea_css__ = __webpack_require__(301);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_emojionearea_dist_emojionearea_css___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_emojionearea_dist_emojionearea_css__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_jquery__ = __webpack_require__(222);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_jquery___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3_jquery__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_emojionearea__ = __webpack_require__(300);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_emojionearea___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_emojionearea__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_emojionearea_dist_emojionearea_css__ = __webpack_require__(301);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_emojionearea_dist_emojionearea_css___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_emojionearea_dist_emojionearea_css__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_jquery__ = __webpack_require__(222);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_jquery___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_jquery__);
 //
 //
 //
@@ -11079,7 +11078,7 @@ throw new Error("Cannot find module \"./limitText\"");
 //
 //
 //
-
+//
 
 
 
@@ -11113,18 +11112,32 @@ throw new Error("Cannot find module \"./limitText\"");
                 _this.$options.components['swatches'] = Swatches;
                 _this.hasSwacthes = true;
                 var textarea = null;
-                if (el) {
+                if (typeof el === "string") {
                     textarea = document.querySelector(el);
+                    _this.picker2 = true;
                 } else {
                     textarea = _this.$el.querySelector('.emojionearea-editor');
+                    _this.picker1 = true;
                 }
                 _this.colors = {};
                 _this.box = textarea.parentNode;
             });
+        },
+        enlarge: function enlarge(event) {
+            event.target.style.transition = "font-size 1s";
+            event.target.style.fontSize = "25px";
+        },
+        publish: function publish(el) {
+            el = typeof el === "string" ? el : '.emojionearea-editor';
+            var html = document.querySelector(el).innerHTML;
+            var result = html.match(new RegExp("(\<img .*? class=\"emojioneemoji\" src=\"(.*?)\"\>)"));
+            if (result) {
+                html = html.replace(result[1], "![Img](" + result[2] + ")");
+            }
         }
     },
     mounted: function mounted() {
-        var ready = __WEBPACK_IMPORTED_MODULE_3_jquery___default()(".emojionearea").emojioneArea({
+        var ready = __WEBPACK_IMPORTED_MODULE_2_jquery___default()(".emojionearea").emojioneArea({
             pickerPosition: "bottom",
             tonesStyle: "bullet",
             searchPlaceholder: "Search emoji",
@@ -11134,8 +11147,8 @@ throw new Error("Cannot find module \"./limitText\"");
     },
 
     watch: {
+        // match(new RegExp("\<img(.*?) src=\"(.*?)\"\>"))
         colors: function colors(data) {
-            __WEBPACK_IMPORTED_MODULE_3_jquery___default()(".emojionearea-editor").limitText({ selector: ".textarea_feedback", text: "/150" });
             var textarea = this.box.querySelector('.emojionearea-editor');
             if (data.hex !== "#FFFFFF") {
                 textarea.style.color = "#FFFFFF";
@@ -12926,7 +12939,7 @@ var render = function() {
         [
           _c(
             "v-layout",
-            { attrs: { row: "", wrap: "" } },
+            { staticStyle: { width: "100px" }, attrs: { row: "", wrap: "" } },
             [
               _c(
                 "v-flex",
@@ -12946,13 +12959,20 @@ var render = function() {
                 1
               ),
               _vm._v(" "),
-              _c("v-flex", { attrs: { lg10: "" } }, [
-                _c("div", { staticClass: "span6" }, [
-                  _c("textarea", { staticClass: "emojionearea" })
-                ]),
-                _vm._v(" "),
-                _c("div", { staticClass: "textarea_feedback" })
-              ])
+              _c(
+                "v-flex",
+                { attrs: { lg10: "" } },
+                [
+                  _c("v-card-text", [
+                    _c(
+                      "div",
+                      { staticClass: "span6", on: { click: _vm.enlarge } },
+                      [_c("textarea", { staticClass: "emojionearea" })]
+                    )
+                  ])
+                ],
+                1
+              )
             ],
             1
           )
@@ -12964,16 +12984,183 @@ var render = function() {
         "v-card-actions",
         [
           _c(
-            "v-btn",
+            "v-dialog",
             {
-              attrs: { flat: "", color: "primary", dark: "" },
-              nativeOn: {
-                click: function($event) {
-                  _vm.dialog = true
-                }
+              attrs: { width: "50%", scrollable: "" },
+              model: {
+                value: _vm.dialog,
+                callback: function($$v) {
+                  _vm.dialog = $$v
+                },
+                expression: "dialog"
               }
             },
-            [_vm._v("Enlarge")]
+            [
+              _c(
+                "v-btn",
+                {
+                  attrs: {
+                    slot: "activator",
+                    flat: "",
+                    color: "primary",
+                    dark: ""
+                  },
+                  slot: "activator"
+                },
+                [_vm._v("Enlarge")]
+              ),
+              _vm._v(" "),
+              _c(
+                "v-card",
+                [
+                  _c("v-card-title", { staticClass: "headline" }, [
+                    _vm._v("Publication")
+                  ]),
+                  _vm._v(" "),
+                  _c(
+                    "v-card-text",
+                    [
+                      _c(
+                        "div",
+                        { staticClass: "span6", on: { click: _vm.enlarge } },
+                        [_c("textarea", { staticClass: "emojionearea" })]
+                      ),
+                      _vm._v(" "),
+                      _c(
+                        "v-card-actions",
+                        [
+                          _c(
+                            "v-layout",
+                            { attrs: { row: "", wrap: "" } },
+                            [
+                              _c(
+                                "v-flex",
+                                [
+                                  _c(
+                                    "v-btn",
+                                    { attrs: { flat: "", color: "primary" } },
+                                    [
+                                      _c("v-icon", [_vm._v("insert_photo")]),
+                                      _vm._v("Picture")
+                                    ],
+                                    1
+                                  )
+                                ],
+                                1
+                              ),
+                              _vm._v(" "),
+                              _c(
+                                "v-flex",
+                                [
+                                  _c(
+                                    "v-menu",
+                                    {
+                                      attrs: {
+                                        "offset-x": "",
+                                        "close-on-content-click": false,
+                                        "nudge-width": 200
+                                      }
+                                    },
+                                    [
+                                      _c(
+                                        "v-btn",
+                                        {
+                                          attrs: {
+                                            slot: "activator",
+                                            flat: "",
+                                            color: "primary",
+                                            dark: ""
+                                          },
+                                          nativeOn: {
+                                            click: function($event) {
+                                              _vm.openSwatches(
+                                                ".dialog__content__active .emojionearea-editor"
+                                              )
+                                            }
+                                          },
+                                          slot: "activator"
+                                        },
+                                        [
+                                          _c("v-icon", [_vm._v("color_lens")]),
+                                          _vm._v("Color")
+                                        ],
+                                        1
+                                      ),
+                                      _vm._v(" "),
+                                      _c(
+                                        "v-card",
+                                        [
+                                          _vm.hasSwacthes
+                                            ? _c("swatches", {
+                                                model: {
+                                                  value: _vm.colors,
+                                                  callback: function($$v) {
+                                                    _vm.colors = $$v
+                                                  },
+                                                  expression: "colors"
+                                                }
+                                              })
+                                            : _vm._e()
+                                        ],
+                                        1
+                                      )
+                                    ],
+                                    1
+                                  )
+                                ],
+                                1
+                              )
+                            ],
+                            1
+                          )
+                        ],
+                        1
+                      )
+                    ],
+                    1
+                  ),
+                  _vm._v(" "),
+                  _c(
+                    "v-card-actions",
+                    [
+                      _c("v-spacer"),
+                      _vm._v(" "),
+                      _c(
+                        "v-btn",
+                        {
+                          attrs: { flat: "flat" },
+                          nativeOn: {
+                            click: function($event) {
+                              _vm.dialog = false
+                            }
+                          }
+                        },
+                        [_vm._v("Cancel")]
+                      ),
+                      _vm._v(" "),
+                      _c(
+                        "v-btn",
+                        {
+                          attrs: { color: "orange", flat: "flat" },
+                          nativeOn: {
+                            click: function($event) {
+                              _vm.dialog = false
+                              _vm.publish(
+                                ".dialog__content__active .emojionearea-editor"
+                              )
+                            }
+                          }
+                        },
+                        [_vm._v("Publish")]
+                      )
+                    ],
+                    1
+                  )
+                ],
+                1
+              )
+            ],
+            1
           ),
           _vm._v(" "),
           _c(
@@ -13029,169 +13216,17 @@ var render = function() {
           _vm._v(" "),
           _c("v-spacer"),
           _vm._v(" "),
-          _c("v-btn", { attrs: { flat: "", color: "orange" } }, [
-            _vm._v("Publish")
-          ])
-        ],
-        1
-      ),
-      _vm._v(" "),
-      _c(
-        "v-dialog",
-        {
-          attrs: { width: "50%", scrollable: "" },
-          model: {
-            value: _vm.dialog,
-            callback: function($$v) {
-              _vm.dialog = $$v
-            },
-            expression: "dialog"
-          }
-        },
-        [
           _c(
-            "v-card",
-            [
-              _c("v-card-title", { staticClass: "headline" }, [
-                _vm._v("Publication")
-              ]),
-              _vm._v(" "),
-              _c(
-                "v-card-text",
-                [
-                  _c("div", { staticClass: "span6" }, [
-                    _c("textarea", { staticClass: "emojionearea" })
-                  ]),
-                  _vm._v(" "),
-                  _c(
-                    "v-card-actions",
-                    [
-                      _c(
-                        "v-layout",
-                        { attrs: { row: "", wrap: "" } },
-                        [
-                          _c(
-                            "v-flex",
-                            [
-                              _c(
-                                "v-btn",
-                                { attrs: { flat: "", color: "primary" } },
-                                [
-                                  _c("v-icon", [_vm._v("insert_photo")]),
-                                  _vm._v("Picture")
-                                ],
-                                1
-                              )
-                            ],
-                            1
-                          ),
-                          _vm._v(" "),
-                          _c(
-                            "v-flex",
-                            [
-                              _c(
-                                "v-menu",
-                                {
-                                  attrs: {
-                                    "offset-x": "",
-                                    "close-on-content-click": false,
-                                    "nudge-width": 200
-                                  }
-                                },
-                                [
-                                  _c(
-                                    "v-btn",
-                                    {
-                                      attrs: {
-                                        slot: "activator",
-                                        flat: "",
-                                        color: "primary",
-                                        dark: ""
-                                      },
-                                      nativeOn: {
-                                        click: function($event) {
-                                          _vm.openSwatches(
-                                            ".emojionearea-editor"
-                                          )
-                                        }
-                                      },
-                                      slot: "activator"
-                                    },
-                                    [
-                                      _c("v-icon", [_vm._v("color_lens")]),
-                                      _vm._v("Color")
-                                    ],
-                                    1
-                                  ),
-                                  _vm._v(" "),
-                                  _c(
-                                    "v-card",
-                                    [
-                                      _vm.hasSwacthes
-                                        ? _c("swatches", {
-                                            model: {
-                                              value: _vm.colors,
-                                              callback: function($$v) {
-                                                _vm.colors = $$v
-                                              },
-                                              expression: "colors"
-                                            }
-                                          })
-                                        : _vm._e()
-                                    ],
-                                    1
-                                  )
-                                ],
-                                1
-                              )
-                            ],
-                            1
-                          )
-                        ],
-                        1
-                      )
-                    ],
-                    1
-                  )
-                ],
-                1
-              ),
-              _vm._v(" "),
-              _c(
-                "v-card-actions",
-                [
-                  _c("v-spacer"),
-                  _vm._v(" "),
-                  _c(
-                    "v-btn",
-                    {
-                      attrs: { flat: "flat" },
-                      nativeOn: {
-                        click: function($event) {
-                          _vm.dialog = false
-                        }
-                      }
-                    },
-                    [_vm._v("Cancel")]
-                  ),
-                  _vm._v(" "),
-                  _c(
-                    "v-btn",
-                    {
-                      attrs: { color: "orange", flat: "flat" },
-                      nativeOn: {
-                        click: function($event) {
-                          _vm.dialog = false
-                        }
-                      }
-                    },
-                    [_vm._v("Publish")]
-                  )
-                ],
-                1
-              )
-            ],
-            1
+            "v-btn",
+            {
+              attrs: { flat: "", color: "orange" },
+              nativeOn: {
+                click: function($event) {
+                  _vm.publish($event)
+                }
+              }
+            },
+            [_vm._v("Publish")]
           )
         ],
         1
