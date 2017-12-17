@@ -58,7 +58,7 @@ class InscriptionController extends Controller
         if($path = $avatar->move(public_path('img/users/'), $name))
         {
             Auth::user()->avatar = $global_path;
-            Auth::user()->confimated = $global_path;
+            Auth::user()->confimated = 1;
             Auth::user()->save();
             $this->dispatch(new ResizeImage($path, [0=>['w'=>480,'h'=>360]]));
             return new Response(["status"=>1]);

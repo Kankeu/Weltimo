@@ -1,18 +1,31 @@
 <template>
-	<div class="outputer" v-html='ripeTxt'></div>
+	<div class="outputer" v-if="html" v-html="html(ripeTxt)"></div>
 </template>
 
 <script>
   export default {
-    data () {
+    data :() =>{
       return {
-        scrollTrigger: false
+        scrollTrigger: false,
+        html: null
       }
     },
-    computed: {
-      ripeTxt () {
+    computed:{
+      ripeTxt(){
         return this.$store.getters['dashboard/articleMd']
       }
+    },
+    mounted(){
+        import("marked").then((marked)=>{
+            import("highlight.js").then((highlight)=>{
+                marked.setOptions({
+                    highlight: function (code) {
+                        return highlight.highlightAuto(code).value
+                    }
+                })
+               this.html = marked
+            })
+        })
     }
   }
 </script>

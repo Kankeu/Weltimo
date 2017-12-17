@@ -28,9 +28,6 @@
             }
         },
         methods:{
-            next(){
-
-            },
             preview(event){
                  this.file = event.target.files[0]
                  this.url = window.URL.createObjectURL(event.target.files[0]);

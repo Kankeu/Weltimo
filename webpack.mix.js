@@ -1,4 +1,5 @@
 let mix = require('laravel-mix');
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
 /*
  |--------------------------------------------------------------------------
@@ -17,6 +18,14 @@ mix.js('resources/assets/js/app.js', 'public/js')
     .extract(['vue','vuex','vuetify','vue-router','vee-validate','vue-resource','vuetify/dist/vuetify.min.css'])
 	.webpackConfig({output: {publicPath:'',chunkFilename: mix.inProduction() ? 'js/chunks/[name].chunk.[chunkhash].js' : 'js/chunks/[name].chunk.js'}})
     .disableNotifications();
+if(1===2){
+    mix.webpackConfig({
+    plugins: [
+        new BundleAnalyzerPlugin()
+    ]
+});	
+}
+
 if (mix.inProduction()) {
     mix.version();
 }

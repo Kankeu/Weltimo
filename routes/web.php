@@ -17,5 +17,8 @@ Route::middleware('AjaxDetecte')->group(function () {
 	Route::post('log_in','LoginController@login');
 	Route::get('log_in','LoginController@loginWithToken');
 	Route::get('log_out','LogoutController@logout');
+	Route::middleware('auth')->prefix('user')->group(function (){
+	    Route::resource('article', 'ArticleController');
+    });
 });
 Route::view('{url1?}/{url2?}', 'welcome');
