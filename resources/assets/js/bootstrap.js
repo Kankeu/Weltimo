@@ -6,6 +6,9 @@ import Vuetify from 'vuetify'
 import 'vuetify/dist/vuetify.min.css'
 import VeeValidate from 'vee-validate'
 import vueResource from 'vue-resource'
+import './components/mixin/config'
+import GlobalMixin from './components/mixin/GlobalMixin'
+import $ from "jquery"
 let store = require('./components/store/store')
 
 
@@ -16,6 +19,9 @@ Vue.use(vueResource)
 let token = document.head.querySelector('meta[name="csrf-token"]');
 window.Vue.http.headers.common['X-CSRF-TOKEN'] = token.content
 window.Vue.http.headers.common['X-Requested-With'] = 'XMLHttpRequest'
+Vue.mixin(GlobalMixin)
+window.jQuery = $
+window.$ = $
 
 const router = new vueRouter({
     mode: "hash",
@@ -78,6 +84,7 @@ const router = new vueRouter({
                 {
                     path:"/",
                     component: resolve => require(['./components/user/Home.vue'], resolve),
+                    name: "Home"
                 },
                 {
                     path:"profile",

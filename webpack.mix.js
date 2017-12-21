@@ -15,7 +15,7 @@ const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPl
 
 mix.js('resources/assets/js/app.js', 'public/js')
     .setPublicPath('public')
-    .extract(['vue','vuex','vuetify','vue-router','vee-validate','vue-resource','vuetify/dist/vuetify.min.css'])
+    .extract(['vue','vuex','vuetify','vue-router','vee-validate','vue-resource','vuetify/dist/vuetify.min.css','jquery'])
 	.webpackConfig({output: {publicPath:'',chunkFilename: mix.inProduction() ? 'js/chunks/[name].chunk.[chunkhash].js' : 'js/chunks/[name].chunk.js'}})
     .disableNotifications();
 if(1===2){

@@ -40,7 +40,7 @@ class ArticleController extends Controller
      */
     public function store(Request $request)
     {
-        return new Response($request->all());
+       // return new Response($request->all());
         if($request->hasFile('image')){
             return $this->storeWithFile($request);
         }else{
@@ -124,5 +124,24 @@ class ArticleController extends Controller
             return new Response($article);
         }
         return new Response(["status"=>0]);
+    }
+
+    public function like(Article $article, int $type)
+    {
+        $like = $article->liked()->first();
+        if(is_null($like)){
+            return new Response($article->likes()->create(["user_id"=>Auth::id(),"type"=>$type]));
+        }
+        if($like->type !== $type){
+            $like->type = $type;
+            $like->save();
+            return new Response($like);
+        }
+    }
+
+    public function deleteLike(Article $article)
+    {
+        $article->liked()->delete();
+        return new Response(["status"=>1]);
     }
 }

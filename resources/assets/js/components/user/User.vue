@@ -1,11 +1,52 @@
 <template>
-    <v-app id="inspire" :dark="darked">
-        <v-navigation-drawer
-                fixed
-                clipped
-                app
-                v-model="drawer"
-        >
+    
+    <v-app :dark="darked">
+         <v-card :dark="darked"  :color="(darked) ? null :'grey lighten-5'" flat>
+            <v-toolbar :dark="darked"  :color="(darked) ? null : 'primary'" prominent fixed flat extended>
+            <v-toolbar-side-icon class="white--text" @click="drawer=!drawer"></v-toolbar-side-icon>
+            <v-toolbar-title class="white--text">Weltimo</v-toolbar-title>
+            <v-spacer></v-spacer>
+            <v-btn icon class="white--text"><v-icon>notifications</v-icon></v-btn>
+            </v-toolbar>
+            <v-layout row>
+            <v-flex xs8 offset-xs2>
+                <v-card :dark="darked" class="card--flex-toolbar">
+                <v-toolbar dark card :color="(darked) ? null : 'white'" style="z-index:2;width:66.66666666666666%;position:fixed" prominent>
+                    <v-toolbar-title class="body-2 grey--text">{{$route.name}}</v-toolbar-title>
+                    <v-spacer></v-spacer>
+                     <v-select
+                        light
+                        solo
+                        placeholder="Search"
+                        prepend-icon="search"
+                        autocomplete
+                    ></v-select>
+                </v-toolbar>
+                <v-divider></v-divider>
+                <route></route>
+                <v-card-text></v-card-text>
+                </v-card>
+            </v-flex>
+            </v-layout>
+        </v-card>
+         <v-navigation-drawer id="menu" permanent :dark="darked" :mini-variant.sync="drawer">
+           <v-toolbar flat class="transparent">
+      <v-list class="pa-0">
+        <v-list-tile avatar>
+          <v-list-tile-avatar>
+            <img :src="user.avatar" />
+          </v-list-tile-avatar>
+          <v-list-tile-content>
+            <v-list-tile-title>{{user.name+" "+user.forename}}</v-list-tile-title>
+          </v-list-tile-content>
+          <v-list-tile-action>
+            <v-btn icon @click.native.stop="drawer = !drawer">
+              <v-icon>chevron_left</v-icon>
+            </v-btn>
+          </v-list-tile-action>
+        </v-list-tile>
+      </v-list>
+    </v-toolbar>
             <v-list dense>
                 <v-list-group value="true">
                     <v-list-tile slot="item" @click="">
@@ -202,7 +243,7 @@
                     </v-list-tile>
                     <v-list-tile @click="">
                         <v-list-tile-action>
-                            <v-icon>report</v-icon>
+                            <v-icon>bug_report</v-icon>
                         </v-list-tile-action>
                         <v-list-tile-content>
                             <v-list-tile-title>Signal bug</v-list-tile-title>
@@ -232,35 +273,6 @@
                 </v-list-group>
             </v-list>
         </v-navigation-drawer>
-        <v-toolbar
-                color="primary"
-                dark
-                app
-                clipped-left
-                fixed
-        >
-            <v-toolbar-title :style="$vuetify.breakpoint.smAndUp ? 'width: 300px; min-width: 250px' : 'min-width: 72px'" class="ml-0 pl-3">
-                <v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>
-                <span class="hidden-xs-only">Weltimo</span>
-            </v-toolbar-title>
-            <v-flex lg6 xs6>
-                <v-select
-                        light
-                        solo
-                        placeholder="Search"
-                        prepend-icon="search"
-                        autocomplete
-                ></v-select>
-            </v-flex>
-            <div class="d-flex align-center" style="margin-left: auto">
-                <v-btn icon>
-                    <v-icon>notifications</v-icon>
-                </v-btn>
-            </div>
-        </v-toolbar>
-        <v-content>
-            <route></route>
-        </v-content>
         <v-footer class="pa-3">
             <v-spacer></v-spacer>
             <div>Copyright © {{ new Date().getFullYear() }}</div>
@@ -270,12 +282,13 @@
 
 <script>
     import route from '../route/Route.vue'
+
     export default{
         components:{route},
         data(){
             return {
                 darked: false,
-                drawer: null
+                drawer: true
             }
         },
         computed:{
@@ -292,10 +305,33 @@
                     }
                 })
             }
+        },
+        watch:{
+            darked(data){
+                console.log(data)
+                if(data){
+                    document.querySelectorAll('.emojionearea-editor').map(elt=>{
+                        elt.style.color = "white"   
+                    })  
+                }else{
+                    document.querySelectorAll('.emojionearea-editor').map(elt=>{
+                        elt.style.color = "#424242"  
+                    }) 
+                }
+            }
         }
     }
 </script>
 
 <style scoped>
     .input-group--solo .input-group__input .input-group__append-icon{display:none !important}
+</style>
+<style>
+    .card--flex-toolbar {
+        margin-top: 64px;
+    }
+    #menu{
+        margin-top:128.49px !important;
+        position: fixed;
+    }
 </style>

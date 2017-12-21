@@ -1,7 +1,6 @@
 
 const state = {
-    user: null,
-    msgFlash: false
+    user: null
 }
 
 const mutations = {
@@ -14,9 +13,6 @@ const mutations = {
     DELETE(state){
         delete state.user
     },
-    ADD_MSGFLASH(state, msg){
-        state.msgFlash = msg
-    }
 }
 
 const actions = {
@@ -29,9 +25,6 @@ const actions = {
     delete({commit}){
         commit("DELETE")
     },
-    add_msgflash({commit}, msg){
-        commit("ADD_MSGFLASH", msg)
-    }
 }
 
 export default {namespaced:true,state,mutations,actions}

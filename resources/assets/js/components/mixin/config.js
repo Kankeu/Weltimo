@@ -1,0 +1,1 @@
+NodeList.prototype.map = new Array().map

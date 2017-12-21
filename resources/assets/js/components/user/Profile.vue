@@ -10,11 +10,11 @@
             <v-flex xs12 lg6>
                 <v-container grid-list-md text-xs-center fluid>
                     <v-layout column>
-                      <v-flex lg12>                          
-                        <card-publication></card-publication>
+                      <v-flex lg12>   
+                        <cardPublication></cardPublication>                    
                       </v-flex>
-                      <v-flex lg12 v-for="n in 10" :key="n">
-                          <card :article="{n,popover:false,menu:false,like:false,show:false,fav:false}"></card>
+                      <v-flex lg12 v-for="article,i in articles" :key="i">
+                          <cardFont :article="article"></cardFont>
                       </v-flex>
                     </v-layout>
                 </v-container>
@@ -26,18 +26,26 @@
 </template>
 
 <script>
-    import card from '../card/Card.vue'
+    import cardFont from '../card/CardFont.vue'
     import cardPublication from '../card/CardPublication.vue'
     export default{
-        components:{card,cardPublication},
+        components:{cardFont,cardPublication},
         data: ()=>({
-
+            articles: null
         }),
         computed:{
             user(){
                 return this.$store.state.user.user
             }
         },
+        mounted(){
+            this.$http.get('/user/profile').then(response=>{
+                if(response.body[0] && typeof response.body === "object"){
+                    this.articles = response.body
+                    this.$store.dispatch("article/save", response.body)
+                }
+            })
+        }
     }
 </script>
 

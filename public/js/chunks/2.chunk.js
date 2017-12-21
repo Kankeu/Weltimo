@@ -1,16 +1,16 @@
 webpackJsonp([2],{
 
-/***/ 284:
+/***/ 287:
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(285);
+var content = __webpack_require__(288);
 if(typeof content === 'string') content = [[module.i, content, '']];
 if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
-var update = __webpack_require__(11)("27862fd3", content, false);
+var update = __webpack_require__(12)("27862fd3", content, false);
 // Hot Module Replacement
 if(false) {
  // When the styles change, update the <style> tags
@@ -27,7 +27,7 @@ if(false) {
 
 /***/ }),
 
-/***/ 285:
+/***/ 288:
 /***/ (function(module, exports, __webpack_require__) {
 
 exports = module.exports = __webpack_require__(0)(undefined);
@@ -42,12 +42,54 @@ exports.push([module.i, "\n.input-group--solo .input-group__input .input-group__
 
 /***/ }),
 
-/***/ 286:
+/***/ 289:
+/***/ (function(module, exports, __webpack_require__) {
+
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__(290);
+if(typeof content === 'string') content = [[module.i, content, '']];
+if(content.locals) module.exports = content.locals;
+// add the styles to the DOM
+var update = __webpack_require__(12)("51b7b796", content, false);
+// Hot Module Replacement
+if(false) {
+ // When the styles change, update the <style> tags
+ if(!content.locals) {
+   module.hot.accept("!!../../../../../node_modules/css-loader/index.js!../../../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-43998c28\",\"scoped\":false,\"hasInlineConfig\":true}!../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=1&bustCache!./User.vue", function() {
+     var newContent = require("!!../../../../../node_modules/css-loader/index.js!../../../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-43998c28\",\"scoped\":false,\"hasInlineConfig\":true}!../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=1&bustCache!./User.vue");
+     if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+     update(newContent);
+   });
+ }
+ // When the module is disposed, remove the <style> tags
+ module.hot.dispose(function() { update(); });
+}
+
+/***/ }),
+
+/***/ 290:
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(0)(undefined);
+// imports
+
+
+// module
+exports.push([module.i, "\n.card--flex-toolbar {\n    margin-top: 64px;\n}\n#menu{\n    margin-top:128.49px !important;\n    position: fixed;\n}\n", ""]);
+
+// exports
+
+
+/***/ }),
+
+/***/ 291:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__route_Route_vue__ = __webpack_require__(12);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__route_Route_vue__ = __webpack_require__(14);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__route_Route_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__route_Route_vue__);
 //
 //
@@ -319,6 +361,19 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
@@ -326,7 +381,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
     data: function data() {
         return {
             darked: false,
-            drawer: null
+            drawer: true
         };
     },
 
@@ -346,12 +401,26 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
                 }
             });
         }
+    },
+    watch: {
+        darked: function darked(data) {
+            console.log(data);
+            if (data) {
+                document.querySelectorAll('.emojionearea-editor').map(function (elt) {
+                    elt.style.color = "white";
+                });
+            } else {
+                document.querySelectorAll('.emojionearea-editor').map(function (elt) {
+                    elt.style.color = "#424242";
+                });
+            }
+        }
     }
 });
 
 /***/ }),
 
-/***/ 287:
+/***/ 292:
 /***/ (function(module, exports, __webpack_require__) {
 
 var render = function() {
@@ -360,21 +429,200 @@ var render = function() {
   var _c = _vm._self._c || _h
   return _c(
     "v-app",
-    { attrs: { id: "inspire", dark: _vm.darked } },
+    { attrs: { dark: _vm.darked } },
     [
       _c(
-        "v-navigation-drawer",
+        "v-card",
         {
-          attrs: { fixed: "", clipped: "", app: "" },
-          model: {
-            value: _vm.drawer,
-            callback: function($$v) {
-              _vm.drawer = $$v
-            },
-            expression: "drawer"
+          attrs: {
+            dark: _vm.darked,
+            color: _vm.darked ? null : "grey lighten-5",
+            flat: ""
           }
         },
         [
+          _c(
+            "v-toolbar",
+            {
+              attrs: {
+                dark: _vm.darked,
+                color: _vm.darked ? null : "primary",
+                prominent: "",
+                fixed: "",
+                flat: "",
+                extended: ""
+              }
+            },
+            [
+              _c("v-toolbar-side-icon", {
+                staticClass: "white--text",
+                on: {
+                  click: function($event) {
+                    _vm.drawer = !_vm.drawer
+                  }
+                }
+              }),
+              _vm._v(" "),
+              _c("v-toolbar-title", { staticClass: "white--text" }, [
+                _vm._v("Weltimo")
+              ]),
+              _vm._v(" "),
+              _c("v-spacer"),
+              _vm._v(" "),
+              _c(
+                "v-btn",
+                { staticClass: "white--text", attrs: { icon: "" } },
+                [_c("v-icon", [_vm._v("notifications")])],
+                1
+              )
+            ],
+            1
+          ),
+          _vm._v(" "),
+          _c(
+            "v-layout",
+            { attrs: { row: "" } },
+            [
+              _c(
+                "v-flex",
+                { attrs: { xs8: "", "offset-xs2": "" } },
+                [
+                  _c(
+                    "v-card",
+                    {
+                      staticClass: "card--flex-toolbar",
+                      attrs: { dark: _vm.darked }
+                    },
+                    [
+                      _c(
+                        "v-toolbar",
+                        {
+                          staticStyle: {
+                            "z-index": "2",
+                            width: "66.66666666666666%",
+                            position: "fixed"
+                          },
+                          attrs: {
+                            dark: "",
+                            card: "",
+                            color: _vm.darked ? null : "white",
+                            prominent: ""
+                          }
+                        },
+                        [
+                          _c(
+                            "v-toolbar-title",
+                            { staticClass: "body-2 grey--text" },
+                            [_vm._v(_vm._s(_vm.$route.name))]
+                          ),
+                          _vm._v(" "),
+                          _c("v-spacer"),
+                          _vm._v(" "),
+                          _c("v-select", {
+                            attrs: {
+                              light: "",
+                              solo: "",
+                              placeholder: "Search",
+                              "prepend-icon": "search",
+                              autocomplete: ""
+                            }
+                          })
+                        ],
+                        1
+                      ),
+                      _vm._v(" "),
+                      _c("v-divider"),
+                      _vm._v(" "),
+                      _c("route"),
+                      _vm._v(" "),
+                      _c("v-card-text")
+                    ],
+                    1
+                  )
+                ],
+                1
+              )
+            ],
+            1
+          )
+        ],
+        1
+      ),
+      _vm._v(" "),
+      _c(
+        "v-navigation-drawer",
+        {
+          attrs: {
+            id: "menu",
+            permanent: "",
+            dark: _vm.darked,
+            "mini-variant": _vm.drawer
+          },
+          on: {
+            "update:miniVariant": function($event) {
+              _vm.drawer = $event
+            }
+          }
+        },
+        [
+          _c(
+            "v-toolbar",
+            { staticClass: "transparent", attrs: { flat: "" } },
+            [
+              _c(
+                "v-list",
+                { staticClass: "pa-0" },
+                [
+                  _c(
+                    "v-list-tile",
+                    { attrs: { avatar: "" } },
+                    [
+                      _c("v-list-tile-avatar", [
+                        _c("img", { attrs: { src: _vm.user.avatar } })
+                      ]),
+                      _vm._v(" "),
+                      _c(
+                        "v-list-tile-content",
+                        [
+                          _c("v-list-tile-title", [
+                            _vm._v(
+                              _vm._s(_vm.user.name + " " + _vm.user.forename)
+                            )
+                          ])
+                        ],
+                        1
+                      ),
+                      _vm._v(" "),
+                      _c(
+                        "v-list-tile-action",
+                        [
+                          _c(
+                            "v-btn",
+                            {
+                              attrs: { icon: "" },
+                              nativeOn: {
+                                click: function($event) {
+                                  $event.stopPropagation()
+                                  _vm.drawer = !_vm.drawer
+                                }
+                              }
+                            },
+                            [_c("v-icon", [_vm._v("chevron_left")])],
+                            1
+                          )
+                        ],
+                        1
+                      )
+                    ],
+                    1
+                  )
+                ],
+                1
+              )
+            ],
+            1
+          ),
+          _vm._v(" "),
           _c(
             "v-list",
             { attrs: { dense: "" } },
@@ -841,7 +1089,7 @@ var render = function() {
                     [
                       _c(
                         "v-list-tile-action",
-                        [_c("v-icon", [_vm._v("report")])],
+                        [_c("v-icon", [_vm._v("bug_report")])],
                         1
                       ),
                       _vm._v(" "),
@@ -933,80 +1181,6 @@ var render = function() {
       ),
       _vm._v(" "),
       _c(
-        "v-toolbar",
-        {
-          attrs: {
-            color: "primary",
-            dark: "",
-            app: "",
-            "clipped-left": "",
-            fixed: ""
-          }
-        },
-        [
-          _c(
-            "v-toolbar-title",
-            {
-              staticClass: "ml-0 pl-3",
-              style: _vm.$vuetify.breakpoint.smAndUp
-                ? "width: 300px; min-width: 250px"
-                : "min-width: 72px"
-            },
-            [
-              _c("v-toolbar-side-icon", {
-                on: {
-                  click: function($event) {
-                    $event.stopPropagation()
-                    _vm.drawer = !_vm.drawer
-                  }
-                }
-              }),
-              _vm._v(" "),
-              _c("span", { staticClass: "hidden-xs-only" }, [_vm._v("Weltimo")])
-            ],
-            1
-          ),
-          _vm._v(" "),
-          _c(
-            "v-flex",
-            { attrs: { lg6: "", xs6: "" } },
-            [
-              _c("v-select", {
-                attrs: {
-                  light: "",
-                  solo: "",
-                  placeholder: "Search",
-                  "prepend-icon": "search",
-                  autocomplete: ""
-                }
-              })
-            ],
-            1
-          ),
-          _vm._v(" "),
-          _c(
-            "div",
-            {
-              staticClass: "d-flex align-center",
-              staticStyle: { "margin-left": "auto" }
-            },
-            [
-              _c(
-                "v-btn",
-                { attrs: { icon: "" } },
-                [_c("v-icon", [_vm._v("notifications")])],
-                1
-              )
-            ],
-            1
-          )
-        ],
-        1
-      ),
-      _vm._v(" "),
-      _c("v-content", [_c("route")], 1),
-      _vm._v(" "),
-      _c(
         "v-footer",
         { staticClass: "pa-3" },
         [
@@ -1032,19 +1206,20 @@ if (false) {
 
 /***/ }),
 
-/***/ 39:
+/***/ 43:
 /***/ (function(module, exports, __webpack_require__) {
 
 var disposed = false
 function injectStyle (ssrContext) {
   if (disposed) return
-  __webpack_require__(284)
+  __webpack_require__(287)
+  __webpack_require__(289)
 }
-var normalizeComponent = __webpack_require__(10)
+var normalizeComponent = __webpack_require__(11)
 /* script */
-var __vue_script__ = __webpack_require__(286)
+var __vue_script__ = __webpack_require__(291)
 /* template */
-var __vue_template__ = __webpack_require__(287)
+var __vue_template__ = __webpack_require__(292)
 /* template functional */
 var __vue_template_functional__ = false
 /* styles */
@@ -1062,7 +1237,6 @@ var Component = normalizeComponent(
   __vue_module_identifier__
 )
 Component.options.__file = "resources/assets/js/components/user/User.vue"
-if (Component.esModule && Object.keys(Component.esModule).some(function (key) {  return key !== "default" && key.substr(0, 2) !== "__"})) {  console.error("named exports are not supported in *.vue files.")}
 
 /* hot reload */
 if (false) {(function () {
@@ -1074,7 +1248,7 @@ if (false) {(function () {
     hotAPI.createRecord("data-v-43998c28", Component.options)
   } else {
     hotAPI.reload("data-v-43998c28", Component.options)
-' + '  }
+  }
   module.hot.dispose(function (data) {
     disposed = true
   })

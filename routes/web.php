@@ -19,6 +19,9 @@ Route::middleware('AjaxDetecte')->group(function () {
 	Route::get('log_out','LogoutController@logout');
 	Route::middleware('auth')->prefix('user')->group(function (){
 	    Route::resource('article', 'ArticleController');
+	    Route::get('article/{article}/like/{type}', 'ArticleController@like');
+	    Route::delete('article/{article}/like', 'ArticleController@deleteLike');
+	    Route::resource('profile', 'ProfileController');
     });
 });
 Route::view('{url1?}/{url2?}', 'welcome');
