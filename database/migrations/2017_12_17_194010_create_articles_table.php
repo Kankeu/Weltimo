@@ -15,7 +15,7 @@ class CreateArticlesTable extends Migration
     {
         Schema::create('articles', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('message',1000)->nullable();
+            $table->string('message',2000)->nullable();
             $table->string('color')->nullable();
             $table->unsignedInteger('user_id');
             $table->foreign('user_id')->references('id')

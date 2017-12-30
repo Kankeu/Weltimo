@@ -16,7 +16,7 @@ class ProfileController extends Controller
      */
     public function index()
     {
-        $articles = Article::with('image','liked')
+        $articles = Article::with('image','liked','user')
             ->where("user_id", Auth::id())
             ->orderBy("id","desc")
             ->withCount('likes')
@@ -53,12 +53,10 @@ class ProfileController extends Controller
      */
     public function show($id)
     {
-        $articles = Article::with(['image','likes AS liked'=>function($query){
-            $query->where("user_id",Auth::id());
-        }])
+        $articles = Article::with('image','liked','user')
             ->where("user_id", $id)
             ->orderBy("id","desc")
-            ->withCount('likes')
+            ->withCount('likes','comments')
             ->get();
         return new Response($articles);
     }

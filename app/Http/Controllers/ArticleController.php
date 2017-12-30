@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Article;
 use App\Image;
 use App\Jobs\ResizeImage;
+use App\Like;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
@@ -19,7 +20,11 @@ class ArticleController extends Controller
      */
     public function index()
     {
-        //
+        $articles = Article::with('image','liked','user')
+            ->orderBy("id","desc")
+            ->withCount('likes','comments')
+            ->get();
+        return new Response($articles);
     }
 
     /**
@@ -79,7 +84,12 @@ class ArticleController extends Controller
      */
     public function update(Request $request, Article $article)
     {
-        //
+        if($article = Article::where("id",$article->id)->update($data)){
+            $article->load('user','liked');
+            $article->likes_count = $article->likes()->where("likable_id",$article->id)->count();
+            $article->comments_count = $article->comments()->where("article_id",$article->id)->count();
+            return new Response($article);
+        }
     }
 
     /**
@@ -90,14 +100,19 @@ class ArticleController extends Controller
      */
     public function destroy(Article $article)
     {
-        //
+        if(!is_null($article)){
+            $article->likes()->delete();
+            if($article->delete()){
+                return new Response(["status"=>1]);
+            }
+        }
     }
 
     private function storeWithFile(Request $request)
     {
         $image = $request->file('image');
         $extension = $image->getClientOriginalExtension();
-        $name = Auth::id().'.'.microtime().'.'.$extension;
+        $name = Auth::id().'.'.time().'.'.$extension;
         $path = 'img/articles/'.$name;
         $global_path = URL::asset($path);
         if($path = $image->move(public_path('img/articles/'), $name))
@@ -109,7 +124,9 @@ class ArticleController extends Controller
                 Image::create(['path'=>$global_path,'article_id'=>$article->id]);
             }
             $this->dispatch(new ResizeImage($path, [0=>['w'=>660,'h'=>520]]));
-            $article->load("image");
+            $article->load("image","user","liked");
+            $article->likes_count = $article->likes()->where("likable_id",$article->id)->count();
+            $article->comments_count = $article->comments()->where("article_id",$article->id)->count();
             return new Response($article);
         }
         return new Response(["status"=>0]);
@@ -121,6 +138,9 @@ class ArticleController extends Controller
         unset($data['image']);
         $data["user_id"] = Auth::id();
         if($article = Article::create($data)){
+            $article->load('user','liked');
+            $article->likes_count = $article->likes()->where("likable_id",$article->id)->count();
+            $article->comments_count = $article->comments()->where("article_id",$article->id)->count();
             return new Response($article);
         }
         return new Response(["status"=>0]);

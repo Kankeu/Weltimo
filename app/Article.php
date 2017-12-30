@@ -23,4 +23,16 @@ class Article extends Model
     {
         return $this->morphOne('App\Like','likable')->where("user_id",Auth::id());
     }
+
+    public function user()
+    {
+        return $this->BelongsTo("App\User")
+            ->with("followed")
+            ->withCount('followers','following');
+    }
+
+    public function comments()
+    {
+        return $this->hasMany('App\Comment');
+    }
 }

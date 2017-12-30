@@ -1,54 +1,56 @@
 <template>
-    <v-container grid-list-md text-xs-center fluid>
-        <v-parallax src="/img/default/logoLg.jpg">
-            <v-layout column align-center justify-center>
-                <v-btn outline round color="indigo"><v-icon>insert_photo</v-icon> Cover picture</v-btn>
-            </v-layout>
-        </v-parallax>
-        <v-layout>
-            <v-flex xs0 lg3></v-flex>
-            <v-flex xs12 lg6>
-                <v-container grid-list-md text-xs-center fluid>
-                    <v-layout column>
-                      <v-flex lg12>   
-                        <cardPublication></cardPublication>                    
-                      </v-flex>
-                      <v-flex lg12 v-for="article,i in articles" :key="i">
-                          <cardFont :article="article"></cardFont>
-                      </v-flex>
-                    </v-layout>
-                </v-container>
-            </v-flex>
-            <v-flex xs0 lg3></v-flex>
-        </v-layout>
-            
+    <v-container grid-list-md text-xs-center fluid style="overflow: visible;" v-if="profile">
+        <ps-header></ps-header>
+        <router-view></router-view>
     </v-container>
 </template>
 
 <script>
-    import cardFont from '../card/CardFont.vue'
-    import cardPublication from '../card/CardPublication.vue'
+    import psHeader from './profile/Header.vue'
     export default{
-        components:{cardFont,cardPublication},
+        components:{psHeader},
         data: ()=>({
-            articles: null
+            loadingSubs: false
         }),
         computed:{
             user(){
                 return this.$store.state.user.user
+            },
+            query(){
+                return this.$store.state.query.queries.find(e=>e.name==="profile" && e.id===this.$route.params.id)
+            },
+            profile(){
+                return this.$store.state.users.users.find(user=>user.id===parseInt(this.$route.params.id))
+            }
+        },
+        methods:{
+            load(){
+                if(!this.query){
+                    this.$store.dispatch('setting/setLoading',true)
+                    this.$http.get('/user/'+this.$route.params.id).then(response=>{
+                        if(response.body instanceof Object){
+                            this.$store.dispatch("users/save", response.body)
+                           // this.$store.dispatch("query/save",{name:'profile',id:this.$route.params.id})
+                        }
+                        this.$store.dispatch('setting/setLoading',false)
+                    })
+                }
             }
         },
         mounted(){
-            this.$http.get('/user/profile').then(response=>{
-                if(response.body[0] && typeof response.body === "object"){
-                    this.articles = response.body
-                    this.$store.dispatch("article/save", response.body)
-                }
-            })
+            console.log(this)
+            this.load()
+        },
+        watch:{
+            $route(){
+                this.load()
+            }
         }
     }
 </script>
 
-<style scoped>
-
+<style>
+    .layout_block{
+        margin-top: 50px !important;
+    }
 </style>

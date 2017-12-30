@@ -52,13 +52,13 @@ class InscriptionController extends Controller
     {
         $avatar = $request->file('avatar');
         $extension = $avatar->getClientOriginalExtension();
-        $name = Auth::id().'.'.microtime().'.'.$extension;
+        $name = Auth::id().'.'.time().'.'.$extension;
         $path = 'img/users/'.$name;
         $global_path = URL::asset($path);
         if($path = $avatar->move(public_path('img/users/'), $name))
         {
             Auth::user()->avatar = $global_path;
-            Auth::user()->confimated = 1;
+            Auth::user()->confirmated = 1;
             Auth::user()->save();
             $this->dispatch(new ResizeImage($path, [0=>['w'=>480,'h'=>360]]));
             return new Response(["status"=>1]);

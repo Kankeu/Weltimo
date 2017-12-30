@@ -5,17 +5,26 @@ const state = {
 
 const mutations = {
     SAVE(state, data){
-        state.articles.push(...data)
+        data.map(function(dataArticle){
+            let article = state.articles.find(article => article && article.id === dataArticle.id)
+            if(article){
+                let index = state.articles.indexOf(article)
+                if(index>-1) state.articles[index] = dataArticle
+            } else{
+                state.articles.push(dataArticle)
+            }
+        })
+        state.articles.sort((article1,article2)=>article2.id-article1.id)
     },
     UPDATE(state, data) {
         let article = state.articles.find((article)=>article.id === data.id)
-        let key = state.articles.indexOf(article)
-        state.articles[key] = data
+        let index = state.articles.indexOf(article)
+        if(index>-1) state.articles.splice(index,1,data)
     },
     DELETE(state, data){
         let article = state.articles.find((article)=>article.id === data.id)
         let key = state.articles.indexOf(article)
-        delete state.articles[key]
+        state.articles.splice(key,1)
     },
     ADDLIKE(state, {article,like}){
         article = state.articles.find((e)=>e.id === article.id)
@@ -28,6 +37,16 @@ const mutations = {
         let key = state.articles.indexOf(article)
         state.articles[key].likes_count--
         state.articles[key].liked = null
+    },
+    ADDCOMMENT(state, article){
+        article = state.articles.find((e)=>e.id === article.id)
+        let key = state.articles.indexOf(article)
+        state.articles[key].comments_count++
+    },
+    DELETECOMMENT(state, article){
+        article = state.articles.find((e)=>e.id === article.id)
+        let key = state.articles.indexOf(article)
+        state.articles[key].comments_count--
     }
 }
 
@@ -49,7 +68,14 @@ const actions = {
     },
     deleteLike({commit}, data){
         commit("DELETELIKE", data)
+    },
+    addComment({commit}, data){
+        commit("ADDCOMMENT", data)
+    },
+    deleteComment({commit}, data){
+        commit("DELETECOMMENT", data)
     }
 }
+
 
 export default {namespaced:true,state,mutations,actions}

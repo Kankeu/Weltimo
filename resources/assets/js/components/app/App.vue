@@ -56,7 +56,7 @@
           </v-list>
       </v-navigation-drawer>
       <v-toolbar
-              color="primary"
+              :color="(darked) ? null: 'primary'"
               dark
               app
               clipped-left
@@ -77,7 +77,7 @@
           </v-flex>
           <div class="d-flex align-center" style="margin-left: auto">
               <v-dialog scrollable v-model="dialogLog_on" max-width="300px">
-                  <v-btn @click="loginWithToken" slot="activator" icon>
+                  <v-btn @click.native="loginWithToken" slot="activator" icon>
                       <v-icon>person</v-icon>
                   </v-btn>
                   <v-card>
@@ -85,7 +85,7 @@
                       <v-card-title>
                           <span class="headline">Log in</span>
                       </v-card-title>
-                      <v-card-text>ff
+                      <v-card-text>
                           <v-alert color="error" icon="warning" v-if="error" v-model="alertLogin" outline dismissible>
                               {{error}}
                           </v-alert>
@@ -149,37 +149,46 @@
                 password:null
             },
         }),
-          methods:{
-              loginWithToken(){
-                  this.$http.get('/log_in').then(response=>{
-                      if (response.body.id) {
-                          this.$store.dispatch("user/save", response.body)
-                          this.$router.push('/user')
-                      }else{
-                          this.dialogLog_on = true
-                      }
-                  })
-              },
-              login(){
-                  this.$validator.validateAll().then((validated) => {
-                      if (validated) {
-                          this.loading = true
-                          this.$http.post('/log_in', this.data).then(response => {
-                              if (response.body.id) {
-                                  this.$store.dispatch("user/save", response.body)
-                                  this.dialogLog_on = false
-                                  this.$router.push('/user')
-                              }else if(response.body.status === 0){
-                                  this.error = response.body.message
-                                  this.alertLogin = true
-                              }
-                              this.loading = false
-                          })
-                      }
-                  })
-              },
-          }
+        methods:{
+            loginWithToken(){
+                this.$http.get('/log_in').then(response=>{
+                    if (response.body.id) {
+                        this.$store.dispatch("user/save", response.body)
+                        this.$router.push('/user')
+                    }else{
+                        this.dialogLog_on = true
+                    }
+                })
+            },
+            login(){
+                this.$validator.validateAll().then((validated) => {
+                    if (validated) {
+                        this.loading = true
+                        this.$http.post('/log_in', this.data).then(response => {
+                            if (response.body.id) {
+                                this.$store.dispatch("user/save", response.body)
+                                this.$store.dispatch("users/save", response.body)
+                                this.dialogLog_on = false
+                                this.$router.push('/user')
+                            }else if(response.body.status === 0){
+                                this.error = response.body.message
+                                this.alertLogin = true
+                            }
+                            this.loading = false
+                        })
+                    }
+                })
+            },
+        },
+        mounted(){
+            this.darked = this.$store.state.setting.darked
+        },
+        watch:{
+            darked(){
+                this.$store.dispatch('setting/invertcolor')
+            }
         }
+    }
 </script>
 
 <style scoped>

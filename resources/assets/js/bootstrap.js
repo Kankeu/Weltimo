@@ -9,6 +9,7 @@ import vueResource from 'vue-resource'
 import './components/mixin/config'
 import GlobalMixin from './components/mixin/GlobalMixin'
 import $ from "jquery"
+import VueTimeago from 'vue-timeago'
 let store = require('./components/store/store')
 
 
@@ -20,6 +21,13 @@ let token = document.head.querySelector('meta[name="csrf-token"]');
 window.Vue.http.headers.common['X-CSRF-TOKEN'] = token.content
 window.Vue.http.headers.common['X-Requested-With'] = 'XMLHttpRequest'
 Vue.mixin(GlobalMixin)
+Vue.use(VueTimeago, {
+    name: 'timeago',
+    locale: 'en-US',
+    locales: {
+        'en-US': require('vue-timeago/locales/en-US.json')
+    }
+})
 window.jQuery = $
 window.$ = $
 
@@ -72,11 +80,11 @@ const router = new vueRouter({
                     Vue.http.get('/log_in').then(response=>{
                         if(response.body.confirmated === 1){
                             store.default.dispatch("user/save", response.body)
+                            store.default.dispatch("users/save", response.body)
                             next()
                         }else{
                             next('/')
                         }
-                        console.log("request login")
                     })
                 }
             },
@@ -87,9 +95,35 @@ const router = new vueRouter({
                     name: "Home"
                 },
                 {
-                    path:"profile",
+                    path:"profile/:id",
                     component: resolve => require(['./components/user/Profile.vue'], resolve),
                     name:"Profile",
+                    children:[
+                        {
+                            path:"/",
+                            component: resolve => require(['./components/user/profile/Home.vue'], resolve)
+                        },
+                        {
+                            path:"following",
+                            component: resolve => require(['./components/user/profile/CardFollowing.vue'], resolve),
+                            name: "Following"
+                        },
+                        {
+                            path:"followers",
+                            component: resolve => require(['./components/user/profile/CardFollowers.vue'], resolve),
+                            name: "Followers"
+                        },
+                        {
+                            path:"albums",
+                            component: resolve => require(['./components/user/profile/CardAlbums.vue'], resolve),
+                            name: "Albums"
+                        }
+                    ]
+                },
+                {
+                    path:"account",
+                    component: resolve => require(['./components/user/Account.vue'], resolve),
+                    name: "Account"
                 },
                 {
                     path: "*",
@@ -102,6 +136,17 @@ const router = new vueRouter({
             redirect: "/"
         }
     ],
+})
+router.afterEach((to,from)=>{
+    if(to.path.match(new RegExp('/user.*?',"g"))){
+        store.default.dispatch('setting/setLoading',false)
+    }
+})
+router.beforeEach((to,from,next)=>{
+    if(to.path.match(new RegExp('/user.*?',"g"))){
+        store.default.dispatch('setting/setLoading',true)
+    }
+    next()
 })
 
 export {
