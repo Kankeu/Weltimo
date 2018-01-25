@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\UserOnlineEvent;
 use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -16,19 +17,20 @@ class LoginController extends Controller
             'password' => 'required|min:6',
         ]);
         if (Auth::attempt($request->all(), true)) {
-            $user = User::with('followed')
-                ->withCount('followers','following')
+            $user = User::withCount('followers','following')
                 ->find(Auth::user()->id);
+           // broadcast(new UserOnlineEvent($user))->toOthers();
             return new Response($user);
         }
         return new Response(["status"=>0,"message"=>"Not authentificated. Email or password invalid"]);
     }
 
-    public function loginWithToken(Request $request): Response
+    public function loginWithToken(): Response
     {
         if(Auth::user()){
             $user = User::withCount('followers','following')
                 ->find(Auth::user()->id);
+           // broadcast(new UserOnlineEvent($user))->toOthers();
             return new Response($user);
         }else{
             return new Response(["status"=>0,"Authentificate with remember token failed"]);

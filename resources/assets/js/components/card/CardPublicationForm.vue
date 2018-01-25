@@ -1,19 +1,22 @@
 <template>
     <div class="cardPublicationForm">
-        <v-card height="100%">
+        <v-card height="auto">
             <v-progress-linear v-bind:indeterminate="true" v-if="loading" style="margin: 0"></v-progress-linear>
-            <v-card-title primary-title>
+            <v-card-title v-if="dialog">Form Publication <v-spacer></v-spacer><span @click="$emit('switchDialog')">x</span></v-card-title>
+            <v-divider></v-divider>
+            <v-card-title :style="$vuetify.breakpoint.smAndUp||'padding:0'" primary-title>
                 <v-layout row wrap>
-                    <v-flex lg2>
+                    <v-flex v-if="$vuetify.breakpoint.smAndUp" lg2>
                         <v-avatar
                                 size="40px"
+                                style="margin-top: 15px"
                         >
                             <img :src="user.avatar" alt="avatar">
                         </v-avatar>
                     </v-flex>
                     <v-flex lg10 style="width:100px">
                         <v-card-text>
-                            <div :class="(darked) ? 'blockEmojionearea blackForm' : 'blockEmojionearea'">
+                            <div :class="emojiClass" >
                                 <textarea class="emojionearea"></textarea>
                             </div>
                         </v-card-text>
@@ -22,20 +25,21 @@
             </v-card-title>
             <v-card-text>
                 <v-card-actions>
-                    <v-btn flat color="primary" slot="activator" @click.native="$emit('switchDialog')" v-if="!dialog" dark>Enlarge</v-btn>
-                    <v-btn flat v-if="dialog" color="primary" @click.native="select"><v-icon>insert_photo</v-icon>Picture</v-btn>
+                    <v-btn flat v-if="dialog && $vuetify.breakpoint.smAndUp" color="primary" @click.native="select"><v-icon>insert_photo</v-icon>Picture</v-btn>
+                    <v-btn flat color="primary" slot="activator" @click.native="$emit('switchDialog')" v-if="!dialog && $vuetify.breakpoint.smAndUp" dark>Enlarge</v-btn>
                     <v-menu
                             offset-x
                             :close-on-content-click="false"
                             :nudge-width="200"
                             v-if="hasColors"
+                            :content-class="$vuetify.breakpoint.smAndUp||'menuColor'"
                     >
-                        <v-btn flat color="primary" @click.native="openSwatches" slot="activator" dark><v-icon>color_lens</v-icon>Color</v-btn>
-                        <div class="menuColor">
+                        <v-btn flat color="primary" slot="activator" dark><v-icon>color_lens</v-icon>Color</v-btn>
+                        <div class="menuBloc">
                             <v-card>
                                 <v-card-text>
                                     <h3>Custom colors</h3>
-                                    <v-layout style="height:25px" justify-space-between wrap>
+                                    <v-layout style="height:25px;" justify-space-between wrap row>
                                         <v-flex v-for="n in 9" @click="background('background'+n)" :key="n" lg1 :style="(n===1) ? 'cursor:pointer;border-radius:50%;background-color:#ddd !important' : 'cursor:pointer;border-radius:50%;'" :class="(n===9) ? 'buttonColor backgroundSmall'+n : 'buttonColor background'+n"></v-flex>
                                     </v-layout>
                                 </v-card-text>
@@ -43,9 +47,10 @@
                         </div>
                     </v-menu>
                     <v-spacer></v-spacer>
-                    <v-btn flat="flat" @click.native="$emit('switchDialog')" v-if="dialog">Cancel</v-btn>
+                    <v-btn flat="flat" @click.native="$emit('switchDialog')" v-if="dialog && $vuetify.breakpoint.smAndUp">Cancel</v-btn>
                     <v-btn flat color="orange" @click.native="publish">Publish</v-btn>
                 </v-card-actions>
+                <v-btn flat v-if="dialog && !$vuetify.breakpoint.smAndUp" color="primary" @click.native="select"><v-icon>insert_photo</v-icon>Picture</v-btn>
                 <v-avatar
                         size="200px"
                         :tile="true"
@@ -62,8 +67,6 @@
 </template>
 
 <script>
-    import "emojionearea"
-    import "emojionearea/dist/emojionearea.css"
     export default{
         props:{
             dialog: Boolean
@@ -74,7 +77,7 @@
             hasColors: true,
             file: null,
             url: null,
-            loading:false,
+            loading:false
         }),
         computed:{
             user(){
@@ -82,6 +85,12 @@
             },
             darked(){
                 return this.$store.state.setting.darked
+            },
+            emojiClass(){
+                return [
+                    (this.darked) ? 'blockEmojionearea blackForm' : 'blockEmojionearea',
+                    (!this.$vuetify.breakpoint.smAndUp) ? ' noEmoji' : null
+                ].join(' ')
             }
         },
         methods:{
@@ -99,31 +108,25 @@
                 this.box = textarea.parentNode
                 this.color = className
             },
-            openSwatches(){
-                import("vue-color").then(({ Swatches })=>{
-                    this.$options.components['swatches'] = Swatches
-                    this.hasSwacthes = true
-                    let textarea = this.$el.querySelector(".emojionearea-editor")
-                    this.box = textarea.parentNode
-                })
-            },
             publish(){
                 let text = this.parseText()
-                let formdata = new FormData()
-                formdata.append("image",this.file)
-                formdata.append("message",text)
-                formdata.append("color",this.color)
-                this.loading = true
-                this.$http.post("/user/article",formdata).then(response=>{
-                    if(response.body.id){
-                        this.clear()
-                        this.loading = false
-                        let user = response.body.user
-                        delete response.body.user
-                        this.$store.dispatch('article/save',response.body)
-                        this.$store.dispatch('users/save',user)
-                    }
-                })
+                if(JSON.parse(text).length>0){
+                    let formdata = new FormData()
+                    formdata.append("image",this.file)
+                    formdata.append("message",text)
+                    formdata.append("color",this.color)
+                    this.loading = true
+                    this.$http.post("/user/article",formdata).then(response=>{
+                        if(response.body.id){
+                            this.loading = false
+                            let user = response.body.user
+                            delete response.body.user
+                            this.$store.dispatch('article/save',response.body)
+                            this.$store.dispatch('users/save',user)
+                            this.clear()
+                        }
+                    })
+                }
             },
             clear(){
                 this.file = null
@@ -135,16 +138,18 @@
             parseText(){
                 let message = this.$el.querySelector("textarea").value.trim()
                 let tableau  = []
-                let results = message.match(new RegExp("(<img .*? class=\"emojioneemoji\" src=\"https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/.*?\\.png\"/>)","g"))
-                let texts = message.split(new RegExp('<img .*? class=\"emojioneemoji\" src=\"https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/.*?\\.png\"/>'))
-                texts.map((text,i)=>{
-                    if(text.length>0){
-                        tableau.push({text})
-                    }
-                    if(results && results[i]){
-                        tableau.push({url:results[i].match(new RegExp('src="(.*?)"'))[1]})
-                    }
-                })
+                if(message.length>0){
+                    let results = message.match(new RegExp("(<img .*? class=\"emojioneemoji\" src=\"https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/.*?\\.png\"/>)","g"))
+                    let texts = message.split(new RegExp('<img .*? class=\"emojioneemoji\" src=\"https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/.*?\\.png\"/>'))
+                    texts.map((text,i)=>{
+                        if(text.length>0){
+                            tableau.push({text})
+                        }
+                        if(results && results[i]){
+                            tableau.push({url:results[i].match(new RegExp('src="(.*?)"'))[1]})
+                        }
+                    })
+                }
                 return JSON.stringify(tableau)
             }
         },
@@ -187,12 +192,15 @@
 </script>
 
 <style>
+    .noEmoji .emojionearea-button{
+        display: none;
+    }
     .cardPublicationForm .emojionearea .emojionearea-editor{
         text-align: left;
         font-size: 30px;
         color: black;
         font-family: monospace;
-        min-height: initial !important;
+        min-height: 50px !important;
         max-height: 300px !important;
         background: transparent !important;
         width:100%;
@@ -203,17 +211,20 @@
     }
     .cardPublicationForm .card__text .emojionearea{
         display: flex;
-        min-height: 15em;
+        min-height: 50px !important;
         font-size: 15px !important;
         background-color: transparent;
     }
-    .menuColor .buttonColor{
+    .menuBloc .buttonColor{
         cursor: pointer;
         transition: transform .5s;
         border-radius: 50%
     }
-    .menuColor .buttonColor:hover{
+    .menuBloc .buttonColor:hover{
         transform: scale(1.5)
+    }
+    .menuColor{
+        min-width: 250px !important;
     }
 </style>
 

@@ -24,9 +24,16 @@
                     }
                 })
                this.html = marked
+				console.log(this)
             })
         })
-    }
+    },
+	  watch:{
+        ripeTxt(data){
+            this.$forceUpdate()
+            //Vue.compile(this.$el)
+		}
+	  }
   }
 </script>
 

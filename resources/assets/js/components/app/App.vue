@@ -1,85 +1,36 @@
 
 <template>
-  <v-app id="inspire" :dark="darked">
-      <v-navigation-drawer
+  <v-app id="inspire">
+      <v-toolbar
+              clipped-left
               fixed
-              clipped
-              app
-              v-model="drawer"
+              style="box-shadow: none;background-color: black;opacity:.5;color: white;height: 60px"
       >
-          <v-list dense>
+          <v-toolbar-title :style="$vuetify.breakpoint.smAndUp ? 'width: 300px; min-width: 250px' : 'min-width: 72px'" class="ml-0 pl-3">
+              <span class="hidden-xs-only">Weltimo</span>
+          </v-toolbar-title>
+          <v-spacer></v-spacer>
+          <v-toolbar-items>
+          <v-list style="display: flex;background-color: transparent;">
               <v-list-tile to="/" exact>
-                  <v-list-tile-action>
-                      <v-icon>home</v-icon>
-                  </v-list-tile-action>
-                  <v-list-tile-content>
+                  <v-list-tile-content style="color: white;">
                       <v-list-tile-title>Home</v-list-tile-title>
                   </v-list-tile-content>
               </v-list-tile>
               <v-list-tile to="/sign_in">
-                  <v-list-tile-action>
-                      <v-icon>account_circle</v-icon>
-                  </v-list-tile-action>
-                  <v-list-tile-content>
+                  <v-list-tile-content style="color: white;">
                       <v-list-tile-title>Sign in</v-list-tile-title>
                   </v-list-tile-content>
               </v-list-tile>
-              <v-list-tile to="/actus">
-                  <v-list-tile-action>
-                      <v-icon>whatshot</v-icon>
-                  </v-list-tile-action>
-                  <v-list-tile-content>
-                      <v-list-tile-title>Actuality</v-list-tile-title>
-                  </v-list-tile-content>
-              </v-list-tile>
-              <v-list-tile to="/about">
-                  <v-list-tile-action>
-                      <v-icon>info</v-icon>
-                  </v-list-tile-action>
-                  <v-list-tile-content>
-                      <v-list-tile-title>About us</v-list-tile-title>
-                  </v-list-tile-content>
-              </v-list-tile>
-              <v-list-tile>
-                  <v-list-tile-action>
-                      <v-icon>invert_colors</v-icon>
-                  </v-list-tile-action>
-                  <v-list-tile-content>
-                      <v-list-tile-title>
-                          <v-tooltip top>
-                              <v-switch slot="activator" v-model="darked"></v-switch>
-                              <span>Change the background color to black</span>
-                          </v-tooltip>
-                      </v-list-tile-title>
+              <v-list-tile @click="loginWithToken();dialogLog_on=true">
+                  <v-list-tile-content style="color: white;">
+                      <v-list-tile-title>Log in</v-list-tile-title>
                   </v-list-tile-content>
               </v-list-tile>
           </v-list>
-      </v-navigation-drawer>
-      <v-toolbar
-              :color="(darked) ? null: 'primary'"
-              dark
-              app
-              clipped-left
-              fixed
-      >
-          <v-toolbar-title :style="$vuetify.breakpoint.smAndUp ? 'width: 300px; min-width: 250px' : 'min-width: 72px'" class="ml-0 pl-3">
-              <v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>
-              <span class="hidden-xs-only">Weltimo</span>
-          </v-toolbar-title>
-          <v-flex lg6 xs6>
-              <v-select
-                      light
-                      solo
-                      placeholder="Search"
-                      prepend-icon="search"
-                      autocomplete
-              ></v-select>
-          </v-flex>
+          </v-toolbar-items>
           <div class="d-flex align-center" style="margin-left: auto">
               <v-dialog scrollable v-model="dialogLog_on" max-width="300px">
-                  <v-btn @click.native="loginWithToken" slot="activator" icon>
-                      <v-icon>person</v-icon>
-                  </v-btn>
                   <v-card>
                       <v-progress-linear v-bind:indeterminate="true" v-if="loading" style="margin: 0"></v-progress-linear>
                       <v-card-title>
@@ -137,10 +88,8 @@
     export default {
         components:{route},
         data: () => ({
-            drawer: null,
             dialogLog_on: false,
             visibility: false,
-            darked:false,
             error: null,
             loading: false,
             alertLogin: true,
@@ -180,14 +129,6 @@
                 })
             },
         },
-        mounted(){
-            this.darked = this.$store.state.setting.darked
-        },
-        watch:{
-            darked(){
-                this.$store.dispatch('setting/invertcolor')
-            }
-        }
     }
 </script>
 

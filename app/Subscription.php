@@ -8,6 +8,12 @@ class Subscription extends Model
 {
     protected $fillable = ["sender_id","receiver_id","status"];
 
+
+    protected $casts = [
+        "sender_id" => "int",
+        "receiver_id" => "int"
+    ];
+
     public function follower()
     {
         return $this->BelongsTo("App\User", "id","sender_id")

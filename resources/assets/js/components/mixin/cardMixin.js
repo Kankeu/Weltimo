@@ -5,6 +5,9 @@ export default {
 	data: ()=>({
 		subscribed: false,
         openDialogComment:false,
+        articleDelete: false,
+        loading: false,
+        userPopover: false,
 		emoticons: [{
 			"emocion": "amo",
 			"TextoEmocion": "Love",
@@ -63,20 +66,24 @@ export default {
         like(event,name){
             let facemotion = (name) ? name : event.target.className
             let emoticon = this.emoticons.find(e=>e.emocion===facemotion)
-            if(emoticon){
+            if(emoticon && !this.article.liked){
                 this.$http.get('user/article/'+this.article.id+'/like/'+emoticon.type).then(response=>{
                     if(response.body.id){
+                        this.$store.dispatch("like/save", response.body)
                         this.$store.dispatch('article/addLike',{article:this.article,like:response.body})
                     }
                 })
             }
         },
         deleteLike(){
-            this.$http.delete('user/article/'+this.article.id+'/like').then(response=>{
-                if(response.body.status === 1){
-                    this.$store.dispatch('article/deleteLike',{article:this.article})
-                }
-            })
+            if(this.article.liked){
+                this.$http.delete('user/article/'+this.article.id+'/like').then(response=>{
+                    if(response.body.status === 1){
+                        this.$store.dispatch("like/delete", this.article.liked)
+                        this.$store.dispatch('article/deleteLike',{article:this.article})
+                    }
+                })
+            }
         },
         follow(user){
             this.$set(user, "loadingSubs",true)
@@ -85,14 +92,14 @@ export default {
                     if(response.body.status === 1){
                         this.$set(user, "loadingSubs",false)
                         this.$set(user, "followed",null)
-                        //this.$store.dispatch('users/unfollow', user.id)
+                        user.followers_count++
                     }
                 })
             }else{
                 this.$http.post('user/subscription',{receiver_id:user.id}).then(response=>{
                     if(response.body.id){
                         this.$set(user, "followed",response.body)
-                        //this.$store.dispatch('users/follow', {id:user.id,followed:response.body})
+                        user.followers_count--
                         this.$set(user, "loadingSubs",false)
                     }
                 })
@@ -102,11 +109,20 @@ export default {
             this.$store.dispatch("article/delete",{id:this.article.id})
         },
         destroy(){
+            this.loading = true
             this.$http.delete('user/article/'+this.article.id).then(response=>{
                 if(response.body.status === 1){
                     this.$store.dispatch('article/delete', this.article)
+                    this.articleDelete = false
+                    this.loading = false
                 }
             })
+        },
+        copie(){
+            let textarea = document.querySelector("#textareaClipboard")
+            textarea.value = this.urlArticle(this.article.id,this.article.user_id)
+            textarea.select()
+            document.execCommand('copy')
         }
     },
 }

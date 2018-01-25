@@ -6,7 +6,7 @@
                     <v-btn round color="danger" @click="clear('cover')">Cancel</v-btn>
                     <v-btn round color="success" @click="send('cover')">Save</v-btn>
                 </div>
-                <v-btn round color="primary" @click="select('cover')" v-else><v-icon>insert_photo</v-icon> Cover picture</v-btn>
+                <v-btn round color="primary" @click.native="select('cover')" icon v-else><v-icon>insert_photo</v-icon></v-btn>
             </v-layout>
             <v-tooltip class="btnSubs" top>
                 <v-btn
@@ -23,23 +23,23 @@
             </v-tooltip>
         </v-parallax>
         <v-card style="height:55px">
-            <v-bottom-nav absolute :value="true" style="justify-content:flex-end" color="transparent">
-                <v-btn color="teal" flat :to="'/user/profile/'+profile.id+'/'" exact>
+            <v-bottom-nav absolute :value="true" style="justify-content:flex-end" class="hBtnNav" color="transparent">
+                <v-btn flat :to="'/user/profile/'+profile.id+'/'" exact>
                     <span>Home</span>
                     <v-icon></v-icon>
                 </v-btn>
-                <v-btn color="teal" flat :to="'/user/profile/'+profile.id+'/following'">
+                <v-btn flat :to="'/user/profile/'+profile.id+'/following'">
                     <span>Following<br>
                     {{profile.following_count}}
                     </span>
                     <v-icon></v-icon>
                 </v-btn>
-                <v-btn color="teal" flat :to="'/user/profile/'+profile.id+'/followers'">
+                <v-btn flat :to="'/user/profile/'+profile.id+'/followers'">
                     <span>Followers<br>
                     {{profile.followers_count}}
                     </span>
                 </v-btn>
-                <v-btn color="teal" flat :to="'/user/profile/'+profile.id+'/albums'">
+                <v-btn flat :to="'/user/profile/'+profile.id+'/albums'">
                     <span>Albums</span>
                 </v-btn>
             </v-bottom-nav>
@@ -55,7 +55,7 @@
                     <v-btn round color="danger" @click="clear('avatar')">Cancel</v-btn>
                     <v-btn round color="success" @click="send('avatar')">Save</v-btn>
                 </div>
-                <v-btn round color="primary" @click="select('avatar')" v-else><v-icon>insert_photo</v-icon> Profile picture</v-btn>
+                <v-btn round color="primary" @click.native="select('avatar')" icon v-else><v-icon>insert_photo</v-icon></v-btn>
             </div>
             <img :src="(urls.avatar) ? urls.avatar : profile.avatar" alt="avatar">
         </v-avatar>
@@ -95,17 +95,15 @@
                         if(response.body.status === 1){
                             this.loadingSubs = false
                             this.$set(profile,'followed',null)
-                            console.log(profile)
-                            //this.$store.dispatch('users/unfollow', this.profile.id)
+                            profile.followers_count--
                         }
                     })
                 }else{
                     this.$http.post('user/subscription',{receiver_id:this.profile.id}).then(response=>{
                         if(response.body.id){
-                            //this.$store.dispatch('users/follow', {id:this.profile.id,followed:response.body})
                             this.$set(profile,'followed',response.body)
                             this.loadingSubs = false
-                            console.log(profile)
+                            profile.followers_count++
                         }
                     })
                 }
@@ -158,6 +156,9 @@
     }
 </style>
 <style scoped>
+    .hBtnNav .btn{
+        color: inherit !important;
+    }
     #cardMore{
         position: relative;
         z-index: 1;

@@ -9,7 +9,6 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\URL;
 
 class InscriptionController extends Controller
 {
@@ -53,9 +52,9 @@ class InscriptionController extends Controller
         $avatar = $request->file('avatar');
         $extension = $avatar->getClientOriginalExtension();
         $name = Auth::id().'.'.time().'.'.$extension;
-        $path = 'img/users/'.$name;
-        $global_path = URL::asset($path);
-        if($path = $avatar->move(public_path('img/users/'), $name))
+        $path = '/img/users/'.$name;
+        $global_path = $path;
+        if($path = $avatar->move(public_path('/img/users/'), $name))
         {
             Auth::user()->avatar = $global_path;
             Auth::user()->confirmated = 1;

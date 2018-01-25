@@ -1,40 +1,161 @@
 <template>
-
-    <v-app :dark="darked">
+    <v-app :dark="darked"  id="showTop">
         <v-card :dark="darked"  :color="(darked) ? 'theme--dark' :'theme--light'" flat>
-            <v-toolbar :dark="darked" style="z-index:8" :color="(darked) ? 'theme--dark' : 'primary'"  prominent fixed flat extended>
+            <v-toolbar :dark="darked" :class="$vuetify.breakpoint.smAndUp || 'phone'" :style="(darked) ? 'z-index:8' : 'z-index:8;background: #00b4ff'" :color="(darked) ? 'theme--dark' : null"  prominent fixed flat extended>
                 <v-toolbar-side-icon class="white--text" @click="drawer=!drawer"></v-toolbar-side-icon>
-                <v-toolbar-title class="white--text">Weltimo</v-toolbar-title>
-                <v-spacer></v-spacer>
-                <v-btn icon class="white--text"><v-icon>notifications</v-icon></v-btn>
+                <v-toolbar-title class="white--text" v-if="$vuetify.breakpoint.smAndUp">Weltimo</v-toolbar-title>
+                <v-select
+                        light
+                        solo
+                        @input.native="search"
+                        :items="searchItems"
+                        placeholder="Search"
+                        multiple
+                        chips
+                        item-text="name"
+                        item-value="id"
+                        v-model="selectedUser"
+                        max-height="auto"
+                        v-if="!$vuetify.breakpoint.smAndUp"
+                        prepend-icon="search"
+                        autocomplete
+                >
+                    <template slot="selection" slot-scope="data">
+                        <v-chip
+                                close
+                                @input="data.parent.selectItem(data.item)"
+                                :selected="data.selected"
+                                class="chip--select-multi"
+                                :key="JSON.stringify(data.item)"
+                        >
+                            <v-avatar>
+                                <img :src="data.item.avatar">
+                            </v-avatar>
+                            {{ data.item.name }}
+                        </v-chip>
+                    </template>
+                    <template slot="item" slot-scope="data">
+                        <template v-if="typeof data.item !== 'object'">
+                            <v-list-tile-content v-text="data.item"></v-list-tile-content>
+                        </template>
+                        <template v-else>
+                            <v-list-tile-avatar>
+                                <img v-bind:src="data.item.avatar"/>
+                            </v-list-tile-avatar>
+                            <v-list-tile-content>
+                                <v-list-tile-title v-html="data.item.name"></v-list-tile-title>
+                            </v-list-tile-content>
+                        </template>
+                    </template>
+                </v-select>
+                <v-spacer v-else></v-spacer>
+                <v-menu content-class="menuNotification" :close-on-content-click="false" max-height="350px">
+                    <v-badge color="cyan" slot="activator" left>
+                        <span slot="badge" v-if="notifications.length>0">{{notifications.length}}</span>
+                        <v-icon class="white--text" icon>notifications</v-icon>
+                    </v-badge>
+                    <v-list v-if="notifications.length>0">
+                        <v-list-tile avatar v-for="notification,i in notifications" :key="i" :to="'/user/profile/'+notification.user.id">
+                            <v-list-tile-avatar >
+                                <img :src="notification.user.avatar"/>
+                            </v-list-tile-avatar>
+                            <v-tooltip top>
+                                <v-list-tile-content slot="activator" style="width:231px;margin-right:5px">
+                                    <v-list-tile-title>{{ notification.message }}</v-list-tile-title>
+                                </v-list-tile-content>
+                                <span>{{ notification.message }}</span>
+                            </v-tooltip>
+                            <v-list-tile-action v-if="notification.isFollower">
+                                <v-btn
+                                        @click.prevent.stop=""
+                                        :color="'primary'"
+                                        slot="activator"
+                                        outline
+                                >
+                                    <v-icon>person_add</v-icon>Follow
+                                </v-btn>
+                            </v-list-tile-action>
+                            <v-list-tile-action v-if="notification.isNewsletter">
+                                <v-btn
+                                        @click.prevent.stop="show(notification)"
+                                        :color="'primary'"
+                                        slot="activator"
+                                >Show
+                                </v-btn>
+                            </v-list-tile-action>
+                        </v-list-tile>
+                    </v-list>
+                </v-menu>
             </v-toolbar>
-            <v-layout row>
-                <v-flex xs8 offset-xs2>
-                    <v-card :dark="darked" :color="(darked) ? 'theme--dark' : 'theme--light'"  class="card--flex-toolbar">
-                        <v-toolbar dark card style="z-index:8;width:66.66666666666666%;position:fixed" prominent>
+            <dialog-comment :open="openDialogComment" @close="openDialogComment=!openDialogComment" :article="article" :articles="articles"></dialog-comment>
+            <v-layout style="margin-bottom: 65px;" row>
+                <v-flex xs12 lg8 offset-lg2>
+                    <v-card :dark="darked" :color="(darked) ? 'theme--dark' : 'theme--light'" style="height: 100%"  class="card--flex-toolbar">
+                        <v-progress-linear v-bind:indeterminate="true" v-if="loading" style="margin-left: 0;top:-14px;position:absolute"></v-progress-linear>
+                        <v-toolbar v-if="$vuetify.breakpoint.smAndUp" dark card style="z-index:8;width:66.66666666666666%;position:fixed" prominent>
                             <v-progress-linear v-bind:indeterminate="true" v-if="loading" style="margin-left: 0;top:-14px;position:absolute"></v-progress-linear>
                             <v-toolbar-title class="body-2 grey--text">{{$route.name}}</v-toolbar-title>
                             <v-spacer></v-spacer>
                             <v-select
                                     light
                                     solo
+                                    @input.native="search"
+                                    :items="searchItems"
                                     placeholder="Search"
+                                    multiple
+                                    chips
+                                    item-text="name"
+                                    item-value="id"
+                                    v-model="selectedUser"
+                                    max-height="auto"
                                     prepend-icon="search"
                                     autocomplete
-                            ></v-select>
+                            >
+                                <template slot="selection" slot-scope="data">
+                                    <v-chip
+                                            close
+                                            @input="data.parent.selectItem(data.item)"
+                                            :selected="data.selected"
+                                            class="chip--select-multi"
+                                            :key="JSON.stringify(data.item)"
+                                    >
+                                        <v-avatar>
+                                            <img :src="data.item.avatar">
+                                        </v-avatar>
+                                        {{ data.item.name }}
+                                    </v-chip>
+                                </template>
+                                <template slot="item" slot-scope="data">
+                                    <template v-if="typeof data.item !== 'object'">
+                                        <v-list-tile-content v-text="data.item"></v-list-tile-content>
+                                    </template>
+                                    <template v-else>
+                                        <v-list-tile-avatar>
+                                            <img v-bind:src="data.item.avatar"/>
+                                        </v-list-tile-avatar>
+                                        <v-list-tile-content>
+                                            <v-list-tile-title v-html="data.item.name"></v-list-tile-title>
+                                        </v-list-tile-content>
+                                    </template>
+                                </template>
+                            </v-select>
                         </v-toolbar>
-                        <cardPublication :open="dialogPublication" @close="dialogPublication=false" :onlyDialog="true"></cardPublication>
                         <v-divider></v-divider>
-                        <router-view></router-view>
+                        <div :class="$vuetify.breakpoint.smAndUp ? 'layout_bloc' : 'layout_phone'">
+                            <router-view></router-view>
+                            <textarea id="textareaClipboard" @focus.stop.prevent="($event)=>$event.target.blur()" style="position: fixed;top:0;left:0"></textarea>
+                        </div>
                     </v-card>
                 </v-flex>
-                <v-flex xs2>
+                <v-flex  lg2 xs0>
                     <v-speed-dial
                             bottom
                             right
                             direction="top"
-                            hover
+                            :hover="$vuetify.breakpoint.smAndUp"
                             fixed
+                            v-model="speedDial"
+                            :style="$vuetify.breakpoint.smAndUp ? 'z-index:8' : 'bottom:0;right:0;z-index:8'"
                     >
                         <v-btn
                                 slot="activator"
@@ -42,6 +163,7 @@
                                 dark
                                 fab
                                 hover
+                                v-model="speedDial"
                         >
                             <v-icon>account_circle</v-icon>
                             <v-icon>close</v-icon>
@@ -59,23 +181,59 @@
                                 fab
                                 dark
                                 small
+                                @click="drawerUsers=!drawerUsers"
                                 color="indigo"
                         >
-                            <v-icon>add</v-icon>
+                            <v-icon>group</v-icon>
                         </v-btn>
-                        <v-btn
-                                fab
-                                dark
-                                small
-                                color="red"
-                        >
-                            <v-icon>delete</v-icon>
-                        </v-btn>
+                        <v-tooltip top>
+                            <v-btn
+                                    slot="activator"
+                                    fab
+                                    dark
+                                    small
+                                    color="red"
+                                    @click="scrollToTop"
+                            >
+                                <v-icon>keyboard_arrow_up</v-icon>
+                            </v-btn>
+                            <span>Scroll to top!</span>
+                        </v-tooltip>
                     </v-speed-dial>
+                    <v-navigation-drawer
+                            temporary
+                            hide-overlay
+                            class="menuDrawer"
+                            right
+                            :style="$vuetify.breakpoint.smAndUp||'margin-top:63px !important'"
+                            v-model="drawerUsers"
+                    >
+                        <v-list class="pa-1">
+                            <v-list-tile avatar>
+                                <v-list-tile-content>
+                                    <v-list-tile-title>Users online</v-list-tile-title>
+                                </v-list-tile-content>
+                            </v-list-tile>
+                        </v-list>
+                        <v-list class="pt-0" dense>
+                            <v-divider></v-divider>
+                            <v-list-tile @click="" avatar v-for="user,i in users" :key="i">
+                                <v-list-tile-action>
+                                    <v-icon :style="(user.online) ? 'color:green': null">fiber_manual_record</v-icon>
+                                </v-list-tile-action>
+                                <v-list-tile-avatar>
+                                    <img :src="user.avatar" />
+                                </v-list-tile-avatar>
+                                <v-list-tile-content>
+                                    <v-list-tile-title>{{user.name+" "+user.forename}}</v-list-tile-title>
+                                </v-list-tile-content>
+                            </v-list-tile>
+                        </v-list>
+                    </v-navigation-drawer>
                 </v-flex>
             </v-layout>
         </v-card>
-        <v-navigation-drawer id="menu" :class="(darked) ? null: 'blue lighten-3'" permanent :dark="darked" :mini-variant.sync="drawer">
+        <v-navigation-drawer fixed app :style="!$vuetify.breakpoint.smAndUp || 'margin-top:63px'" clipped :class="$vuetify.breakpoint.smAndUp ? 'menuDrawer' : null"  :dark="darked" :mini-variant.sync="drawer" v-model="$vuetify.breakpoint.smAndUp || !drawer">
             <v-toolbar flat class="transparent">
                 <v-list class="pa-0">
                     <v-list-tile avatar>
@@ -221,7 +379,7 @@
                             <v-icon>keyboard_arrow_down</v-icon>
                         </v-list-tile-action>
                     </v-list-tile>
-                    <v-list-tile @click="">
+                    <v-list-tile to="/user/actus">
                         <v-list-tile-action>
                             <v-icon>whatshot</v-icon>
                         </v-list-tile-action>
@@ -295,7 +453,7 @@
                             <v-list-tile-title>Signal bug</v-list-tile-title>
                         </v-list-tile-content>
                     </v-list-tile>
-                    <v-list-tile @click="">
+                    <v-list-tile to="/user/about">
                         <v-list-tile-action>
                             <v-icon>info</v-icon>
                         </v-list-tile-action>
@@ -317,33 +475,97 @@
                         </v-list-tile-content>
                     </v-list-tile>
                 </v-list-group>
+                <v-list-group v-if="user.role==='admin'">
+                    <v-list-tile slot="item" @click="">
+                        <v-list-tile-action>
+                            <v-icon dark>dashboard</v-icon>
+                        </v-list-tile-action>
+                        <v-list-tile-content>
+                            <v-list-tile-title>Dashboard</v-list-tile-title>
+                        </v-list-tile-content>
+                        <v-list-tile-action>
+                            <v-icon>keyboard_arrow_down</v-icon>
+                        </v-list-tile-action>
+                    </v-list-tile>
+                    <v-list-tile to="/user/admin" exact>
+                        <v-list-tile-action>
+                            <v-icon dark>apps</v-icon>
+                        </v-list-tile-action>
+                        <v-list-tile-content>
+                            <v-list-tile-title>Home</v-list-tile-title>
+                        </v-list-tile-content>
+                    </v-list-tile>
+                    <v-list-tile to="/user/admin/users">
+                        <v-list-tile-action>
+                            <v-icon dark>group</v-icon>
+                        </v-list-tile-action>
+                        <v-list-tile-content>
+                            <v-list-tile-title>Users</v-list-tile-title>
+                        </v-list-tile-content>
+                    </v-list-tile>
+                    <v-list-tile to="/user/admin/server">
+                        <v-list-tile-action>
+                            <v-icon dark>dns</v-icon>
+                        </v-list-tile-action>
+                        <v-list-tile-content>
+                            <v-list-tile-title>Process</v-list-tile-title>
+                        </v-list-tile-content>
+                    </v-list-tile>
+                    <v-list-tile to="/user/admin/edit">
+                        <v-list-tile-action>
+                            <v-icon dark>edit</v-icon>
+                        </v-list-tile-action>
+                        <v-list-tile-content>
+                            <v-list-tile-title>Edit</v-list-tile-title>
+                        </v-list-tile-content>
+                    </v-list-tile>
+                </v-list-group>
             </v-list>
         </v-navigation-drawer>
-        <v-footer class="pa-3">
+
+        <v-footer absolute class="pa-3">
             <v-spacer></v-spacer>
-            <div>Copyright © {{ new Date().getFullYear() }}</div>
+            <div>© {{ new Date().getFullYear() }} Weltimo</div>
         </v-footer>
+        <cardPublication :onlyDialog="true" :open="dialogPublication" @close="dialogPublication=false"></cardPublication>
     </v-app>
 </template>
 
 <script>
     import cardPublication from '../card/CardPublication.vue'
+    import dialogComment from "../comment/DialogComment.vue"
     export default{
-        components:{cardPublication},
+        components:{cardPublication,dialogComment},
         data(){
             return {
                 darked: false,
                 drawer: true,
                 speedDial: false,
-                dialogPublication: false
+                dialogPublication: false,
+                body: null,
+                timerIndex: null,
+                openDialogComment: false,
+                articles : [],
+                article: {},
+                drawerUsers: false,
+                searchItems: [],
+                selectedUser: null
             }
         },
         computed:{
             user(){
                 return this.$store.state.user.user
             },
+            users(){
+                // && user.id!==this.user.id
+                let usersOnline = this.$store.state.users.users.filter(user=>(user.online))
+                return usersOnline
+            },
             loading(){
                 return this.$store.state.setting.loading
+            },
+            notifications(){
+                return this.$store.state.setting.notifications
             }
         },
         methods:{
@@ -354,10 +576,58 @@
                         this.$router.push('/')
                     }
                 })
+            },
+            scrollToTop(){
+                this.$scrollTo('#showTop',1000,{container:'body'})
+            },
+            show(notification){
+                if(notification.article){
+                    this.openBox(notification)
+                }else{
+                    let article = this.$store.state.article.articles.find(article=>article.id===notification.comment.article_id)
+                    if(article){
+                        notification.article = article
+                        this.openBox(notification)
+                    }else{
+                        this.$http.get('/user/article/'+notification.comment.article_id).then(response=>{
+                            if(response.body.id){
+                                let user = response.body.user
+                                delete response.body.user
+                                this.$store.dispatch('article/save',response.body)
+                                this.$store.dispatch('users/save',user)
+                                notification.article = response.body
+                                this.openBox(notification)
+                            }
+                        })
+                    }
+                }
+            },
+            openBox(notification){
+                this.articles=[notification.article]
+                this.openDialogComment = true
+                this.$nextTick(()=>{
+                    this.article = notification.article
+                    this.$store.dispatch('setting/deleteNotification', notification.id)
+                })
+            },
+            search($event){
+                if($event.target.value.trim().length>2){
+                    this.$store.dispatch('setting/setLoading',true)
+                    this.$http.get('/user/search/'+$event.target.value.trim()).then(response=>{
+                        response.body.map(responseUser=>{
+                            let user = this.searchItems.find(user=>user.value===responseUser.id)
+                            if(!user) this.searchItems.push({value:responseUser.id,name:responseUser.name+" "+responseUser.forename,avatar:responseUser.avatar})
+                        })
+                        this.$store.dispatch('setting/setLoading',false)
+                    })
+                }else{
+                    this.searchItems = []
+                }
             }
         },
         mounted(){
             this.darked = this.$store.state.setting.darked
+            this.body = document.querySelector('body')
         },
         watch:{
             darked(data){
@@ -371,6 +641,11 @@
                         elt.style.color = "#424242"
                     })
                 }
+            },
+            selectedUser(data){
+                if(data.length>0){
+                    this.$router.push('/user/profile/'+data[0].value)
+                }
             }
         }
     }
@@ -380,9 +655,28 @@
     .input-group--solo .input-group__input .input-group__append-icon{display:none !important}
 </style>
 <style>
+    #showTop{
+        overflow-x: hidden;
+    }
+    .layout_bloc{
+        margin-top: 60px;
+    }
+    .layout_phone{
+        margin-top: 20px;
+    }
+    .menuNotification{
+        position: fixed !important;
+        top: 50px !important;
+        right: 10px !important;
+        left: inherit !important;
+        bottom: inherit !important
+    }
     .menuCover{
         width:350px !important;
         height:200px !important;
+    }
+    .blue_sky{
+        background-color: #b3d4fc;
     }
     .card__media__content{
         white-space: pre-line;
@@ -416,6 +710,9 @@
         text-align: center;
         font-family: monospace
     }
+    .overflow{
+        overflow-y: auto !important;
+    }
     .blackForm .emojionearea{
         background-color: #424242 !important;
         color: white !important;
@@ -426,13 +723,19 @@
     .emojionearea .emojionearea-picker .emojionearea-search > input{
         color: black;
     }
+    .phone .toolbar__extension{
+        display: none;
+    }
     .card--flex-toolbar {
         margin-top: 64px;
     }
     .application .theme--dark.toolbar, .theme--dark .toolbar{
         background-color: inherit;
     }
-    #menu{
+    .fontBlack{
+        background: #424242;
+    }
+    .menuDrawer{
         margin-top:128.49px !important;
         position: fixed;
     }

@@ -35,18 +35,18 @@ const mutations = {
     DELETELIKE(state, {article}){
         article = state.articles.find((e)=>e.id === article.id)
         let key = state.articles.indexOf(article)
-        state.articles[key].likes_count--
+        if(state.articles[key].liked) state.articles[key].likes_count--
         state.articles[key].liked = null
     },
     ADDCOMMENT(state, article){
         article = state.articles.find((e)=>e.id === article.id)
-        let key = state.articles.indexOf(article)
-        state.articles[key].comments_count++
+        let index = state.articles.indexOf(article)
+        if(index>-1) state.articles[index].comments_count++
     },
     DELETECOMMENT(state, article){
         article = state.articles.find((e)=>e.id === article.id)
-        let key = state.articles.indexOf(article)
-        state.articles[key].comments_count--
+        let index = state.articles.indexOf(article)
+        if(index>-1) state.articles[index].comments_count--
     }
 }
 
@@ -76,6 +76,5 @@ const actions = {
         commit("DELETECOMMENT", data)
     }
 }
-
 
 export default {namespaced:true,state,mutations,actions}

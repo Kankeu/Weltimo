@@ -2,6 +2,7 @@
 
 namespace App;
 
+use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 
@@ -9,9 +10,23 @@ class Comment extends Model
 {
     protected $fillable = ["article_id","user_id","comment_id","message"];
 
+
+    protected $casts = [
+        "user_id" => "int",
+        "article_id" => "int",
+        "comment_id" => "int"
+    ];
+
     public function user()
     {
-        return $this->belongsTo('App\User')->with("followed","followers","following");
+        return $this->belongsTo('App\User')
+            ->with("followed")
+            ->withCount("followers","following");
+    }
+
+    public function article()
+    {
+        return $this->belongsTo('App\Article');
     }
 
     public function replyedUser()
@@ -29,5 +44,10 @@ class Comment extends Model
     public function liked()
     {
         return $this->morphOne('App\Like','likable')->where("user_id",Auth::id());
+    }
+
+    public function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('c');
     }
 }

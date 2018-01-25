@@ -35,6 +35,8 @@ class DeleteImage implements ShouldQueue
     public function handle()
     {
         $paths = File::glob($this->path);
-        File::delete($paths);
+        if(count($paths)>0){
+            File::delete($paths);
+        }
     }
 }

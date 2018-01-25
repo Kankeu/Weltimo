@@ -4,7 +4,6 @@
       fullscreen
       transition="dialog-bottom-transition"
       :overlay="false"
-      scrollable
     >   
   <div id="app" style="width:100%" :class="[showMenu ? 'show-menu' : '', 'app']">
     <sideMenu />

@@ -15,11 +15,14 @@ class CreateArticlesTable extends Migration
     {
         Schema::create('articles', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('message',2000)->nullable();
+            $table->string('title')->nullable();
+            $table->longText('message')->nullable();
             $table->string('color')->nullable();
+            $table->string('type')->nullable();
             $table->unsignedInteger('user_id');
             $table->foreign('user_id')->references('id')
                 ->on('users')->onDelete('cascade');
+            $table->timestamp('published_at');
             $table->timestamps();
         });
     }

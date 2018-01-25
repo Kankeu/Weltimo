@@ -2,12 +2,17 @@
 
 namespace App;
 
+use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 
 class Article extends Model
 {
-    protected $fillable = ["message","user_id","color"];
+    protected $fillable = ["message","user_id","color","type","title","published_at"];
+
+    protected $casts = [
+        "user_id" => "int"
+    ];
 
     public function image()
     {
@@ -34,5 +39,10 @@ class Article extends Model
     public function comments()
     {
         return $this->hasMany('App\Comment');
+    }
+
+    public function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('c');
     }
 }

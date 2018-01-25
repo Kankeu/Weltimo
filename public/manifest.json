@@ -1,0 +1,32 @@
+{
+  "name": "weltimo",
+  "short_name": "Wlm",
+  "lang": "en",
+  "icons": [
+    {
+      "src": "/img/default/weltimo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/img/default/weltimo.png",
+      "sizes": "128x128",
+      "type": "image/png"
+    },
+    {
+      "src": "/img/default/weltimo.png",
+      "sizes": "256x256",
+      "type": "image/png"
+    },
+    {
+      "src": "/img/default/weltimo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "start_url": "/user",
+  "display": "fullscreen",
+  "orientation": "portrait",
+  "background_color": "#2196f3",
+  "theme_color": "#2196f3"
+}

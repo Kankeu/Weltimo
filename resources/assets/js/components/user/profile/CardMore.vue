@@ -6,9 +6,8 @@
                     <v-toolbar>
                         <v-toolbar-title class="text-xs-center">About me</v-toolbar-title>
                     </v-toolbar>
-                    <v-list subheader>
-                        <v-subheader>Bio</v-subheader>
-                        <v-list-tile>
+                    <v-list style="text-align: left" subheader>
+                        <v-list-tile class="list__item">
                             <v-list-tile-avatar >
                                 Name:
                             </v-list-tile-avatar>
@@ -16,6 +15,12 @@
                                 {{profile.name+" "+profile.forename}}
                             </v-list-tile-content>
                         </v-list-tile>
+                        <v-list-tile class="list__item" v-if="profile.role==='admin' || profile.title">
+                            <v-list-tile-content>
+                                {{(profile.role==="admin") ? "Founder of Weltimo" : profile.title}}
+                            </v-list-tile-content>
+                        </v-list-tile>
+                        <v-subheader v-if="profile.biography" style="display: inherit;margin-bottom: 10px"><span style=" color: black;font-weight: 400;">Biography: </span>{{profile.biography}}</v-subheader>
                     </v-list>
                 </v-card>
             </v-flex>
@@ -24,7 +29,7 @@
                     <v-toolbar :color="(darked) ? null : 'primary'" dark>
                         <v-toolbar-title class="text-xs-center">Suggestions</v-toolbar-title>
                     </v-toolbar>
-                    <v-list subheader>
+                    <v-list v-if="morePersons.length>0" subheader>
                         <v-subheader>Who to follow</v-subheader>
                         <v-menu
                                 v-for="morePerson in morePersons" :key="morePerson.id"
@@ -62,7 +67,8 @@
                                         </v-list-tile-avatar>
                                         <v-list-tile-content>
                                             <v-list-tile-title>{{morePerson.name+" "+morePerson.forename}}</v-list-tile-title>
-                                            <v-list-tile-sub-title>Founder of Vuetify.js</v-list-tile-sub-title>
+                                            <v-list-tile-sub-title v-if="morePerson.role==='admin'">Founder of Weltimo</v-list-tile-sub-title>
+                                            <v-list-tile-sub-title v-else></v-list-tile-sub-title>
                                         </v-list-tile-content>
                                         <v-list-tile-action>
                                             <v-btn
@@ -126,12 +132,11 @@
         methods:{
             loadMorePerson(){
                 if(!this.query){
-                    this.$http.get("/user/subscription").then(response=>{
+                    this.$http.get("/user/subscription/"+this.profile.id).then(response=>{
                         response.body.map(user=>{
                             user.tofollow = true
                         })
                         this.$store.dispatch('users/save',response.body)
-                        //this.$store.dispatch("query/save",{name:'whotofollow',id:this.user.id})
                     })
                 }
             },
@@ -142,14 +147,13 @@
                         if(response.body.status === 1){
                             this.$set(user, "loadingSubs",false)
                             this.$set(user,'followed',null)
-
-                            //this.$store.dispatch('users/unfollow', user.id)
+                            this.$store.dispatch('users/removeFollowing', this.user)
                         }
                     })
                 }else{
                     this.$http.post('user/subscription',{receiver_id:user.id}).then(response=>{
                         if(response.body.id){
-                           // this.$store.dispatch('users/follow', {id:user.id,followed:response.body})
+                            this.$store.dispatch('users/addFollowing', this.user)
                             this.$set(user, "loadingSubs",false)
                             this.$set(user,'followed',response.body)
                         }
@@ -160,5 +164,19 @@
         mounted(){
             this.loadMorePerson()
         },
+        watch:{
+            '$route.params.id'(){
+                this.loadMorePerson()
+            }
+        }
     }
 </script>
+
+<style>
+    .list__item div{
+        align-items: baseline !important;
+        height: 100% !important;
+        margin-top: 10px;
+        text-align: center;
+    }
+</style>

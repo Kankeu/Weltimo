@@ -18,15 +18,7 @@ class SubscriptionController extends Controller
      */
     public function index()
     {
-        $WhoToFollow = (new User())
-            ->with("followed")
-            ->withCount('followers','following')
-            ->inRandomOrder()
-            ->whereDoesntHave("followed")
-            ->where("id","!=",Auth::id())
-            ->limit(5)
-            ->get();
-        return new Response($WhoToFollow);
+       //
     }
 
     /**
@@ -62,9 +54,20 @@ class SubscriptionController extends Controller
      * @param  \App\Subscription  $subscription
      * @return \Illuminate\Http\Response
      */
-    public function show(Subscription $subscription)
+    public function show(int $profile)
     {
-        //
+        $WhoToFollow = User::with("followed")
+            ->whereDoesntHave('followed')
+            ->withCount('followers','following')
+            ->inRandomOrder()
+           /* ->whereHas('followed_by',function ($query) use ($profile){
+                $query->where("sender_id",$profile);
+            })*/
+            ->where('id','!=',$profile)
+            ->where("id","!=",Auth::id())
+            ->limit(5)
+            ->get();
+        return new Response($WhoToFollow);
     }
 
     /**

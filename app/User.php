@@ -28,6 +28,20 @@ class User extends Authenticatable
         'password', 'remember_token',
     ];
 
+    public function articles()
+    {
+        return $this->hasMany("App\Article");
+    }
+
+    public function likes()
+    {
+        return $this->hasMany("App\Like");
+    }
+
+    public function comments()
+    {
+        return $this->hasMany("App\Comment");
+    }
 
     public function followers()
     {
@@ -53,4 +67,5 @@ class User extends Authenticatable
     {
         return $this->hasOne("App\Subscription", "sender_id");
     }
+
 }

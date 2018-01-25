@@ -1,5 +1,5 @@
 <template>
-    <div :class="(darked) ? 'commentForm blackForm' : 'commentForm'">
+    <div :class="emojiClass">
         <textarea class="emojionearea"></textarea>
     </div>
 </template>
@@ -22,6 +22,12 @@
             user(){
                 return this.$store.state.user.user
             },
+            emojiClass(){
+                return [
+                    (this.darked) ? 'commentForm blackForm' : 'commentForm',
+                    (!this.$vuetify.breakpoint.smAndUp) ? ' noEmoji enlargeCmt' : null
+                ].join(' ')
+            }
         },
         data(){
             return {
@@ -32,7 +38,8 @@
             publish(){
                 let message = this.parseText()
                 let data = {message,article_id:this.article.id,user_id:this.user.id}
-                if(this.store.replyUser_id){
+                let elt = this.$el.querySelector('.emojionearea-editor').querySelector('.replyUser')
+                if(elt && elt.innerText.trim().length>1 && this.store.replyUser_id){
                      data['comment_id'] = this.store.replyUser_id
                 }
                 store.set('loading',true)
@@ -44,6 +51,10 @@
                         this.$store.dispatch('comment/save',response.body)
                         if(replyUser) this.$store.dispatch('users/save',replyUser)
                         this.$store.dispatch('article/addComment',this.article)
+                        this.$store.dispatch('comment/scrollTo',response.body.id)
+                        this.$nextTick(()=>{
+                            this.$scrollTo('#showComment',500,{container:'#comments'})
+                        })
                     }
                     store.set('loading',false)
                 })
@@ -99,7 +110,15 @@
                 if(data){
                     let last = this.$el.querySelector('.replyUser')
                     if(last) last.remove()
-                    this.$el.querySelector('.emojionearea-editor').innerHTML =   '<span class="replyUser">@'+data.name+'_'+data.forename+'&nbsp;</span>'+this.$el.querySelector('.emojionearea-editor').innerHTML
+                    let elt = this.$el.querySelector('.emojionearea-editor')
+                    elt.focus()
+                    elt.innerHTML = '<span class="replyUser">@'+data.name+'_'+data.forename+'&nbsp;</span>'+elt.innerHTML
+                    let range = document.createRange()
+                    range.selectNodeContents(elt)
+                    range.collapse(false)
+                    let sel = window.getSelection()
+                    sel.removeAllRanges()
+                    sel.addRange(range)
                 }
             }
         }
@@ -107,6 +126,9 @@
 </script>
 
 <style>
+    .enlargeCmt .emojionearea{
+        min-height: 50px;
+    }
     .commentForm .emojionearea .emojionearea-editor{
         text-align: left;
         font-size: 18px;

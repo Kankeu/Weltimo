@@ -5,7 +5,13 @@ const state = {
 
 const mutations = {
     SAVE(state, data){
-        state.queries.push(data)
+        let query
+        query = state.queries.find(e=>(e.name===data.name))
+        if(data.id) query = state.queries.find(e=>(e.name===data.name && e.id===data.id))
+        if(data.type) query = state.queries.find(e=>(e.name===data.name && e.id===data.id && e.type===data.type))
+        let index = state.queries.indexOf(query)
+        if(index>-1) state.queries.splice(index,1,data)
+        else state.queries.push(data)
     },
     UPDATE(state, data) {
         let query = state.queries.find((query)=>query.name === data.name)

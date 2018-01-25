@@ -1,7 +1,7 @@
 <template>
     <div>
         <CardPublicationForm :dialog="false" v-if="!onlyDialog" @switchDialog="switchDialog"></CardPublicationForm>
-        <v-dialog width="50%" content-class="notOverflow" v-model="dialog">
+        <v-dialog :width="$vuetify.breakpoint.smAndUp ? '50%' : '90%'" content-class="overflow" v-model="dialog">
             <CardPublicationForm :dialog="true" @switchDialog="switchDialog"></CardPublicationForm>
         </v-dialog>
     </div>

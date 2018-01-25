@@ -11,7 +11,9 @@
 <script>
     import cardMixin from '../mixin/cardMixin'
     export default{
-        mixins:[cardMixin],
+        props:{
+            article: Object
+        },
         mounted(){
 
         }

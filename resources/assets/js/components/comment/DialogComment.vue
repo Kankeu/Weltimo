@@ -1,8 +1,8 @@
 <template>
-    <v-layout row justify-center>
+    <v-layout v-if="open" row justify-center>
         <v-dialog v-model="dialog" width="935px">
             <v-progress-linear v-bind:indeterminate="true" v-if="loading" style="margin: 0"></v-progress-linear>
-            <v-carousel v-model="index" style="position: inherit;height: 600px;background: transparent" :cycle="false" :hide-controls="articles.length<2" hide-delimiters>
+            <v-carousel  style="position: inherit;height: 597px;background: transparent" v-model="index" :cycle="false" :hide-controls="articles.length<2" hide-delimiters>
                 <v-carousel-item src=" " v-for="article,i in articles" class="carousel_item" :key="i">
                     <v-card height="600px" style="width:935px" v-if="i===index">
                         <v-container class="notSpace" style="overflow: hidden"  grid-list-md>
@@ -11,7 +11,7 @@
                                     <article-box :article="article"></article-box>
                                 </v-flex>
                                 <v-flex class="notSpace" lg5>
-                                    <comment-box @loading="(v)=>loading=v" :article="article"></comment-box>
+                                    <comment-box :open="open" :article="article"></comment-box>
                                 </v-flex>
                             </v-layout>
                         </v-container>
@@ -36,12 +36,12 @@
         data: ()=>({
             dialog: false,
             index: -1,
-            store: store.state
+            store: store.state,
         }),
         computed:{
             loading(){
                 return  this.store.loading
-            }
+            },
         },
         watch:{
             open(data){
@@ -51,13 +51,16 @@
                 }
             },
             dialog(data){
-               if(!data) {
-                   this.$emit('close')
-               }
+                if(!data) {
+                    this.$emit('close')
+                }
             },
-            article(data){
-                this.index = this.articles.indexOf(data)
+            article(article){
+                this.index = this.articles.indexOf(article)
             },
+            index(index){
+                this.$scrollTo('#article'+this.articles[index].id,10,{container:'body'})
+            }
         }
     }
 </script>

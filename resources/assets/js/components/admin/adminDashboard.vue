@@ -28,3 +28,9 @@ export default {
   }
 }
 </script>
+
+<style>
+  .dialog--fullscreen{
+    overflow: hidden !important;
+  }
+</style>

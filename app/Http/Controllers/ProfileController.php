@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Article;
+use App\Image;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
@@ -19,7 +20,7 @@ class ProfileController extends Controller
         $articles = Article::with('image','liked','user')
             ->where("user_id", Auth::id())
             ->orderBy("id","desc")
-            ->withCount('likes')
+            ->withCount('likes','comments')
             ->get();
         return new Response($articles);
     }
@@ -55,9 +56,10 @@ class ProfileController extends Controller
     {
         $articles = Article::with('image','liked','user')
             ->where("user_id", $id)
+            ->whereNull('type')
             ->orderBy("id","desc")
             ->withCount('likes','comments')
-            ->get();
+            ->paginate(10);
         return new Response($articles);
     }
 
@@ -93,5 +95,30 @@ class ProfileController extends Controller
     public function destroy(Article $article)
     {
         //
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param  \App\Article  $article
+     * @return \Illuminate\Http\Response
+     */
+    public function article(int $profile, int $article)
+    {
+        $article = Article::with('image','liked')
+            ->withCount('likes','comments')
+            ->where('user_id',$profile)
+            ->where('id', $article)
+            ->first();
+        return new Response($article);
+    }
+
+    public function album(int $profile)
+    {
+        $images = Image::whereHas('article',function ($query) use ($profile){
+            $query->where("user_id",$profile);
+        })
+            ->paginate(10);
+        return new Response($images);
     }
 }

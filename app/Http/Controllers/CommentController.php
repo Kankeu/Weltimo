@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Comment;
+use App\Events\CommentCreatedEvent;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
@@ -20,7 +21,7 @@ class CommentController extends Controller
             ->where("article_id",$article)
             ->withCount("likes")
             ->orderBy("created_at","desc")
-            ->get();
+            ->paginate(10);
         return new Response($comments);
     }
 
@@ -44,10 +45,12 @@ class CommentController extends Controller
     {
         $data = $request->all();
         $comment = Comment::create($data);
+        $comment->load('user');
         $comment->likes_count = $comment->likes()->where("likable_id",$comment->id)->count();
         if($comment->comment_id){
             $comment->load('replyedUser','liked');
         }
+        broadcast(new CommentCreatedEvent($comment->toJson(), $comment->article->user->id))->toOthers();
         return new Response($comment);
     }
 

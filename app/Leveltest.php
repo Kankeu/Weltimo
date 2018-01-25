@@ -15,6 +15,10 @@ class Leveltest extends Model
         'level', 'leveltest_id', 'sentence', 'just'
     ];
 
+    protected $casts = [
+        "leveltest_id" => "int"
+    ];
+
     public function answers()
     {
         return $this->hasMany('App\Leveltest');

@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
@@ -75,9 +76,27 @@ class UserController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, int $id)
     {
-        if($user=User::update($request->all())){
+        $request->validate([
+            'name' => 'required_without:password|',
+            'forename' => 'required_without:password|',
+            'email' => 'required_without:password|email',
+            'title' => 'max:50',
+            'biography' => 'max:300',
+            'lPassword' => 'required_without:name|min:6',
+            'password' => 'required_without:name|min:6',
+        ]);
+        if(!is_null($request->input('lPassword')) && Hash::check($request->input('lPassword'),User::where('id',Auth::id())->first()->password)){
+
+            if(User::where('id',Auth::id())->update(["password"=>hash::make($request->input('password'))])){
+                return new Response(['status'=>1]);
+            }
+        }
+        if(User::where('id',Auth::id())->update($request->all())){
+            $user = User::withCount('followers','following')
+                ->find(Auth::id());
+            Auth::setUser($user);
             return new Response($user);
         }
     }
@@ -90,13 +109,16 @@ class UserController extends Controller
      */
     public function destroy(User $user)
     {
-        $id = Auth::id();
-        $pathUsers = public_path("/img/users/$id.*");
-        $this->dispatch(new DeleteImage($pathUsers));
-        $pathArticles = public_path("/img/articles/$id.*");
-        $this->dispatch(new DeleteImage($pathArticles));
-        if($user->delete()){
-            return new Response(["status"=>1]);
+        if(!is_null($user)){
+            if($user->delete()){
+                $id = Auth::id();
+                $pathUsers = public_path("/img/users/$id.*");
+                $this->dispatch(new DeleteImage($pathUsers));
+                $pathArticles = public_path("/img/articles/$id.*");
+                $this->dispatch(new DeleteImage($pathArticles));
+                Auth::logout();
+                return new Response(["status"=>1]);
+            }
         }
     }
 
