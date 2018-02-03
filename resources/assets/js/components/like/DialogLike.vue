@@ -3,7 +3,7 @@
         <v-card>
             <v-toolbar class="dialogLiketoolbar" dark card prominent>
                 <v-progress-linear v-bind:indeterminate="true" v-if="loading" style="margin: 0"></v-progress-linear></v-toolbar>
-            <v-card-title>Reactions <v-spacer></v-spacer><span @click="dialog=false">x</span></v-card-title>
+            <v-card-title>Reactions <v-spacer></v-spacer><v-btn icon @click="dialog=false"><v-icon>close</v-icon></v-btn></v-card-title>
             <v-divider></v-divider>
             <div>
                 <v-tabs fixed class="tabs__like" centered>
@@ -16,6 +16,7 @@
                                 ripple
                         >
                             <div style="width: 48px;height: 48px" :class="reaction.className"></div>
+                            &nbsp;{{article['likes_'+reaction.name+'_count']}}
                         </v-tabs-item>
                         <v-tabs-slider color="yellow"></v-tabs-slider>
                     </v-tabs-bar>
@@ -69,14 +70,20 @@
                 return this.$store.state.user.user
             },
             likes(){
-                return this.$store.state.like.likes.filter(like=>like.likable_id===this.article.id && like.type===this.type)
+                return this.$store.state.like.likes.filter(like=>like.likable_id===this.article.id && like.type===this.type && like.likable_type===this.likableType)
             },
             end(){
-                return this.$store.state.query.queries.find(e=>(e.name==="dialogLike" && !e.next && e.type===this.type && e.id===this.article.id))
+                return this.$store.state.query.queries.find(e=>(e.name==="dialogLike"+this.name && !e.next && e.type===this.type && e.id===this.article.id))
             },
             query(){
-                return this.$store.state.query.queries.find(e=>(e.name==="dialogLike" && e.type===this.type && e.id===this.article.id))
+                return this.$store.state.query.queries.find(e=>(e.name==="dialogLike"+this.name && e.type===this.type && e.id===this.article.id))
             },
+            name(){
+                return (this.article.type) ? this.article.type : 'article'
+            },
+            likableType(){
+                return "App\\"+this.name[0].toUpperCase()+this.name.substring(1)
+            }
         },
         methods:{
             loadMore(type){
@@ -93,7 +100,7 @@
                                 })
                                 this.$store.dispatch("like/save", response.body.data)
                                 this.$store.dispatch("users/save", users)
-                                this.$store.dispatch("query/save",{name:'dialogLike',next:response.body.next_page_url,id:this.article.id,type:type})
+                                this.$store.dispatch("query/save",{name:'dialogLike'+this.name,next:response.body.next_page_url,id:this.article.id,type:type})
                             }
                             this.ready = true
                             this.loading = false
@@ -107,7 +114,7 @@
                 if(!this.query && this.ready){
                     this.ready = false
                     this.loading = true
-                    this.$http.get('/user/article/'+this.article.id+'/likers/'+type).then(response=>{
+                    this.$http.get('/user/'+this.name+'/'+this.article.id+'/likers/'+type).then(response=>{
                         if(Array.isArray(response.body.data)){
                             let users = []
                             response.body.data.map(like=>{
@@ -116,7 +123,7 @@
                             })
                             this.$store.dispatch('like/save',response.body.data)
                             this.$store.dispatch("users/save", users)
-                            this.$store.dispatch("query/save",{name:'dialogLike',next:response.body.next_page_url,id:this.article.id,type:type})
+                            this.$store.dispatch("query/save",{name:'dialogLike'+this.name,next:response.body.next_page_url,id:this.article.id,type:type})
                         }
                         this.loading = false
                         this.ready = true
@@ -149,6 +156,12 @@
     .tabs__like .tabs__items{
         overflow-y: auto !important;
         height: 490px !important;
+    }
+    .tabs__like li{
+        justify-content: flex-start !important;
+    }
+    .tabs__like li a{
+        width: 100%;
     }
     .dialogLiketoolbar .toolbar__content{
         height: auto !important;

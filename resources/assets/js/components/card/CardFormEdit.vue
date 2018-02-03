@@ -2,7 +2,7 @@
     <div class="cardPublicationForm">
         <v-card height="100%">
             <v-progress-linear v-bind:indeterminate="true" v-if="loading" style="margin: 0"></v-progress-linear>
-            <v-card-title>Edit the Publication <v-spacer></v-spacer><span @click="$emit('switchDialog')">x</span></v-card-title>
+            <v-card-title>Edit the Publication <v-spacer></v-spacer><v-icon @click="$emit('switchDialog')">close</v-icon></v-card-title>
             <v-divider></v-divider>
             <v-card-title primary-title>
                 <v-layout row wrap>
@@ -146,6 +146,7 @@
                     tonesStyle: "bullet",
                     searchPlaceholder: "Search emoji",
                     autocomplete: false,
+                    placeholder: "What's up?",
                     saveEmojisAs :'image',
                 })
                 if(this.article && this.article.id){

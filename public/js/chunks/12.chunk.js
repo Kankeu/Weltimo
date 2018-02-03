@@ -1,53 +1,19 @@
 webpackJsonp([12],{
 
-/***/ 226:
-/***/ (function(module, exports, __webpack_require__) {
-
-// style-loader: Adds some css to the DOM by adding a <style> tag
-
-// load the styles
-var content = __webpack_require__(227);
-if(typeof content === 'string') content = [[module.i, content, '']];
-if(content.locals) module.exports = content.locals;
-// add the styles to the DOM
-var update = __webpack_require__(18)("24e2f814", content, false);
-// Hot Module Replacement
-if(false) {
- // When the styles change, update the <style> tags
- if(!content.locals) {
-   module.hot.accept("!!../../../../../node_modules/css-loader/index.js!../../../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-10ddd0a8\",\"scoped\":false,\"hasInlineConfig\":true}!../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0&bustCache!./Admin.vue", function() {
-     var newContent = require("!!../../../../../node_modules/css-loader/index.js!../../../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-10ddd0a8\",\"scoped\":false,\"hasInlineConfig\":true}!../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0&bustCache!./Admin.vue");
-     if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
-     update(newContent);
-   });
- }
- // When the module is disposed, remove the <style> tags
- module.hot.dispose(function() { update(); });
-}
-
-/***/ }),
-
-/***/ 227:
-/***/ (function(module, exports, __webpack_require__) {
-
-exports = module.exports = __webpack_require__(0)(undefined);
-// imports
-
-
-// module
-exports.push([module.i, "\n.dialog--fullscreen{\n    overflow-y: auto !important;\n}\n", ""]);
-
-// exports
-
-
-/***/ }),
-
-/***/ 228:
+/***/ 252:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__store_modules_Dashboard__ = __webpack_require__(229);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__Book_vue__ = __webpack_require__(253);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__Book_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__Book_vue__);
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+//
+//
+//
+//
+//
 //
 //
 //
@@ -57,262 +23,106 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
+    components: { book: __WEBPACK_IMPORTED_MODULE_0__Book_vue___default.a },
     data: function data() {
         return {
-            darked: false,
-            drawer: false
+            ready: true
         };
     },
-    watch: {
-        darked: function darked(data) {
-            this.$store.dispatch('setting/invertcolor');
-            if (data) {
-                document.querySelectorAll('.emojionearea-editor').map(function (elt) {
-                    elt.style.color = "white";
-                });
-            } else {
-                document.querySelectorAll('.emojionearea-editor').map(function (elt) {
-                    elt.style.color = "#424242";
+    computed: {
+        user: function user() {
+            return this.$store.state.user.user;
+        },
+        books: function books() {
+            var _this = this;
+
+            return this.$store.state.book.books.filter(function (book) {
+                return book.level === _this.level && book.type === 'course';
+            });
+        },
+        end: function end() {
+            var _this2 = this;
+
+            return this.$store.state.query.queries.find(function (e) {
+                return e.name === "courses" && !e.next && e.id === _this2.level;
+            });
+        },
+        query: function query() {
+            var _this3 = this;
+
+            return this.$store.state.query.queries.find(function (e) {
+                return e.name === "courses" && e.id === _this3.level;
+            });
+        },
+        scrollTop: function scrollTop() {
+            var scroll = this.$store.state.setting.scrollTops.find(function (e) {
+                return e.name === "books";
+            }) || {};
+            return scroll.scrollTop;
+        },
+        level: function level() {
+            return this.$route.params.level;
+        }
+    },
+    methods: {
+        loadMore: function loadMore() {
+            var _this4 = this;
+
+            if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 600) {
+                if (!this.end && this.ready) {
+                    this.ready = false;
+                    this.$store.dispatch('setting/setLoading', true);
+                    this.$http.get(this.query.next).then(function (response) {
+                        if (_typeof(response.body) === "object") {
+                            _this4.$store.dispatch("book/save", response.body.data);
+                            _this4.$store.dispatch("users/save", response.body.data[0].user);
+                            _this4.$store.dispatch("query/save", { name: 'courses', next: response.body.next_page_url, id: _this4.level });
+                        }
+                        _this4.ready = true;
+                        _this4.$store.dispatch('setting/setLoading', false);
+                    });
+                }
+            }
+        },
+        load: function load() {
+            var _this5 = this;
+
+            if (!this.query && this.ready) {
+                this.ready = false;
+                this.$store.dispatch('setting/setLoading', true);
+                this.$http.get('/user/book/course/' + this.level).then(function (response) {
+                    if (_typeof(response.body.data[0]) === "object") {
+                        _this5.$store.dispatch("book/save", response.body.data);
+                        _this5.$store.dispatch("users/save", response.body.data[0].user);
+                        _this5.$store.dispatch("query/save", { name: 'courses', next: response.body.next_page_url, id: _this5.level });
+                    }
+                    _this5.ready = true;
+                    _this5.$store.dispatch('setting/setLoading', false);
                 });
             }
         }
     },
     mounted: function mounted() {
-        this.$store.registerModule('dashboard', __WEBPACK_IMPORTED_MODULE_0__store_modules_Dashboard__["a" /* default */]);
+        this.load();
+        document.body.scrollTop = this.scrollTop;
     }
 });
 
 /***/ }),
 
-/***/ 229:
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/*let marked = require("marked")
-let highlight = require("highlight.js")
-marked.setOptions({
-    highlight: function (code) {
-        return highlight.highlightAuto(code).value
-    }
-})
-window.marked = marked*/
-
-var saveID = function saveID(state) {
-    var idArr = [];
-    for (var i = 0, len = state.articleList.length; i < len; i++) {
-        idArr.push(state.articleList[i].id);
-        localStorage.setItem('idArr', idArr.join(','));
-    }
-};
-
-var createID = function createID() {
-    var t = '';
-    for (var i = 0; i < 15; i++) {
-        t += Math.floor(Math.random() * 10);
-    }
-    return t;
-};
-
-var state = {
-    showMenu: true,
-    articleList: [{
-        id: createID(),
-        content: 'Untitled\n---\n',
-        current: true
-    }]
-};
-
-var mutations = {
-    SHOW_MENU: function SHOW_MENU(state) {
-        state.showMenu = !state.showMenu;
-    },
-    TEXT_INPUT: function TEXT_INPUT(state, txt) {
-        for (var i = 0, len = state.articleList.length; i < len; i++) {
-            if (state.articleList[i].current) {
-                state.articleList[i].content = txt;
-            }
-        }
-    },
-    SAVE_TO_CACHE: function SAVE_TO_CACHE(state) {
-        for (var i = 0, len = state.articleList.length; i < len; i++) {
-            if (state.articleList[i].current) {
-                localStorage.setItem(state.articleList[i].id, state.articleList[i].content);
-                saveID(state);
-            }
-        }
-    },
-    READ_FROM_CACHE: function READ_FROM_CACHE(state) {
-        for (var i = 0, len = state.articleList.length; i < len; i++) {
-            if (state.articleList[i].current) {
-                state.articleList[i].content = localStorage.getItem(state.articleList[i].id);
-            }
-        }
-    },
-    SELECT_THIS: function SELECT_THIS(state, index) {
-        for (var i = 0, len = state.articleList.length; i < len; i++) {
-            state.articleList[i].current = false;
-        }
-        state.articleList[index].current = true;
-    },
-    NEW_ARTICLE: function NEW_ARTICLE(state) {
-        for (var i = 0, len = state.articleList.length; i < len; i++) {
-            state.articleList[i].current = false;
-        }
-
-        var newOne = {
-            id: createID(),
-            content: 'Untitled\n---',
-            current: true
-        };
-
-        state.articleList.push(newOne);
-    },
-    DELETE_THIS: function DELETE_THIS(state, index) {
-        if (state.articleList.length > 1) {
-            var idArr = localStorage.getItem('idArr').split(',');
-            var loc = idArr.indexOf(state.articleList[index].id);
-            idArr.splice(loc, 1);
-            localStorage.setItem('idArr', idArr);
-
-            localStorage.removeItem(state.articleList[index].id);
-            state.articleList.splice(index, 1);
-
-            for (var i = 0, len = state.articleList.length; i < len; i++) {
-                state.articleList[i].current = false;
-            }
-            state.articleList[0].current = true;
-        }
-    },
-    READ_LIST_FROM_LOCAL: function READ_LIST_FROM_LOCAL(state) {
-        if (localStorage.getItem('idArr')) {
-            state.articleList = null;
-            var idArr = localStorage.getItem('idArr').split(',');
-            var articleArr = [];
-            for (var i = 0, len = idArr.length; i < len; i++) {
-                var articleObj = {
-                    id: '',
-                    content: '',
-                    current: false
-                };
-                articleObj.id = idArr[i];
-                articleObj.content = localStorage.getItem(idArr[i]);
-                articleArr.push(articleObj);
-            }
-            state.articleList = articleArr;
-            state.articleList[0].current = true;
-        }
-    }
-};
-
-var actions = {
-    showMenu: function showMenu(_ref) {
-        var commit = _ref.commit;
-
-        commit('SHOW_MENU');
-    },
-    textInput: function textInput(_ref2, txt) {
-        var commit = _ref2.commit;
-
-        commit('TEXT_INPUT', txt);
-    },
-    selectThis: function selectThis(_ref3, index) {
-        var commit = _ref3.commit;
-
-        commit('SELECT_THIS', index);
-    },
-    newArticle: function newArticle(_ref4) {
-        var commit = _ref4.commit;
-
-        commit('NEW_ARTICLE');
-        commit('SAVE_TO_CACHE');
-    },
-    deleteThis: function deleteThis(_ref5, index) {
-        var commit = _ref5.commit;
-
-        commit('DELETE_THIS', index);
-    },
-    saveToCache: function saveToCache(_ref6) {
-        var commit = _ref6.commit;
-
-        commit('SAVE_TO_CACHE');
-    },
-    readFromCache: function readFromCache(_ref7) {
-        var commit = _ref7.commit;
-
-        commit('READ_FROM_CACHE');
-    },
-    loadCache: function loadCache(_ref8) {
-        var commit = _ref8.commit;
-
-        commit('READ_LIST_FROM_LOCAL');
-    }
-};
-
-var getters = {
-    articleRaw: function articleRaw(state) {
-        var content = '';
-        for (var i = 0, len = state.articleList.length; i < len; i++) {
-            if (state.articleList[i].current) {
-                content = state.articleList[i].content;
-            }
-        }
-        return content;
-    },
-    articleMd: function articleMd(state, getters) {
-        return getters.articleRaw;
-    },
-    articleList: function articleList(state) {
-        return state.articleList;
-    }
-};
-
-/* harmony default export */ __webpack_exports__["a"] = ({ namespaced: true, state: state, mutations: mutations, actions: actions, getters: getters });
-
-/***/ }),
-
-/***/ 230:
-/***/ (function(module, exports, __webpack_require__) {
-
-var render = function() {
-  var _vm = this
-  var _h = _vm.$createElement
-  var _c = _vm._self._c || _h
-  return _c(
-    "div",
-    { staticStyle: { "margin-top": "80px" } },
-    [_c("router-view")],
-    1
-  )
-}
-var staticRenderFns = []
-render._withStripped = true
-module.exports = { render: render, staticRenderFns: staticRenderFns }
-if (false) {
-  module.hot.accept()
-  if (module.hot.data) {
-    require("vue-hot-reload-api")      .rerender("data-v-10ddd0a8", module.exports)
-  }
-}
-
-/***/ }),
-
-/***/ 63:
+/***/ 253:
 /***/ (function(module, exports, __webpack_require__) {
 
 var disposed = false
-function injectStyle (ssrContext) {
-  if (disposed) return
-  __webpack_require__(226)
-}
-var normalizeComponent = __webpack_require__(17)
+var normalizeComponent = __webpack_require__(1)
 /* script */
-var __vue_script__ = __webpack_require__(228)
+var __vue_script__ = __webpack_require__(254)
 /* template */
-var __vue_template__ = __webpack_require__(230)
+var __vue_template__ = __webpack_require__(256)
 /* template functional */
 var __vue_template_functional__ = false
 /* styles */
-var __vue_styles__ = injectStyle
+var __vue_styles__ = null
 /* scopeId */
 var __vue_scopeId__ = null
 /* moduleIdentifier (server only) */
@@ -325,7 +135,7 @@ var Component = normalizeComponent(
   __vue_scopeId__,
   __vue_module_identifier__
 )
-Component.options.__file = "resources/assets/js/components/admin/Admin.vue"
+Component.options.__file = "resources/assets/js/components/user/courses/Book.vue"
 
 /* hot reload */
 if (false) {(function () {
@@ -334,9 +144,437 @@ if (false) {(function () {
   if (!hotAPI.compatible) return
   module.hot.accept()
   if (!module.hot.data) {
-    hotAPI.createRecord("data-v-10ddd0a8", Component.options)
+    hotAPI.createRecord("data-v-8b45d886", Component.options)
   } else {
-    hotAPI.reload("data-v-10ddd0a8", Component.options)
+    hotAPI.reload("data-v-8b45d886", Component.options)
+  }
+  module.hot.dispose(function (data) {
+    disposed = true
+  })
+})()}
+
+module.exports = Component.exports
+
+
+/***/ }),
+
+/***/ 254:
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_vuetify_es5_components_VCard_VCardMedia__ = __webpack_require__(255);
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+    components: { VCardMedia: __WEBPACK_IMPORTED_MODULE_0_vuetify_es5_components_VCard_VCardMedia__["a" /* default */] },
+    props: {
+        book: Object
+    },
+    data: function data() {
+        return {
+            dialog: false
+        };
+    }
+});
+
+/***/ }),
+
+/***/ 255:
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony default export */ __webpack_exports__["a"] = ({
+  name: 'v-card-media',
+
+  props: {
+    contain: Boolean,
+    height: {
+      type: [Number, String],
+      default: 'auto'
+    },
+    src: {
+      type: String
+    }
+  },
+
+  render: function render(h) {
+    var data = {
+      'class': 'card__media',
+      style: {
+        height: !isNaN(this.height) ? this.height + 'px' : this.height
+      },
+      on: this.$listeners
+    };
+
+    var children = [];
+
+    if (this.src) {
+      children.push(h('div', {
+        'class': 'card__media__background',
+        style: {
+          background: 'url(' + this.src + ') center center / ' + (this.contain ? 'contain' : 'cover') + ' no-repeat'
+        }
+      }));
+    }
+
+    children.push(h('div', {
+      'class': 'card__media__content'
+    }, this.$slots.default));
+
+    return h('div', data, children);
+  }
+});
+
+/***/ }),
+
+/***/ 256:
+/***/ (function(module, exports, __webpack_require__) {
+
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c(
+    "div",
+    [
+      _c(
+        "v-list-tile",
+        { attrs: { avatar: "" }, on: { click: function($event) {} } },
+        [
+          _c(
+            "v-list-tile-avatar",
+            {
+              on: {
+                click: function($event) {
+                  _vm.dialog = true
+                }
+              }
+            },
+            [_c("img", { attrs: { src: _vm.book.image.path, alt: "book" } })]
+          ),
+          _vm._v(" "),
+          _c(
+            "v-list-tile-content",
+            {
+              on: {
+                click: function($event) {
+                  _vm.dialog = true
+                }
+              }
+            },
+            [
+              _c("v-list-tile-title", [_vm._v(_vm._s(_vm.book.title))]),
+              _vm._v(" "),
+              _c("v-list-tile-sub-title", [
+                _vm._v(_vm._s(JSON.parse(_vm.book.message)[0].text))
+              ])
+            ],
+            1
+          ),
+          _vm._v(" "),
+          _c(
+            "v-list-tile-action",
+            [
+              _c(
+                "v-btn",
+                { attrs: { icon: "", href: _vm.book.url, target: "_blank" } },
+                [_c("v-icon", [_vm._v("file_download")])],
+                1
+              )
+            ],
+            1
+          ),
+          _vm._v(" "),
+          _vm.$vuetify.breakpoint.smAndUp
+            ? _c(
+                "v-list-tile-action",
+                { staticStyle: { "margin-left": "15px" } },
+                [
+                  _c(
+                    "v-btn",
+                    {
+                      attrs: {
+                        color: "primary",
+                        outline: "",
+                        to: "/courses/A1/" + _vm.book.id
+                      }
+                    },
+                    [
+                      _vm._v("\n                Read   "),
+                      _c("v-icon", [_vm._v("chrome_reader_mode")])
+                    ],
+                    1
+                  )
+                ],
+                1
+              )
+            : _vm._e()
+        ],
+        1
+      ),
+      _vm._v(" "),
+      _c(
+        "v-dialog",
+        {
+          attrs: { "content-class": "overflow", "max-width": "300" },
+          model: {
+            value: _vm.dialog,
+            callback: function($$v) {
+              _vm.dialog = $$v
+            },
+            expression: "dialog"
+          }
+        },
+        [
+          _c(
+            "v-card",
+            [
+              _c(
+                "v-card-title",
+                { staticClass: "headline" },
+                [
+                  _vm._v("Book "),
+                  _c("v-spacer"),
+                  _c(
+                    "v-btn",
+                    {
+                      attrs: { icon: "" },
+                      on: {
+                        click: function($event) {
+                          _vm.dialog = false
+                        }
+                      }
+                    },
+                    [_c("v-icon", [_vm._v("close")])],
+                    1
+                  )
+                ],
+                1
+              ),
+              _vm._v(" "),
+              _c("v-divider"),
+              _vm._v(" "),
+              _c("v-card-text", [_vm._v(_vm._s(_vm.book.title))]),
+              _vm._v(" "),
+              _c("v-card-media", {
+                attrs: { src: _vm.book.image.path, height: "200px" }
+              }),
+              _vm._v(" "),
+              _c("v-card-text", [
+                _vm._v(
+                  "\n                " +
+                    _vm._s(JSON.parse(_vm.book.message)[0].text) +
+                    "\n            "
+                )
+              ]),
+              _vm._v(" "),
+              _c(
+                "v-card-actions",
+                [
+                  _c("v-spacer"),
+                  _vm._v(" "),
+                  _c(
+                    "v-btn",
+                    {
+                      attrs: { icon: "", href: _vm.book.url, target: "_blank" }
+                    },
+                    [_c("v-icon", [_vm._v("file_download")])],
+                    1
+                  ),
+                  _vm._v(" "),
+                  _vm.$vuetify.breakpoint.smAndUp
+                    ? _c(
+                        "v-btn",
+                        {
+                          attrs: {
+                            color: "primary",
+                            outline: "",
+                            to: "/courses/A1/" + _vm.book.id
+                          }
+                        },
+                        [
+                          _vm._v("\n                    Read   "),
+                          _c("v-icon", [_vm._v("chrome_reader_mode")])
+                        ],
+                        1
+                      )
+                    : _vm._e()
+                ],
+                1
+              )
+            ],
+            1
+          )
+        ],
+        1
+      )
+    ],
+    1
+  )
+}
+var staticRenderFns = []
+render._withStripped = true
+module.exports = { render: render, staticRenderFns: staticRenderFns }
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+    require("vue-hot-reload-api")      .rerender("data-v-8b45d886", module.exports)
+  }
+}
+
+/***/ }),
+
+/***/ 257:
+/***/ (function(module, exports, __webpack_require__) {
+
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c(
+    "v-card",
+    {
+      directives: [
+        {
+          name: "scroll",
+          rawName: "v-scroll",
+          value: { callback: this.loadMore },
+          expression: "{callback: this.loadMore}"
+        }
+      ],
+      attrs: { flat: "", height: "auto" }
+    },
+    [
+      _c(
+        "v-toolbar",
+        { attrs: { flat: "" } },
+        [_c("v-toolbar-title", [_vm._v(_vm._s(_vm.level) + " Books")])],
+        1
+      ),
+      _vm._v(" "),
+      _c(
+        "v-list",
+        { attrs: { "two-line": "" } },
+        _vm._l(_vm.books, function(book) {
+          return _c("book", { key: book.id, attrs: { book: book } })
+        })
+      )
+    ],
+    1
+  )
+}
+var staticRenderFns = []
+render._withStripped = true
+module.exports = { render: render, staticRenderFns: staticRenderFns }
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+    require("vue-hot-reload-api")      .rerender("data-v-d61df5f4", module.exports)
+  }
+}
+
+/***/ }),
+
+/***/ 69:
+/***/ (function(module, exports, __webpack_require__) {
+
+var disposed = false
+var normalizeComponent = __webpack_require__(1)
+/* script */
+var __vue_script__ = __webpack_require__(252)
+/* template */
+var __vue_template__ = __webpack_require__(257)
+/* template functional */
+var __vue_template_functional__ = false
+/* styles */
+var __vue_styles__ = null
+/* scopeId */
+var __vue_scopeId__ = null
+/* moduleIdentifier (server only) */
+var __vue_module_identifier__ = null
+var Component = normalizeComponent(
+  __vue_script__,
+  __vue_template__,
+  __vue_template_functional__,
+  __vue_styles__,
+  __vue_scopeId__,
+  __vue_module_identifier__
+)
+Component.options.__file = "resources/assets/js/components/user/courses/Books.vue"
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-d61df5f4", Component.options)
+  } else {
+    hotAPI.reload("data-v-d61df5f4", Component.options)
   }
   module.hot.dispose(function (data) {
     disposed = true

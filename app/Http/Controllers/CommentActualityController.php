@@ -2,27 +2,30 @@
 
 namespace App\Http\Controllers;
 
+use App\Actuality;
 use App\Comment;
 use App\Events\CommentCreatedEvent;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 
-class CommentController extends Controller
+class CommentActualityController extends Controller
 {
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(int $article)
+    public function index(int $actuality)
     {
-        $comments = Comment::with('user','replyedUser','liked')
-            ->where("article_id",$article)
-            ->withCount("likes")
-            ->orderBy("created_at","desc")
-            ->paginate(10);
-        return new Response($comments);
+        $actuality = Actuality::find($actuality);
+        if(!is_null($actuality)){
+            $comments = $actuality->comments()->with('user','replyedUser','liked')
+                ->withCount("likes")
+                ->orderBy("created_at","desc")
+                ->paginate(10);
+            return new Response($comments);
+        }
     }
 
     /**
@@ -41,17 +44,20 @@ class CommentController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Request $request, int $id)
     {
         $data = $request->all();
-        $comment = Comment::create($data);
-        $comment->load('user');
-        $comment->likes_count = $comment->likes()->where("likable_id",$comment->id)->count();
-        if($comment->comment_id){
-            $comment->load('replyedUser','liked');
+        $actuality = Actuality::find($id);
+        if(!is_null($actuality)){
+            $comment = $actuality->comments()->create($data);
+            $comment->load('user');
+            $comment->likes_count = $comment->likes()->where("likable_id",$comment->id)->count();
+            if($comment->comment_id){
+                $comment->load('replyedUser','liked');
+            }
+            broadcast(new CommentCreatedEvent($comment->toJson(), $actuality->user->id))->toOthers();
+            return new Response($comment);
         }
-        broadcast(new CommentCreatedEvent($comment->toJson(), $comment->article->user->id))->toOthers();
-        return new Response($comment);
     }
 
     /**
@@ -94,7 +100,7 @@ class CommentController extends Controller
      * @param  \App\Comment  $comment
      * @return \Illuminate\Http\Response
      */
-    public function destroy(int $article,Comment $comment)
+    public function destroy(int $actuality,Comment $comment)
     {
         if(!is_null($comment)){
             $comment->likes()->delete();
@@ -104,7 +110,7 @@ class CommentController extends Controller
         }
     }
 
-    public function like(int $article, Comment $comment, int $type)
+    public function like(int $actuality, Comment $comment, int $type)
     {
         $like = $comment->liked()->first();
         if(is_null($like)){
@@ -112,7 +118,7 @@ class CommentController extends Controller
         }
     }
 
-    public function deleteLike(int $article, Comment $comment)
+    public function deleteLike(int $actuality, Comment $comment)
     {
         $comment->liked()->delete();
         return new Response(["status"=>1]);

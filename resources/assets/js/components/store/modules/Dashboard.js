@@ -1,11 +1,11 @@
 /*let marked = require("marked")
-let highlight = require("highlight.js")
-marked.setOptions({
-    highlight: function (code) {
-        return highlight.highlightAuto(code).value
-    }
-})
-window.marked = marked*/
+ let highlight = require("highlight.js")
+ marked.setOptions({
+ highlight: function (code) {
+ return highlight.highlightAuto(code).value
+ }
+ })
+ window.marked = marked*/
 
 const saveID = (state) => {
     let idArr = []
@@ -155,7 +155,7 @@ const getters = {
         return content
     },
     articleMd: (state, getters) => {
-        return getters.articleRaw    
+        return getters.articleRaw
     },
     articleList: state => {
         return state.articleList

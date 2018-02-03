@@ -4,8 +4,8 @@
             <v-card>
                 <v-toolbar :color="(!darked) ? 'white' : 'theme--dark'">
                     <v-avatar
-                            @click="$router.push('user/profile/'+owner.id)"
-                            style="margin-left: 10px;margin-right: 10px"
+                            @click="$router.push('profile/'+owner.id)"
+                            style="cursor: pointer;margin-left: 10px;margin-right: 10px"
                             size="40px"
                     >
                         <img :src="owner.avatar" alt="avatar">
@@ -82,9 +82,13 @@
                 <v-divider></v-divider>
                 <div style="padding: 10px;overflow-x:hidden;overflow-y: auto;height:410px" id="comments">
                     <div style="margin-bottom: 10px">
-                        <div style="width:100%;text-align: left;color:rgb(97, 97, 97)" v-if="article.image">
+                        <div style="width:100%;text-align: left;color:rgb(97, 97, 97)" v-if="article.image && article.type==='actuality'">
                             <b style="color:black">{{owner.name+" "+owner.forename}}</b>
                             <span v-for="message,i in JSON.parse(article.message)" :key="i">{{message.text}}<span  v-if="message.url"><img :src="message.url" style="margin-bottom:-5px;height: 30px;width: 30px"></span></span>
+                        </div>
+                        <div style="width:100%;text-align: left;color:rgb(97, 97, 97)" v-else>
+                            <b style="color:black">{{owner.name+" "+owner.forename}}</b>
+                            <span>{{article.title}}</span>
                         </div>
                     </div>
                     <comments :article="article" :open="open"></comments>

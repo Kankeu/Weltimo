@@ -54,4 +54,9 @@ class CommentCreatedEvent implements ShouldBroadcast
             'comment' => $this->comment,
         ];
     }
+
+    public function broadcastWhen()
+    {
+        return ($this->articleOwnerId != $this->comment->user_id )|| ($this->comment->user_id != $this->articleOwnerId);
+    }
 }

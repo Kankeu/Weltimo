@@ -1,33 +1,85 @@
 <template>
-    <div style="height: 100%">
-        <div style="height: 100%">
-                    <div :class="$vuetify.breakpoint.smAndUp ? 'blogBg' : 'xsBlogBg'">
-                        <div style="background-size: 100%;z-index:1;height: 100%;width:100%;background: black;opacity: .4;position: absolute;top: 0;bottom:0;right:0;left:0;">
-                        </div>
-                        <v-layout style="z-index: 2;height: 100%"  column>
-                            <v-flex style="height: 100%">
-                                <v-layout class="title center" style="height: 60%;z-index: 2;" column  align-center justify-center>
-                                    <h1 class="white--text">Hello and welcome on Weltimo</h1>
-                                    <h3 class="white--text">Travel to Germany with confidence thanks to</h3>
-                                    <h3 class="white--text">our courses and follow-up offers.</h3>
-                                    <div style="margin-top: 50px">
-                                        <v-btn  color="primary" large>Sign in</v-btn>
-                                        <v-btn  color="white" large outline>Android</v-btn>
-                                    </div>
-                                </v-layout>
-                            </v-flex>
+    <div>
+        <div>
+            <div :class="$vuetify.breakpoint.smAndUp ? 'blogBg' : 'xsBlogBg'">
+                <div style="background-size: 100%;z-index:1;height: 100%;width:100%;background: black;opacity: .4;position: absolute;top: 0;bottom:0;right:0;left:0;">
+                </div>
+                <v-layout style="z-index: 2;height: 100%"  column>
+                    <v-flex style="height: 100%">
+                        <v-layout class="title center" style="height: 60%;z-index: 2;" column  align-center justify-center>
+                            <h1 class="white--text">Hello and welcome on Weltimo</h1>
+                            <h3 class="white--text">Travel to Germany with confidence thanks to</h3>
+                            <h3 class="white--text">our courses and follow-up offers.</h3>
+                            <div style="margin-top: 50px">
+                                <v-btn  color="primary" large>Sign in</v-btn>
+                                <v-btn  color="white" large outline>Android</v-btn>
+                            </div>
                         </v-layout>
-                    </div>
+                    </v-flex>
+                </v-layout>
+            </div>
             <v-layout column>
                 <v-flex>
-                    <v-container grid-list-md text-xs-center fluid>
+                    <v-container grid-list-lg text-xs-center fluid>
                         <v-layout column>
                             <v-flex>
-                                <v-layout wrap row>
-                                    <v-flex lg4 v-for="article,i in articles" :key="i">
-                                        <presentation-card :article="article"></presentation-card>
-                                    </v-flex>
-                                </v-layout>
+                                <v-container grid-list-lg text-xs-center fluid>
+                                    <v-layout wrap row>
+                                        <v-flex v-for="article,i in articles" :key="i" lg4>
+                                            <presentation-card :color="colors[i] || ''" :article="article"></presentation-card>
+                                        </v-flex>
+                                    </v-layout>
+                                </v-container>
+                            </v-flex>
+                            <v-flex>
+                                <v-container grid-list-lg text-xs-center fluid>
+                                    <v-layout column>
+                                        <v-flex lg12 style="background: #f1f1f1;">
+                                            <v-container>
+                                                <v-layout row>
+                                                    <v-flex lg1></v-flex>
+                                                    <v-flex lg5>
+                                                        <v-card-text style="text-align: left">
+                                                            <h1>Title</h1>
+                                                            sdfsdfsfsqdfqdfsMMMMMMMMMMMMMMMMMMMMMMMM
+                                                            GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG
+                                                            GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG
+                                                            GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG
+                                                            GGGGGGGGGGGGGGGGGGGGG
+                                                            GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG
+                                                        </v-card-text>
+                                                    </v-flex>
+                                                    <v-flex lg5>
+                                                        <img src="/img/default/weltimo.png">
+                                                    </v-flex>
+                                                    <v-flex lg1></v-flex>
+                                                </v-layout>
+                                            </v-container>
+                                        </v-flex>
+                                        <v-flex lg12>
+                                            <v-container>
+                                                <v-layout row>
+                                                    <v-flex lg1></v-flex>
+                                                    <v-flex lg5>
+                                                        <img src="/img/default/weltimo.png">
+                                                    </v-flex>
+                                                    <v-flex lg5>
+                                                        <v-card-text style="text-align: left">
+                                                            <h1>Title</h1>
+                                                            sdfsdfsfsqdfqdfsMMMMMMMMMMMMMMMMMMMMMMMM
+                                                            GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG
+                                                            GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG
+                                                            GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG
+                                                            GGGGGGGGGGGGGGGGGGGGG
+                                                            GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG
+                                                        </v-card-text>
+                                                    </v-flex>
+                                                    <v-flex lg1></v-flex>
+                                                </v-layout>
+                                            </v-container>
+                                        </v-flex>
+                                    </v-layout>
+                                </v-container>
                             </v-flex>
                             <v-flex>
                                 <v-flex style="align-items: center;margin-top: 80px">
@@ -40,53 +92,6 @@
                     </v-container>
                 </v-flex>
             </v-layout>
-                   <!-- <div class="body">
-                        <v-layout class="title center" column  align-center justify-center>
-                            <h1 class="white--text">Hello and welcome on Weltimo</h1>
-                            <h4 class="white--text">Join us and discover a new way to learn German</h4>
-                            <h4 class="white--text">learn German in a fun way  :)</h4>
-                        </v-layout>
-
-                        <div id="background-wrap">
-                            <div class="x1">
-                                <div class="cloud"></div>
-                            </div>
-
-                            <div class="x2">
-                                <div class="cloud"></div>
-                            </div>
-
-                            <div class="x3">
-                                <div class="cloud"></div>
-                            </div>
-
-                            <div class="x4">
-                                <div class="cloud"></div>
-                            </div>
-
-                            <div class="x5">
-                                <div class="cloud"></div>
-                            </div>
-                        </div>
-                    </div>
-                </v-flex>
-                <v-flex style="margin-top: 25px;font-family: 'Tangerine', cursive;color:#ff9800!important;font-size: 30px;text-align: center" color="deep-orange"><h1>Our offers</h1></v-flex>
-                <v-flex lg12>
-                    <v-container grid-list-md text-xs-center fluid>
-                        <v-layout wrap row>
-                            <v-flex lg4 v-for="article,i in articles" :key="i">
-                                <presentation-card :article="article"></presentation-card>
-                            </v-flex>
-                        </v-layout>
-                    </v-container>
-                </v-flex>
-                <v-flex>
-                    <v-layout class="title center" column  align-center justify-center>
-                        <v-avatar size="200px" tile>
-                            <img style="height:154px" src="/img/default/weltimo.png">
-                        </v-avatar>
-                    </v-layout>-->
-
         </div>
     </div>
 </template>
@@ -98,7 +103,12 @@
         data(){
             return {
                 images: [],
-                articles: []
+                articles: [],
+                colors: [
+                    "cyan",
+                    "blue",
+                    "amber"
+                ]
             }
         },
         mounted(){
@@ -113,7 +123,7 @@
 <style scoped lang="scss">
     .blogBg{
         position: relative;
-        height: 75%;
+        height: 170vh;
         width: 100%;
         background-image: url('/img/default/weltimoBackground.jpg');
         display: flex;
@@ -140,7 +150,8 @@
         font-size: 200px !important
     }
     .center{
-        text-align: center
+        text-align: center;
+        margin-top: 60px
     }
     .body {
         background: #00b4ff;

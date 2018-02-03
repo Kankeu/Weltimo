@@ -42,4 +42,9 @@ class UserOnlineEvent implements ShouldBroadcast
         }
         return $channels;
     }
+
+    public function broadcastWhen()
+    {
+        return $this->user->followers()->count() > 0;
+    }
 }

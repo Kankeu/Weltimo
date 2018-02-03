@@ -21,12 +21,22 @@ Route::middleware('AjaxDetecte')->group(function () {
 	Route::middleware('auth')->prefix('user')->group(function (){
 	    Route::get('/search/{keyword}', 'SearchController@index');
         Route::resource('actuality', 'ActualityController');
+        Route::prefix('actuality/{actuality}')->group(function () {
+            Route::get('like/{type}', 'ActualityController@like');
+            Route::delete('like', 'ActualityController@deleteLike');
+            Route::resource('comment', 'CommentActualityController');
+            Route::get('comment/{comment}/like/{type}', 'CommentActualityController@like');
+            Route::delete('comment/{comment}/like', 'CommentActualityController@deleteLike');
+            Route::get('likers/{type}', 'ActualityController@likers');
+            Route::get('likes/count', 'ActualityController@likes');
+        });
 	    Route::resource('article', 'ArticleController',['except'=>'update']);
 	    Route::post('article/{article}', 'ArticleController@update');
-	    Route::get('article/{article}/like', 'ArticleController@deleteLike');
 	    Route::resource('profile', 'ProfileController');
 	    Route::get('profile/{profile}/article/{article}', 'ProfileController@article');
-	    Route::resource('subscription', 'SubscriptionController');
+	    Route::resource('subscription', 'SubscriptionController',['except'=>'destroy']);
+	    Route::get('unfollow/{id}', 'SubscriptionController@unfollow');
+	    Route::get('deletefollower/{id}', 'SubscriptionController@deletefollower');
         Route::prefix('profile/{profile}')->group(function () {
             Route::resource('follower', 'FollowerController', ["only" => ["index", "show"]]);
             Route::resource('following', 'FollowingController', ["only" => ["index", "show"]]);
@@ -34,10 +44,16 @@ Route::middleware('AjaxDetecte')->group(function () {
         });
         Route::prefix('article/{article}')->group(function () {
             Route::get('like/{type}', 'ArticleController@like');
-            Route::resource('comment', 'CommentController');
-            Route::get('comment/{comment}/like/{type}', 'CommentController@like');
-            Route::delete('comment/{comment}/like', 'CommentController@deleteLike');
+            Route::delete('like', 'ArticleController@deleteLike');
+            Route::resource('comment', 'CommentArticleController');
+            Route::get('comment/{comment}/like/{type}', 'CommentArticleController@like');
+            Route::delete('comment/{comment}/like', 'CommentArticleController@deleteLike');
             Route::get('likers/{type}', 'ArticleController@likers');
+            Route::get('likes/count', 'ArticleController@likes');
+        });
+        Route::prefix('book')->group(function () {
+            Route::get('{type}/{level}', 'BookController@index');
+            Route::get('{type}/{level}/{id}', 'BookController@index');
         });
         Route::post('cover','UserController@cover');
         Route::post('avatar','UserController@avatar');
@@ -67,8 +83,16 @@ Route::middleware('AjaxDetecte')->group(function () {
             Route::resource('job', 'JobController');
         });
         Route::resource('actuality', 'ActualityController');
+        Route::resource('book', 'BookController');
         Route::resource('user', 'UserController');
         Route::resource('article', 'ArticleController');
     });
 });
-Route::view('{url1?}/{url2?}', 'welcome');
+Route::get('/',function(){
+    if(\Illuminate\Support\Facades\Auth::check()){
+        return view('app');
+    }else{
+        return view('welcome');
+    }
+});
+

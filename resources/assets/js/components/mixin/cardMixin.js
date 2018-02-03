@@ -57,6 +57,9 @@ export default {
         },
         text(){
             return this.article.liked ? this.emoticons.find(e=>e.type===this.article.liked.type).TextoEmocion : null
+        },
+        name(){
+            return (this.article.type) ? this.article.type : 'article'
         }
     },
     mounted(){
@@ -67,20 +70,20 @@ export default {
             let facemotion = (name) ? name : event.target.className
             let emoticon = this.emoticons.find(e=>e.emocion===facemotion)
             if(emoticon && !this.article.liked){
-                this.$http.get('user/article/'+this.article.id+'/like/'+emoticon.type).then(response=>{
+                this.$http.get('user/'+this.name+'/'+this.article.id+'/like/'+emoticon.type).then(response=>{
                     if(response.body.id){
                         this.$store.dispatch("like/save", response.body)
-                        this.$store.dispatch('article/addLike',{article:this.article,like:response.body})
+                        this.$store.dispatch(this.name+'/addLike',{article:this.article,like:response.body})
                     }
                 })
             }
         },
         deleteLike(){
-            if(this.article.liked){
-                this.$http.delete('user/article/'+this.article.id+'/like').then(response=>{
+            if(this.article.liked.id){
+                this.$http.delete('user/'+this.name+'/'+this.article.id+'/like').then(response=>{
                     if(response.body.status === 1){
                         this.$store.dispatch("like/delete", this.article.liked)
-                        this.$store.dispatch('article/deleteLike',{article:this.article})
+                        this.$store.dispatch(this.name+'/deleteLike',{article:this.article})
                     }
                 })
             }
@@ -88,31 +91,31 @@ export default {
         follow(user){
             this.$set(user, "loadingSubs",true)
             if(user.followed){
-                this.$http.delete("user/subscription/"+ user.followed.id).then(response=>{
+                this.$http.get("user/unfollow/"+ user.id).then(response=>{
                     if(response.body.status === 1){
                         this.$set(user, "loadingSubs",false)
                         this.$set(user, "followed",null)
-                        user.followers_count++
+                        user.followers_count--
                     }
                 })
             }else{
                 this.$http.post('user/subscription',{receiver_id:user.id}).then(response=>{
                     if(response.body.id){
                         this.$set(user, "followed",response.body)
-                        user.followers_count--
+                        user.followers_count++
                         this.$set(user, "loadingSubs",false)
                     }
                 })
             }
         },
         masquer(){
-            this.$store.dispatch("article/delete",{id:this.article.id})
+            this.$store.dispatch(this.name+"/delete",{id:this.article.id})
         },
         destroy(){
             this.loading = true
-            this.$http.delete('user/article/'+this.article.id).then(response=>{
+            this.$http.delete('user/'+this.name+'/'+this.article.id).then(response=>{
                 if(response.body.status === 1){
-                    this.$store.dispatch('article/delete', this.article)
+                    this.$store.dispatch(this.name+'/delete', this.article)
                     this.articleDelete = false
                     this.loading = false
                 }
@@ -123,6 +126,7 @@ export default {
             textarea.value = this.urlArticle(this.article.id,this.article.user_id)
             textarea.select()
             document.execCommand('copy')
+            textarea.blur()
         }
     },
 }

@@ -115,9 +115,7 @@ class ProfileController extends Controller
 
     public function album(int $profile)
     {
-        $images = Image::whereHas('article',function ($query) use ($profile){
-            $query->where("user_id",$profile);
-        })
+        $images = Image::where('user_id',$profile)
             ->paginate(10);
         return new Response($images);
     }

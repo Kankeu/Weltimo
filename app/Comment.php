@@ -8,12 +8,12 @@ use Illuminate\Support\Facades\Auth;
 
 class Comment extends Model
 {
-    protected $fillable = ["article_id","user_id","comment_id","message"];
+    protected $fillable = ["user_id","comment_id","message"];
 
 
     protected $casts = [
         "user_id" => "int",
-        "article_id" => "int",
+        "commentable_id" => "int",
         "comment_id" => "int"
     ];
 

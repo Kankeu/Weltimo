@@ -3,17 +3,15 @@ window.Vue = require('vue')
 import vueRouter from 'vue-router'
 import Vuetify from 'vuetify'
 import 'vuetify/dist/vuetify.min.css'
-import VeeValidate from 'vee-validate'
 import vueResource from 'vue-resource'
+import 'emojionearea/dist/emojionearea.css'
+import 'emojionearea'
 import './components/mixin/config'
 import GlobalMixin from './components/mixin/GlobalMixin'
 import './components/faceMotion/FaceMotion.css'
-import $ from "jquery"
 import VueScrollTo from 'vue-scrollto'
 import VueTimeago from 'vue-timeago'
 import Echo from "laravel-echo"
-import "emojionearea"
-import "emojionearea/dist/emojionearea.css"
 window.Pusher = require('pusher-js')
 window.Echo = new Echo({
     broadcaster: 'pusher',
@@ -23,8 +21,6 @@ window.Echo = new Echo({
 })
 let store = require('./components/store/store')
 Vue.use(VueScrollTo)
-
-Vue.use(VeeValidate);
 Vue.use(Vuetify)
 Vue.use(vueRouter)
 Vue.use(vueResource)
@@ -41,29 +37,11 @@ Vue.use(VueTimeago, {
         'en-US': require('vue-timeago/locales/en-US.json')
     }
 })
-window.jQuery = $
-window.$ = $
-
 const router = new vueRouter({
     mode: "hash",
     routes: [
         {
             path: "/",
-            component: resolve => require(['./components/app/App.vue'], resolve),
-            children:[
-                {
-                    path: "/",
-                    component: resolve => require(['./components/app/Home.vue'], resolve),
-                },
-                {
-                    path: "/sign_in",
-                    component: resolve => require(['./components/app/Inscription.vue'], resolve),
-                    name: "Inscription",
-                },
-            ]
-        },
-        {
-            path: "/user",
             component: resolve => require(['./components/user/User.vue'], resolve),
             beforeEnter: (to, from, next) => {
                 let connected = (store.default.state.user.user) ? store.default.state.user.user.confirmated : 0
@@ -75,8 +53,6 @@ const router = new vueRouter({
                             store.default.dispatch("user/save", response.body)
                             store.default.dispatch("users/save", response.body)
                             next()
-                        }else{
-                            next('/')
                         }
                     })
                 }
@@ -88,9 +64,9 @@ const router = new vueRouter({
                     name: "Home"
                 },
                 {
-                    path: "actus",
-                    component: resolve => require(['./components/user/Actu.vue'], resolve),
-                    name: "Actus",
+                    path: "actualities",
+                    component: resolve => require(['./components/user/Actualities.vue'], resolve),
+                    name: "Actualities",
                 },
                 {
                     path:"profile/:id",
@@ -125,6 +101,22 @@ const router = new vueRouter({
                     ]
                 },
                 {
+                    path: "courses",
+                    component: resolve => require(['./components/user/Courses.vue'], resolve),
+                    children:[
+                        {
+                            path:"/",
+                            component: resolve => require(['./components/user/courses/Overview.vue'], resolve),
+                            name: "Courses"
+                        },
+                        {
+                            path:":level/:book?",
+                            component: resolve => require(['./components/user/courses/Books.vue'], resolve),
+                            name: "Books"
+                        }
+                    ]
+                },
+                {
                     path: "admin",
                     component: resolve => require(['./components/admin/Admin.vue'], resolve),
                     name: "Admin",
@@ -138,6 +130,10 @@ const router = new vueRouter({
                             component: resolve => require(['./components/admin/Users.vue'], resolve)
                         },
                         {
+                            path:"books",
+                            component: resolve => require(['./components/admin/Books.vue'], resolve)
+                        },
+                        {
                             path:"edit",
                             component: resolve => require(['./components/admin/Edit.vue'], resolve)
                         },
@@ -148,6 +144,17 @@ const router = new vueRouter({
                         {
                             path: "*",
                             redirect: "/user"
+                        }
+                    ]
+                },
+                {
+                    path: "forum",
+                    component: resolve => require(['./components/user/Forum.vue'], resolve),
+                    name: "Forum",
+                    children: [
+                        {
+                            path: "/",
+                            component: resolve => require(['./components/user/forum/Home.vue'], resolve),
                         }
                     ]
                 },
@@ -167,21 +174,14 @@ const router = new vueRouter({
                 }
             ]
         },
-        {
-            path: "*/:text",
-            redirect: "/"
-        }
     ],
 })
 router.afterEach((to,from)=>{
-    if(to.path.match(new RegExp('/user.*?',"g"))){
-        store.default.dispatch('setting/setLoading',false)
-    }
+    store.default.dispatch('setting/setLoading',false)
 })
 router.beforeEach((to,from,next)=>{
-    if(to.path.match(new RegExp('/user.*?',"g"))){
-        store.default.dispatch('setting/setLoading',true)
-    }
+    if(from.name) store.default.dispatch('setting/addScrollTop',{scrollTop:document.body.scrollTop,name:from.name.toLowerCase()})
+    store.default.dispatch('setting/setLoading',true)
     next()
 })
 

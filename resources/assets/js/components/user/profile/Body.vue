@@ -122,9 +122,6 @@
             this.load()
             document.body.scrollTop = this.scrollTop
         },
-        destroyed(){
-            this.$store.dispatch('setting/addScrollTop',{scrollTop:document.body.scrollTop,name:"profileBody"})
-        },
         watch:{
             '$route.params.id'(){
                 this.load()

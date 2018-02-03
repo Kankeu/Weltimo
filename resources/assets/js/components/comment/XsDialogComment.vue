@@ -2,15 +2,15 @@
     <v-dialog v-model="dialog"  content-class="overflow" fullscreen transition="dialog-bottom-transition" :overlay=false>
         <v-card>
             <v-card-title :class="darked ? 'fontBlack' : 'white'" style="position: fixed;width: 100%;z-index: 2">
-                Comments <v-spacer></v-spacer><span @click="dialog=false">x</span>
+                Comments <v-spacer></v-spacer><v-icon @click="dialog=false">close</v-icon>
             </v-card-title>
-            <v-layout v-if="article && article.id && open" column>
+            <v-layout v-if="article && article.id && open" id="comments" column>
                 <v-flex style="margin-top: 53px;margin-bottom: 55px">
                     <v-divider></v-divider>
                     <comments :article="article" style="padding: 5px;" :open="open"></comments>
                 </v-flex>
                 <v-flex>
-                    <div style="position: fixed;width: 100%;bottom:40px">
+                    <div style="position: fixed;width: 100%;bottom:15px">
                         <comment-form :article="article"></comment-form>
                     </div>
                 </v-flex>

@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Article;
+use App\Actuality;
 use Illuminate\Http\Response;
 
 class OfferController extends Controller
 {
     public function index()
     {
-        $offers = Article::with("image")
+        $offers = Actuality::with("image")
             ->where("type","offer")
             ->where("published_at","<=",NOW())
             ->get();

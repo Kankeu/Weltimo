@@ -2,8 +2,11 @@
 
 namespace App\Events;
 
+use App\User;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Broadcasting\PrivateChannel;
+use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
@@ -14,16 +17,23 @@ class ActualityCreatedEvent implements ShouldBroadcast
     /**
      * @var string
      */
-    private $article;
+    private $actuality;
+    /**
+     * @var User
+     */
+    private $user;
 
     /**
      * Create a new event instance.
      *
-     * @param string $article
+     * @param string $actuality
+     * @param User $user
      */
-    public function __construct(string $article)
+    public function __construct(string $actuality, User $user)
     {
-        $this->article = json_decode($article);
+        $this->actuality = json_decode($actuality);
+        $this->user = $user;
+        $this->article->user->followed = true;
     }
 
     /**
@@ -33,13 +43,22 @@ class ActualityCreatedEvent implements ShouldBroadcast
      */
     public function broadcastOn()
     {
-        return new Channel('weltimo.newsletter');
+        $channels = [];
+        foreach ($this->user->followers as $follower) {
+            array_push($channels, new PrivateChannel('actuality.user.' . $follower->sender_id));
+        }
+        return $channels;
     }
 
     public function broadcastWith()
     {
         return [
-            'article' => $this->article,
+            'actuality' => $this->actuality,
         ];
+    }
+
+    public function broadcastWhen()
+    {
+        return $this->user->followers()->count() > 0;
     }
 }

@@ -1,5 +1,5 @@
 <template>
-    <v-card class="prentation_card" height="100%">
+    <v-card class="presentation_card" height="100%">
         <v-card-media :src="article.image.path" height="200px" v-if="article.image">
         </v-card-media>
         <v-card-media :class="color" style="display: block" height="100px" v-else>
@@ -14,6 +14,7 @@
                 <div>{{JSON.parse(article.message)[0].text}}</div>
             </div>
         </v-card-title>
+
         <v-card-actions>
             <v-spacer></v-spacer>
             <v-btn flat color="primary" to="log_in">Los geht! <v-icon>chevron_right</v-icon></v-btn>
@@ -24,39 +25,30 @@
 <script>
     export default{
         props:{
-            article: Object
+            article: Object,
+            color: String
         },
         data: ()=>({
-            color:null
+
         }),
-        computed:{
-            colors(){
-                return [
-                    "purple",
-                    "deep-purple",
-                    "light-blue",
-                    "cyan",
-                    "blue",
-                    "indigo accent-4",
-                    "deep-orange",
-                    "orange",
-                    "red accent-3",
-                    "amber"
-                ]
-            }
-        },
         mounted(){
-            this.color = this.colors[Math.floor(Math.random() * Math.floor(10))]
+
         }
     }
 </script>
 
 <style scss>
-    .prentation_card .card__media__content{
+    .presentation_card .card__media__content{
         justify-content: center;
         height: inherit;
     }
-    .prentation_card .card__media__content .chip{
+    .presentation_card{
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+    .presentation_card .card__media__content .chip{
         align-self: center;
     }
 </style>

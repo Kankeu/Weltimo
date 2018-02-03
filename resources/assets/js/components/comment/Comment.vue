@@ -2,7 +2,7 @@
     <div style="display: flex;flex-direction: row;">
         <div>
             <v-avatar
-                    @click="$router.push('/user/profile/'+comment.user_id)"
+                    @click="$router.push('profile/'+comment.user_id)"
                     style="margin-right: 10px"
                     size="40px"
             >
@@ -16,7 +16,7 @@
             <div>
                 <div style="width:100%;text-align: left;word-wrap: break-word;">
                     <span v-for="message,i in JSON.parse(comment.message)" :key="i">
-                        <span class="text-xs-center" @click="$router.push('/user/profile/'+comment.comment_id)" v-if="comment.comment_id && i===0">
+                        <span class="text-xs-center" @click="$router.push('profile/'+comment.comment_id)" v-if="comment.comment_id && i===0">
                           <v-chip class="chipComment">
                             <v-avatar style="height: 25px !important;width: 25px !important;min-width: 25px !important;">
                               <img :src="replyed_user.avatar" alt="avatar">
@@ -83,6 +83,9 @@
             user(){
                 return this.$store.state.user.user
             },
+            name(){
+                return (this.article.type) ? this.article.type : 'article'
+            }
         },
         methods:{
             reply(){
@@ -90,10 +93,10 @@
             },
             destroy(){
                 this.loading = true
-                this.$http.delete('user/article/'+this.comment.article_id+'/comment/'+this.comment.id).then(response=>{
+                this.$http.delete('user/'+this.name+'/'+this.comment.commentable_id+'/comment/'+this.comment.id).then(response=>{
                     if(response.body.status === 1){
                         this.$store.dispatch('comment/delete',this.comment)
-                        this.$store.dispatch('article/deleteComment',this.article)
+                        this.$store.dispatch(this.name+'/deleteComment',this.article)
                     }
                     this.loading = false
                     this.commentDelete = false
@@ -101,7 +104,7 @@
             },
             like(){
                 store.set('loading',true)
-                this.$http.get('user/article/'+this.comment.article_id+'/comment/'+this.comment.id+'/like/'+8).then(response=>{
+                this.$http.get('user/'+this.name+'/'+this.comment.commentable_id+'/comment/'+this.comment.id+'/like/'+8).then(response=>{
                     if(response.body.id){
                         this.$store.dispatch('comment/addLike',{comment:this.comment,like:response.body})
                     }
@@ -110,7 +113,7 @@
             },
             deleteLike(){
                 store.set('loading',true)
-                this.$http.get('user/article/'+this.comment.article_id+'/comment/'+this.comment.id+'/like/').then(response=>{
+                this.$http.delete('user/'+this.name+'/'+this.comment.commentable_id+'/comment/'+this.comment.id+'/like/').then(response=>{
                     if(response.body.status === 1){
                         this.$store.dispatch('comment/deleteLike',{comment:this.comment})
                     }

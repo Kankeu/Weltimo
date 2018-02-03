@@ -1,6 +1,6 @@
 
 <template>
-    <v-layout row wrap style="justify-content:space-between">
+    <v-layout row wrap :style="$vuetify.breakpoint.smAndUp ? 'margin-top:50px'  : 'justify-content:space-between;'">
         <v-flex v-for="following in followings" :key="following.id" xs12 lg6>
             <v-card>
                 <v-container :style="$vuetify.breakpoint.smAndUp || 'padding:0;padding-top:8px'" fluid grid-list-lg>
@@ -77,7 +77,7 @@
             follow(user){
                 this.$set(user, "loadingSubs",true)
                 if(user.followed){
-                    this.$http.delete("user/subscription/"+ user.followed.id).then(response=>{
+                    this.$http.get("user/unfollow/"+ user.id).then(response=>{
                         if(response.body.status === 1){
                             this.$set(user, "loadingSubs",false)
                             let index = this.followings.indexOf(this.followings.find(following=>following.id===user.id))

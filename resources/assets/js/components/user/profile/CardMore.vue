@@ -30,7 +30,7 @@
                         <v-toolbar-title class="text-xs-center">Suggestions</v-toolbar-title>
                     </v-toolbar>
                     <v-list v-if="morePersons.length>0" subheader>
-                        <v-subheader>Who to follow</v-subheader>
+                        <v-subheader>Who to follow ?</v-subheader>
                         <v-menu
                                 v-for="morePerson in morePersons" :key="morePerson.id"
                                 right
@@ -82,13 +82,23 @@
                                     </v-list-tile>
                                 </v-list>
                                 <v-divider></v-divider>
-                                <v-avatar
-                                        size="200px"
-                                        :tile="true"
-                                        class="menuCover"
-                                >
-                                    <img :src="morePerson.cover" alt="cover picture">
-                                </v-avatar>
+                                <v-layout column>
+                                    <v-flex lg12 xs12>
+                                        <v-avatar
+                                                size="200px"
+                                                :tile="true"
+                                                class="menuCover"
+                                        >
+                                            <img :src="morePerson.cover" alt="cover picture">
+                                        </v-avatar>
+                                    </v-flex>
+                                    <v-flex lg12 xs12>
+                                        <v-layout row wrap style="margin: 10px" align-center justify-center>
+                                            <v-flex><p style="margin-bottom: 0px">Following</p><span style="color:#1B95E0 !important;font-size: 20px">{{morePerson.following_count}}</span></v-flex>
+                                            <v-flex><p style="margin-bottom: 0px">Followers</p><span style="color:#1B95E0 !important;font-size: 20px">{{morePerson.followers_count}}</span></v-flex>
+                                        </v-layout>
+                                    </v-flex>
+                                </v-layout>
                             </v-card>
                         </v-menu>
                     </v-list>
@@ -143,11 +153,12 @@
             follow(user){
                 this.$set(user, "loadingSubs",true)
                 if(user.followed){
-                    this.$http.delete("user/subscription/"+ user.followed.id).then(response=>{
+                    this.$http.get("user/unfollow/"+user.id).then(response=>{
                         if(response.body.status === 1){
                             this.$set(user, "loadingSubs",false)
                             this.$set(user,'followed',null)
                             this.$store.dispatch('users/removeFollowing', this.user)
+                            user.followers_count--
                         }
                     })
                 }else{
@@ -156,6 +167,7 @@
                             this.$store.dispatch('users/addFollowing', this.user)
                             this.$set(user, "loadingSubs",false)
                             this.$set(user,'followed',response.body)
+                            user.followers_count++
                         }
                     })
                 }

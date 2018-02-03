@@ -3,7 +3,7 @@
         <v-flex lg2></v-flex>
         <v-flex lg8>
             <div>
-                <v-card color="grey lighten-4" flat>
+                <v-card>
                     <v-card-text>
                         <v-subheader>Publication</v-subheader>
                         <v-container fluid>
@@ -79,11 +79,11 @@
                                 <input type="file" id="photo" name="image" style="display:none" @change="preview">
                                 <input type="text" name="published_at" :value="published_at" style="display:none">
                                 <input type="text" name="message" :value="messageParsed" style="display:none">
+                                <input type="text" name="color" value="background1" style="display:none">
                             </v-form>
                         </v-container>
                     </v-card-text>
                 </v-card>
-                <admin-edit></admin-edit>
             </div>
         </v-flex>
         <v-flex lg2></v-flex>
@@ -91,9 +91,7 @@
 </template>
 
 <script>
-    import adminEdit from "./adminDashboard.vue"
     export default{
-        components:{adminEdit},
         data: ()=>({
             url: null,
             file: null,
@@ -108,7 +106,9 @@
         }),
         computed:{
             published_at(){
-                return this.date+" "+this.time
+                let time = this.time.replace('pm', ' pm')
+                time = time.replace('am', ' am')
+                return new Date(this.date+" "+time)
             },
             messageParsed(){
                 return JSON.stringify([{text:this.message}])

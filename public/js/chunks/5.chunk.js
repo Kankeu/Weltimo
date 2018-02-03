@@ -1,16 +1,16 @@
 webpackJsonp([5],{
 
-/***/ 187:
+/***/ 204:
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(188);
+var content = __webpack_require__(205);
 if(typeof content === 'string') content = [[module.i, content, '']];
 if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
-var update = __webpack_require__(18)("6d063fda", content, false);
+var update = __webpack_require__(2)("6d063fda", content, false);
 // Hot Module Replacement
 if(false) {
  // When the styles change, update the <style> tags
@@ -27,7 +27,7 @@ if(false) {
 
 /***/ }),
 
-/***/ 188:
+/***/ 205:
 /***/ (function(module, exports, __webpack_require__) {
 
 exports = module.exports = __webpack_require__(0)(undefined);
@@ -42,14 +42,14 @@ exports.push([module.i, "\n.layout_block{\n    margin-top: 50px !important;\n}\n
 
 /***/ }),
 
-/***/ 189:
+/***/ 206:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__profile_XsHeader_vue__ = __webpack_require__(190);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__profile_XsHeader_vue__ = __webpack_require__(207);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__profile_XsHeader_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__profile_XsHeader_vue__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__profile_Header_vue__ = __webpack_require__(197);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__profile_Header_vue__ = __webpack_require__(214);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__profile_Header_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__profile_Header_vue__);
 //
 //
@@ -116,20 +116,20 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 /***/ }),
 
-/***/ 190:
+/***/ 207:
 /***/ (function(module, exports, __webpack_require__) {
 
 var disposed = false
 function injectStyle (ssrContext) {
   if (disposed) return
-  __webpack_require__(191)
-  __webpack_require__(193)
+  __webpack_require__(208)
+  __webpack_require__(210)
 }
-var normalizeComponent = __webpack_require__(17)
+var normalizeComponent = __webpack_require__(1)
 /* script */
-var __vue_script__ = __webpack_require__(195)
+var __vue_script__ = __webpack_require__(212)
 /* template */
-var __vue_template__ = __webpack_require__(196)
+var __vue_template__ = __webpack_require__(213)
 /* template functional */
 var __vue_template_functional__ = false
 /* styles */
@@ -169,17 +169,17 @@ module.exports = Component.exports
 
 /***/ }),
 
-/***/ 191:
+/***/ 208:
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(192);
+var content = __webpack_require__(209);
 if(typeof content === 'string') content = [[module.i, content, '']];
 if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
-var update = __webpack_require__(18)("cdb8ac72", content, false);
+var update = __webpack_require__(2)("cdb8ac72", content, false);
 // Hot Module Replacement
 if(false) {
  // When the styles change, update the <style> tags
@@ -196,7 +196,7 @@ if(false) {
 
 /***/ }),
 
-/***/ 192:
+/***/ 209:
 /***/ (function(module, exports, __webpack_require__) {
 
 exports = module.exports = __webpack_require__(0)(undefined);
@@ -211,17 +211,17 @@ exports.push([module.i, "\n.btnSubs{\n    bottom: 50px !important;\n    position
 
 /***/ }),
 
-/***/ 193:
+/***/ 210:
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(194);
+var content = __webpack_require__(211);
 if(typeof content === 'string') content = [[module.i, content, '']];
 if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
-var update = __webpack_require__(18)("157db6fb", content, false);
+var update = __webpack_require__(2)("157db6fb", content, false);
 // Hot Module Replacement
 if(false) {
  // When the styles change, update the <style> tags
@@ -238,7 +238,7 @@ if(false) {
 
 /***/ }),
 
-/***/ 194:
+/***/ 211:
 /***/ (function(module, exports, __webpack_require__) {
 
 exports = module.exports = __webpack_require__(0)(undefined);
@@ -253,14 +253,11 @@ exports.push([module.i, "\n#cardMore[data-v-cd867b2a]{\n    position: relative;\
 
 /***/ }),
 
-/***/ 195:
+/***/ 212:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-//
-//
-//
 //
 //
 //
@@ -382,7 +379,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             this.loadingSubs = true;
             var profile = this.profile;
             if (this.profile.followed) {
-                this.$http.delete("user/subscription/" + this.profile.followed.id).then(function (response) {
+                this.$http.get("user/unfollow/" + this.profile.id).then(function (response) {
                     if (response.body.status === 1) {
                         _this2.loadingSubs = false;
                         _this2.$set(profile, 'followed', null);
@@ -434,7 +431,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 /***/ }),
 
-/***/ 196:
+/***/ 213:
 /***/ (function(module, exports, __webpack_require__) {
 
 var render = function() {
@@ -516,48 +513,7 @@ var render = function() {
                 ],
                 1
               )
-            : _vm._e(),
-          _vm._v(" "),
-          _c(
-            "v-tooltip",
-            { staticClass: "btnSubs", attrs: { top: "" } },
-            [
-              _vm.user.id !== _vm.profile.id
-                ? _c(
-                    "v-btn",
-                    {
-                      attrs: {
-                        slot: "activator",
-                        loading: _vm.loadingSubs,
-                        color: _vm.profile.followed ? null : "primary",
-                        rounded: ""
-                      },
-                      nativeOn: {
-                        click: function($event) {
-                          _vm.follow($event)
-                        }
-                      },
-                      slot: "activator"
-                    },
-                    [
-                      !_vm.profile.followed
-                        ? _c("v-icon", [_vm._v("person_add")])
-                        : _vm._e(),
-                      _vm._v(
-                        _vm._s(_vm.profile.followed ? "Unfollow" : "Follow") +
-                          "\n            "
-                      )
-                    ],
-                    1
-                  )
-                : _vm._e(),
-              _vm._v(" "),
-              _vm.profile.followed
-                ? _c("span", [_vm._v("Click here to unfollow")])
-                : _c("span", [_vm._v("Click here to follow")])
-            ],
-            1
-          )
+            : _vm._e()
         ],
         1
       ),
@@ -566,46 +522,85 @@ var render = function() {
         "v-card",
         [
           _c(
+            "v-card-title",
+            { staticStyle: { margin: "0", padding: "0" } },
+            [
+              _c("v-spacer"),
+              _vm._v(" "),
+              _c(
+                "v-tooltip",
+                { attrs: { top: "" } },
+                [
+                  _vm.user.id !== _vm.profile.id
+                    ? _c(
+                        "v-btn",
+                        {
+                          attrs: {
+                            slot: "activator",
+                            loading: _vm.loadingSubs,
+                            color: _vm.profile.followed ? null : "primary",
+                            rounded: ""
+                          },
+                          nativeOn: {
+                            click: function($event) {
+                              _vm.follow($event)
+                            }
+                          },
+                          slot: "activator"
+                        },
+                        [
+                          !_vm.profile.followed
+                            ? _c("v-icon", [_vm._v("person_add")])
+                            : _vm._e(),
+                          _vm._v(
+                            _vm._s(
+                              _vm.profile.followed ? "Unfollow" : "Follow"
+                            ) + "\n                "
+                          )
+                        ],
+                        1
+                      )
+                    : _vm._e(),
+                  _vm._v(" "),
+                  _vm.profile.followed
+                    ? _c("span", [_vm._v("Click here to unfollow")])
+                    : _c("span", [_vm._v("Click here to follow")])
+                ],
+                1
+              )
+            ],
+            1
+          ),
+          _vm._v(" "),
+          _c(
             "v-list",
             { staticStyle: { "text-align": "left" }, attrs: { subheader: "" } },
             [
-              _c(
-                "v-list-tile",
-                { staticClass: "list__item" },
-                [
-                  _c("v-list-tile-avatar", [
-                    _vm._v("\n                    Name:\n                ")
-                  ]),
-                  _vm._v(" "),
-                  _c("v-list-tile-content", [
-                    _vm._v(
-                      "\n                    " +
-                        _vm._s(_vm.profile.name + " " + _vm.profile.forename) +
-                        "\n                "
-                    )
-                  ])
-                ],
-                1
-              ),
+              _c("div", { staticStyle: { display: "flex", padding: "15px" } }, [
+                _c("div", { staticStyle: { "margin-right": "5px" } }, [
+                  _vm._v("Name: ")
+                ]),
+                _vm._v(" "),
+                _c("div", [
+                  _vm._v(_vm._s(_vm.profile.name + " " + _vm.profile.forename))
+                ])
+              ]),
               _vm._v(" "),
               _vm.profile.role === "admin" || _vm.profile.title
                 ? _c(
-                    "v-list-tile",
-                    { staticClass: "list__item" },
+                    "div",
+                    { staticStyle: { display: "flex", padding: "15px" } },
                     [
-                      _c("v-list-tile-content", [
+                      _c("div", [
                         _vm._v(
-                          "\n                    " +
-                            _vm._s(
-                              _vm.profile.role === "admin"
-                                ? "Founder of Weltimo"
-                                : _vm.profile.title
-                            ) +
-                            "\n                "
+                          _vm._s(
+                            _vm.profile.role === "admin"
+                              ? "Founder of Weltimo"
+                              : _vm.profile.title
+                          )
                         )
                       ])
-                    ],
-                    1
+                    ]
                   )
                 : _vm._e(),
               _vm._v(" "),
@@ -655,7 +650,7 @@ var render = function() {
                     "v-tabs-item",
                     {
                       attrs: {
-                        to: "/user/profile/" + _vm.profile.id + "/",
+                        to: "/profile/" + _vm.profile.id + "/",
                         exact: ""
                       }
                     },
@@ -665,9 +660,7 @@ var render = function() {
                   _c(
                     "v-tabs-item",
                     {
-                      attrs: {
-                        to: "/user/profile/" + _vm.profile.id + "/following"
-                      }
+                      attrs: { to: "/profile/" + _vm.profile.id + "/following" }
                     },
                     [
                       _vm._v(
@@ -682,7 +675,7 @@ var render = function() {
                     "v-tabs-item",
                     {
                       attrs: {
-                        to: "/user/profile/" + _vm.profile.id + "/followers",
+                        to: "/profile/" + _vm.profile.id + "/followers",
                         exact: ""
                       }
                     },
@@ -697,11 +690,7 @@ var render = function() {
                   _vm._v(" "),
                   _c(
                     "v-tabs-item",
-                    {
-                      attrs: {
-                        to: "/user/profile/" + _vm.profile.id + "/albums"
-                      }
-                    },
+                    { attrs: { to: "/profile/" + _vm.profile.id + "/albums" } },
                     [_vm._v("\n                    Albums\n                ")]
                   )
                 ],
@@ -819,20 +808,20 @@ if (false) {
 
 /***/ }),
 
-/***/ 197:
+/***/ 214:
 /***/ (function(module, exports, __webpack_require__) {
 
 var disposed = false
 function injectStyle (ssrContext) {
   if (disposed) return
-  __webpack_require__(198)
-  __webpack_require__(200)
+  __webpack_require__(215)
+  __webpack_require__(217)
 }
-var normalizeComponent = __webpack_require__(17)
+var normalizeComponent = __webpack_require__(1)
 /* script */
-var __vue_script__ = __webpack_require__(202)
+var __vue_script__ = __webpack_require__(219)
 /* template */
-var __vue_template__ = __webpack_require__(203)
+var __vue_template__ = __webpack_require__(220)
 /* template functional */
 var __vue_template_functional__ = false
 /* styles */
@@ -872,17 +861,17 @@ module.exports = Component.exports
 
 /***/ }),
 
-/***/ 198:
+/***/ 215:
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(199);
+var content = __webpack_require__(216);
 if(typeof content === 'string') content = [[module.i, content, '']];
 if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
-var update = __webpack_require__(18)("306855ec", content, false);
+var update = __webpack_require__(2)("306855ec", content, false);
 // Hot Module Replacement
 if(false) {
  // When the styles change, update the <style> tags
@@ -899,7 +888,7 @@ if(false) {
 
 /***/ }),
 
-/***/ 199:
+/***/ 216:
 /***/ (function(module, exports, __webpack_require__) {
 
 exports = module.exports = __webpack_require__(0)(undefined);
@@ -914,17 +903,17 @@ exports.push([module.i, "\n.btnSubs{\n    bottom: 50px !important;\n    position
 
 /***/ }),
 
-/***/ 200:
+/***/ 217:
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(201);
+var content = __webpack_require__(218);
 if(typeof content === 'string') content = [[module.i, content, '']];
 if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
-var update = __webpack_require__(18)("845e13a4", content, false);
+var update = __webpack_require__(2)("845e13a4", content, false);
 // Hot Module Replacement
 if(false) {
  // When the styles change, update the <style> tags
@@ -941,7 +930,7 @@ if(false) {
 
 /***/ }),
 
-/***/ 201:
+/***/ 218:
 /***/ (function(module, exports, __webpack_require__) {
 
 exports = module.exports = __webpack_require__(0)(undefined);
@@ -956,7 +945,7 @@ exports.push([module.i, "\n.hBtnNav .btn[data-v-783fb3d0]{\n    color: inherit !
 
 /***/ }),
 
-/***/ 202:
+/***/ 219:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -1062,7 +1051,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             this.loadingSubs = true;
             var profile = this.profile;
             if (this.profile.followed) {
-                this.$http.delete("user/subscription/" + this.profile.followed.id).then(function (response) {
+                this.$http.get("user/unfollow/" + this.profile.id).then(function (response) {
                     if (response.body.status === 1) {
                         _this2.loadingSubs = false;
                         _this2.$set(profile, 'followed', null);
@@ -1114,7 +1103,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 /***/ }),
 
-/***/ 203:
+/***/ 220:
 /***/ (function(module, exports, __webpack_require__) {
 
 var render = function() {
@@ -1259,7 +1248,7 @@ var render = function() {
                 {
                   attrs: {
                     flat: "",
-                    to: "/user/profile/" + _vm.profile.id + "/",
+                    to: "/profile/" + _vm.profile.id + "/",
                     exact: ""
                   }
                 },
@@ -1272,7 +1261,7 @@ var render = function() {
                 {
                   attrs: {
                     flat: "",
-                    to: "/user/profile/" + _vm.profile.id + "/following"
+                    to: "/profile/" + _vm.profile.id + "/following"
                   }
                 },
                 [
@@ -1296,7 +1285,7 @@ var render = function() {
                 {
                   attrs: {
                     flat: "",
-                    to: "/user/profile/" + _vm.profile.id + "/followers"
+                    to: "/profile/" + _vm.profile.id + "/followers"
                   }
                 },
                 [
@@ -1317,7 +1306,7 @@ var render = function() {
                 {
                   attrs: {
                     flat: "",
-                    to: "/user/profile/" + _vm.profile.id + "/albums"
+                    to: "/profile/" + _vm.profile.id + "/albums"
                   }
                 },
                 [_c("span", [_vm._v("Albums")])]
@@ -1434,7 +1423,7 @@ if (false) {
 
 /***/ }),
 
-/***/ 204:
+/***/ 221:
 /***/ (function(module, exports, __webpack_require__) {
 
 var render = function() {
@@ -1469,19 +1458,19 @@ if (false) {
 
 /***/ }),
 
-/***/ 57:
+/***/ 61:
 /***/ (function(module, exports, __webpack_require__) {
 
 var disposed = false
 function injectStyle (ssrContext) {
   if (disposed) return
-  __webpack_require__(187)
+  __webpack_require__(204)
 }
-var normalizeComponent = __webpack_require__(17)
+var normalizeComponent = __webpack_require__(1)
 /* script */
-var __vue_script__ = __webpack_require__(189)
+var __vue_script__ = __webpack_require__(206)
 /* template */
-var __vue_template__ = __webpack_require__(204)
+var __vue_template__ = __webpack_require__(221)
 /* template functional */
 var __vue_template_functional__ = false
 /* styles */

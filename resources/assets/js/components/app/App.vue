@@ -22,7 +22,7 @@
                       <v-list-tile-title>Sign in</v-list-tile-title>
                   </v-list-tile-content>
               </v-list-tile>
-              <v-list-tile @click="loginWithToken();dialogLog_on=true">
+              <v-list-tile @click="dialogLog_on=true">
                   <v-list-tile-content style="color: white;">
                       <v-list-tile-title>Log in</v-list-tile-title>
                   </v-list-tile-content>
@@ -84,6 +84,8 @@
 </template>
 
 <script>
+    import VeeValidate from 'vee-validate'
+    Vue.use(VeeValidate)
     import route from "../route/Route"
     export default {
         components:{route},
@@ -99,26 +101,15 @@
             },
         }),
         methods:{
-            loginWithToken(){
-                this.$http.get('/log_in').then(response=>{
-                    if (response.body.id) {
-                        this.$store.dispatch("user/save", response.body)
-                        this.$router.push('/user')
-                    }else{
-                        this.dialogLog_on = true
-                    }
-                })
-            },
             login(){
                 this.$validator.validateAll().then((validated) => {
                     if (validated) {
                         this.loading = true
                         this.$http.post('/log_in', this.data).then(response => {
                             if (response.body.id) {
-                                this.$store.dispatch("user/save", response.body)
-                                this.$store.dispatch("users/save", response.body)
                                 this.dialogLog_on = false
-                                this.$router.push('/user')
+                                window.location.href = window.location.host
+                                window.location.reload()
                             }else if(response.body.status === 0){
                                 this.error = response.body.message
                                 this.alertLogin = true

@@ -32,6 +32,7 @@ class ArticleCreatedEvent implements ShouldBroadcast
     {
         $this->article = json_decode($article);
         $this->user = $user;
+        $this->article->user->followed = true;
     }
 
     /**
@@ -45,7 +46,6 @@ class ArticleCreatedEvent implements ShouldBroadcast
         foreach ($this->user->followers as $follower) {
             array_push($channels, new PrivateChannel('article.user.' . $follower->sender_id));
         }
-
         return $channels;
     }
 
@@ -54,5 +54,10 @@ class ArticleCreatedEvent implements ShouldBroadcast
         return [
             'article' => $this->article,
         ];
+    }
+
+    public function broadcastWhen()
+    {
+        return $this->user->followers()->count() > 0;
     }
 }

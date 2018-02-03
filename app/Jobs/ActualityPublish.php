@@ -2,7 +2,7 @@
 
 namespace App\Jobs;
 
-use App\Events\ArticleCreatedEvent;
+use App\Events\ActualityCreatedEvent;
 use App\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
@@ -41,6 +41,6 @@ class ActualityPublish implements ShouldQueue
      */
     public function handle()
     {
-        broadcast((new ArticleCreatedEvent($this->article,$this->user)));
+        broadcast((new ActualityCreatedEvent($this->article,$this->user)));
     }
 }

@@ -1,8 +1,9 @@
 <template>
     <v-app :dark="darked"  id="showTop">
-        <v-card :dark="darked"  :color="(darked) ? 'theme--dark' :'theme--light'" flat>
-            <v-toolbar :dark="darked" :class="$vuetify.breakpoint.smAndUp || 'phone'" :style="(darked) ? 'z-index:8' : 'z-index:8;background: #00b4ff'" :color="(darked) ? 'theme--dark' : null"  prominent fixed flat extended>
-                <v-toolbar-side-icon class="white--text" @click="drawer=!drawer"></v-toolbar-side-icon>
+        <v-card :dark="darked"  :color="(darked) ? 'theme--dark' :'theme--light bg_app'" class="block_app" flat>
+            <v-toolbar :scroll-off-screen="!$vuetify.breakpoint.smAndUp" :dark="darked" :class="$vuetify.breakpoint.smAndUp || 'phone'" :style="(darked) ? 'z-index:8' : 'z-index:8;background: #00b4ff'" :color="(darked) ? 'theme--dark' : null"  prominent fixed flat extended>
+                <v-toolbar-side-icon class="white--text" @click="($vuetify.breakpoint.smAndUp) ? mini=!mini : drawer=!drawer" v-if="$route.path==='/' || $vuetify.breakpoint.smAndUp"></v-toolbar-side-icon>
+                <v-btn icon class="white--text" @click="$router.go(-1)" v-else><v-icon>chevron_left</v-icon></v-btn>
                 <v-toolbar-title class="white--text" v-if="$vuetify.breakpoint.smAndUp">Weltimo</v-toolbar-title>
                 <v-select
                         light
@@ -55,7 +56,7 @@
                         <v-icon class="white--text" icon>notifications</v-icon>
                     </v-badge>
                     <v-list v-if="notifications.length>0">
-                        <v-list-tile avatar v-for="notification,i in notifications" :key="i" :to="'/user/profile/'+notification.user.id">
+                        <v-list-tile avatar v-for="notification,i in notifications" :key="i" :to="'/profile/'+notification.user.id">
                             <v-list-tile-avatar >
                                 <img :src="notification.user.avatar"/>
                             </v-list-tile-avatar>
@@ -90,8 +91,8 @@
             <dialog-comment :open="openDialogComment" @close="openDialogComment=!openDialogComment" :article="article" :articles="articles"></dialog-comment>
             <v-layout style="margin-bottom: 65px;" row>
                 <v-flex xs12 lg8 offset-lg2>
-                    <v-card :dark="darked" :color="(darked) ? 'theme--dark' : 'theme--light'" style="height: 100%"  class="card--flex-toolbar">
-                        <v-progress-linear v-bind:indeterminate="true" v-if="loading" style="margin-left: 0;top:-14px;position:absolute"></v-progress-linear>
+                    <v-card :dark="darked" :color="(darked) ? 'theme--dark' : 'theme--light bg_app'" style="height: 100%"  class="card--flex-toolbar">
+                        <v-progress-linear v-bind:indeterminate="true" v-if="loading && !$vuetify.breakpoint.smAndUp" style="z-index: 8;margin-left: 0;top: 50px;position:fixed"></v-progress-linear>
                         <v-toolbar v-if="$vuetify.breakpoint.smAndUp" dark card style="z-index:8;width:66.66666666666666%;position:fixed" prominent>
                             <v-progress-linear v-bind:indeterminate="true" v-if="loading" style="margin-left: 0;top:-14px;position:absolute"></v-progress-linear>
                             <v-toolbar-title class="body-2 grey--text">{{$route.name}}</v-toolbar-title>
@@ -143,7 +144,6 @@
                         <v-divider></v-divider>
                         <div :class="$vuetify.breakpoint.smAndUp ? 'layout_bloc' : 'layout_phone'">
                             <router-view></router-view>
-                            <textarea id="textareaClipboard" @focus.stop.prevent="($event)=>$event.target.blur()" style="position: fixed;top:0;left:0"></textarea>
                         </div>
                     </v-card>
                 </v-flex>
@@ -233,7 +233,7 @@
                 </v-flex>
             </v-layout>
         </v-card>
-        <v-navigation-drawer fixed app :style="!$vuetify.breakpoint.smAndUp || 'margin-top:63px'" clipped :class="$vuetify.breakpoint.smAndUp ? 'menuDrawer' : null"  :dark="darked" :mini-variant.sync="drawer" v-model="$vuetify.breakpoint.smAndUp || !drawer">
+        <v-navigation-drawer fixed app :style="!$vuetify.breakpoint.smAndUp || 'margin-top:63px'" clipped :class="$vuetify.breakpoint.smAndUp ? 'menuDrawer' : null"  :dark="darked" :mini-variant.sync="mini" v-model="drawer">
             <v-toolbar flat class="transparent">
                 <v-list class="pa-0">
                     <v-list-tile avatar>
@@ -244,7 +244,7 @@
                             <v-list-tile-title>{{user.name+" "+user.forename}}</v-list-tile-title>
                         </v-list-tile-content>
                         <v-list-tile-action>
-                            <v-btn icon @click.native.stop="drawer = !drawer">
+                            <v-btn icon @click.native.stop="mini = !mini">
                                 <v-icon>chevron_left</v-icon>
                             </v-btn>
                         </v-list-tile-action>
@@ -264,7 +264,7 @@
                             <v-icon>keyboard_arrow_down</v-icon>
                         </v-list-tile-action>
                     </v-list-tile>
-                    <v-list-tile to="/user" exact>
+                    <v-list-tile to="/" exact>
                         <v-list-tile-action>
                             <v-icon>home</v-icon>
                         </v-list-tile-action>
@@ -280,7 +280,7 @@
                             <v-list-tile-title>Box</v-list-tile-title>
                         </v-list-tile-content>
                     </v-list-tile>
-                    <v-list-tile :to="'/user/profile/'+user.id">
+                    <v-list-tile :to="'/profile/'+user.id">
                         <v-list-tile-action>
                             <v-avatar
                                     size="30px"
@@ -299,7 +299,7 @@
                             <v-icon>book</v-icon>
                         </v-list-tile-action>
                         <v-list-tile-content>
-                            <v-list-tile-title>Courses</v-list-tile-title>
+                            <v-list-tile-title>Programms</v-list-tile-title>
                         </v-list-tile-content>
                         <v-list-tile-action>
                             <v-icon>keyboard_arrow_down</v-icon>
@@ -321,9 +321,9 @@
                             <v-icon></v-icon>
                         </v-list-tile-action>
                     </v-list-tile>
-                    <v-list-tile @click="">
+                    <v-list-tile to="/courses">
                         <v-list-tile-content>
-                            <v-list-tile-title>Programms</v-list-tile-title>
+                            <v-list-tile-title>Courses</v-list-tile-title>
                         </v-list-tile-content>
                         <v-list-tile-action>
                             <v-icon></v-icon>
@@ -379,7 +379,7 @@
                             <v-icon>keyboard_arrow_down</v-icon>
                         </v-list-tile-action>
                     </v-list-tile>
-                    <v-list-tile to="/user/actus">
+                    <v-list-tile to="/actualities">
                         <v-list-tile-action>
                             <v-icon>whatshot</v-icon>
                         </v-list-tile-action>
@@ -395,7 +395,7 @@
                             <v-list-tile-title>Scholarship</v-list-tile-title>
                         </v-list-tile-content>
                     </v-list-tile>
-                    <v-list-tile @click="">
+                    <v-list-tile to="forum">
                         <v-list-tile-action>
                             <v-icon>forum</v-icon>
                         </v-list-tile-action>
@@ -416,7 +416,7 @@
                             <v-icon>keyboard_arrow_down</v-icon>
                         </v-list-tile-action>
                     </v-list-tile>
-                    <v-list-tile to="/user/account">
+                    <v-list-tile to="/account">
                         <v-list-tile-action>
                             <v-icon>person</v-icon>
                         </v-list-tile-action>
@@ -453,7 +453,7 @@
                             <v-list-tile-title>Signal bug</v-list-tile-title>
                         </v-list-tile-content>
                     </v-list-tile>
-                    <v-list-tile to="/user/about">
+                    <v-list-tile to="/about">
                         <v-list-tile-action>
                             <v-icon>info</v-icon>
                         </v-list-tile-action>
@@ -487,7 +487,7 @@
                             <v-icon>keyboard_arrow_down</v-icon>
                         </v-list-tile-action>
                     </v-list-tile>
-                    <v-list-tile to="/user/admin" exact>
+                    <v-list-tile to="/admin" exact>
                         <v-list-tile-action>
                             <v-icon dark>apps</v-icon>
                         </v-list-tile-action>
@@ -495,7 +495,7 @@
                             <v-list-tile-title>Home</v-list-tile-title>
                         </v-list-tile-content>
                     </v-list-tile>
-                    <v-list-tile to="/user/admin/users">
+                    <v-list-tile to="/admin/users">
                         <v-list-tile-action>
                             <v-icon dark>group</v-icon>
                         </v-list-tile-action>
@@ -503,7 +503,15 @@
                             <v-list-tile-title>Users</v-list-tile-title>
                         </v-list-tile-content>
                     </v-list-tile>
-                    <v-list-tile to="/user/admin/server">
+                    <v-list-tile to="/admin/books">
+                        <v-list-tile-action>
+                            <v-icon dark>edit</v-icon>
+                        </v-list-tile-action>
+                        <v-list-tile-content>
+                            <v-list-tile-title>Books</v-list-tile-title>
+                        </v-list-tile-content>
+                    </v-list-tile>
+                    <v-list-tile to="/admin/server">
                         <v-list-tile-action>
                             <v-icon dark>dns</v-icon>
                         </v-list-tile-action>
@@ -511,7 +519,7 @@
                             <v-list-tile-title>Process</v-list-tile-title>
                         </v-list-tile-content>
                     </v-list-tile>
-                    <v-list-tile to="/user/admin/edit">
+                    <v-list-tile to="/admin/edit">
                         <v-list-tile-action>
                             <v-icon dark>edit</v-icon>
                         </v-list-tile-action>
@@ -527,6 +535,8 @@
             <v-spacer></v-spacer>
             <div>© {{ new Date().getFullYear() }} Weltimo</div>
         </v-footer>
+        <textarea id="textareaClipboard" @focus.stop.prevent=" " style="position: fixed;top:-1000px;left:-1000px"></textarea>
+        <pdf-viewer url="url" v-if="$vuetify.breakpoint.smAndUp"></pdf-viewer>
         <cardPublication :onlyDialog="true" :open="dialogPublication" @close="dialogPublication=false"></cardPublication>
     </v-app>
 </template>
@@ -534,12 +544,13 @@
 <script>
     import cardPublication from '../card/CardPublication.vue'
     import dialogComment from "../comment/DialogComment.vue"
+    import pdfViewer from './courses/PdfViewer'
     export default{
-        components:{cardPublication,dialogComment},
+        components:{cardPublication,dialogComment,pdfViewer},
         data(){
             return {
                 darked: false,
-                drawer: true,
+                drawer: false,
                 speedDial: false,
                 dialogPublication: false,
                 body: null,
@@ -549,7 +560,8 @@
                 article: {},
                 drawerUsers: false,
                 searchItems: [],
-                selectedUser: null
+                selectedUser: null,
+                mini: false
             }
         },
         computed:{
@@ -573,12 +585,13 @@
                 this.$http.get('/log_out',).then(response => {
                     if (response.body.status === 1) {
                         this.$store.dispatch("user/delete")
-                        this.$router.push('/')
+                        window.location.href = window.location.host
+                        window.location.reload()
                     }
                 })
             },
             scrollToTop(){
-                this.$scrollTo('#showTop',1000,{container:'body'})
+                this.$scrollTo('#showTop',500,{container:'body'})
             },
             show(notification){
                 if(notification.article){
@@ -627,6 +640,8 @@
         },
         mounted(){
             this.darked = this.$store.state.setting.darked
+            this.drawer = this.$vuetify.breakpoint.smAndUp
+            this.mini = this.$vuetify.breakpoint.smAndUp
             this.body = document.querySelector('body')
         },
         watch:{
@@ -646,7 +661,11 @@
                 if(data.length>0){
                     this.$router.push('/user/profile/'+data[0].value)
                 }
-            }
+            },
+            '$vuetify.breakpoint.smAndUp'(data){
+                this.drawer = data
+                this.mini = data
+            },
         }
     }
 </script>
@@ -655,6 +674,9 @@
     .input-group--solo .input-group__input .input-group__append-icon{display:none !important}
 </style>
 <style>
+    .bg_app{
+        background-color: #e6ecf0 !important;
+    }
     #showTop{
         overflow-x: hidden;
     }

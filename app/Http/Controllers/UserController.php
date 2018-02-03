@@ -124,6 +124,9 @@ class UserController extends Controller
 
     public function avatar(Request $request)
     {
+        $request->validate([
+            'avatar' => 'required|image',
+        ]);
         $avatar = $request->file('avatar');
         if(Auth::user()->avatar !== "/img/default/avatar.jpg"){
             $this->dispatch(new DeleteImage(public_path(Auth::user()->avatar)));
@@ -133,6 +136,9 @@ class UserController extends Controller
 
     public function cover(Request $request)
     {
+        $request->validate([
+            'cover' => 'required|image',
+        ]);
         $cover = $request->file('cover');
         if(Auth::user()->cover !== "/img/default/cover.jpg"){
             $this->dispatch(new DeleteImage(public_path(Auth::user()->cover)));

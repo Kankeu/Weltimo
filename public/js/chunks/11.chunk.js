@@ -1,94 +1,12 @@
 webpackJsonp([11],{
 
-/***/ 260:
+/***/ 245:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__adminDashboard_vue__ = __webpack_require__(261);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__adminDashboard_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__adminDashboard_vue__);
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__Card_vue__ = __webpack_require__(246);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__Card_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__Card_vue__);
 //
 //
 //
@@ -102,56 +20,93 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
-    components: { adminEdit: __WEBPACK_IMPORTED_MODULE_0__adminDashboard_vue___default.a },
-    data: function data() {
-        return {
-            url: null,
-            file: null,
-            time: "",
-            date: "",
-            pages: [{ text: "offer" }, { text: "actuality" }],
-            page: {},
-            message: null
-        };
-    },
+    components: { psCard: __WEBPACK_IMPORTED_MODULE_0__Card_vue___default.a },
     computed: {
-        published_at: function published_at() {
-            return this.date + " " + this.time;
+        user: function user() {
+            return this.$store.state.user.user;
         },
-        messageParsed: function messageParsed() {
-            return JSON.stringify([{ text: this.message }]);
+        levels: function levels() {
+            return ["A1", "A2", "B1", "B2", "C1", "C2"];
+        },
+        colors: function colors() {
+            return [{
+                niveau: "A1",
+                squareBg: "#adda93",
+                circleBg: "#73c045",
+                color: "#fefefe"
+            }, {
+                niveau: "A2",
+                squareBg: "#adda93",
+                circleBg: "#73c045",
+                color: "#fefefe"
+            }, {
+                niveau: "B1",
+                squareBg: "#adda93",
+                circleBg: "#73c045",
+                color: "#fefefe"
+            }, {
+                niveau: "B2",
+                squareBg: "#6bd1f6",
+                circleBg: "#00aff0",
+                color: "#fefefe"
+            }, {
+                niveau: "C1",
+                squareBg: "#6bd1f6",
+                circleBg: "#00aff0",
+                color: "#fefefe"
+            }, {
+                niveau: "C2",
+                squareBg: "#6bd1f6",
+                circleBg: "#00aff0",
+                color: "#fefefe"
+            }];
+        },
+        texts: function texts() {
+            return [{
+                niveau: "A1",
+                title: "Starter Guider",
+                description: "A1 is the elementary level and therefore suitable for beginners. The holder of such a diploma can talk about himself and his nearer environment."
+            }, {
+                niveau: "A2",
+                title: "A2 Guide",
+                description: "Das DELF A2 bescheinigt dem Prüfling bereits fortgeschrittene Fähigkeiten. Der Teilnehmer wird hier als Teil der Gesellschaft betrachtet. Folglich muss er Dinge wie die Höflichkeitsform und das Führen einfacher Gespräche beherrschen."
+            }, {
+                niveau: "B1",
+                title: "B1 Guide",
+                description: "With B1 the candidate reaches the independent level. He can follow a discussion and participate in it, he expresses his own opinion and can respond to surprising everyday situations. Flexible and experienced linguistic utterances are already part of the diploma's vocabulary."
+            }, {
+                niveau: "B2",
+                title: "B2 Guide",
+                description: "At B2, the candidate can not only express his opinion, but also defend his point of view and continue to do so. He negotiates and discusses without difficulty and is able to correct his mistakes himself."
+            }, {
+                niveau: "C1",
+                title: "C1 Guide",
+                description: "The candidate is now at the upper level. He can independently and without difficulty initiate discussions and conversations, using a large and adequate vocabulary. He speaks spontaneously, fluently and clearly structured. He shows that he masters the language structures."
+            }, {
+                niveau: "C2",
+                title: "C2 Guide",
+                description: "Der Kandidat muss nun beweisen, dass er akademische oder sonstige weiterführende Aufgaben lösen kann. Von ihm werden eine präzise, adäquate Sprache sowie ein gewandter Ausdruck erwartet."
+            }];
         }
     },
-    methods: {
-        preview: function preview(event) {
-            this.file = event.target.files[0];
-            this.url = window.URL.createObjectURL(event.target.files[0]);
-        },
-        select: function select() {
-            this.$el.querySelector("#photo").click();
-        },
-        publish: function publish(event) {
-            var formdata = new FormData(event.target);
-            this.$http.post('/admin/actuality', formdata).then(function (response) {});
-        }
-    }
+    mounted: function mounted() {}
 });
 
 /***/ }),
 
-/***/ 261:
+/***/ 246:
 /***/ (function(module, exports, __webpack_require__) {
 
 var disposed = false
 function injectStyle (ssrContext) {
   if (disposed) return
-  __webpack_require__(262)
+  __webpack_require__(247)
 }
-var normalizeComponent = __webpack_require__(17)
+var normalizeComponent = __webpack_require__(1)
 /* script */
-var __vue_script__ = __webpack_require__(264)
+var __vue_script__ = __webpack_require__(249)
 /* template */
-var __vue_template__ = __webpack_require__(469)
+var __vue_template__ = __webpack_require__(250)
 /* template functional */
 var __vue_template_functional__ = false
 /* styles */
@@ -168,7 +123,7 @@ var Component = normalizeComponent(
   __vue_scopeId__,
   __vue_module_identifier__
 )
-Component.options.__file = "resources/assets/js/components/admin/adminDashboard.vue"
+Component.options.__file = "resources/assets/js/components/user/courses/Card.vue"
 
 /* hot reload */
 if (false) {(function () {
@@ -177,9 +132,9 @@ if (false) {(function () {
   if (!hotAPI.compatible) return
   module.hot.accept()
   if (!module.hot.data) {
-    hotAPI.createRecord("data-v-570f5adc", Component.options)
+    hotAPI.createRecord("data-v-4262e864", Component.options)
   } else {
-    hotAPI.reload("data-v-570f5adc", Component.options)
+    hotAPI.reload("data-v-4262e864", Component.options)
   }
   module.hot.dispose(function (data) {
     disposed = true
@@ -191,23 +146,23 @@ module.exports = Component.exports
 
 /***/ }),
 
-/***/ 262:
+/***/ 247:
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(263);
+var content = __webpack_require__(248);
 if(typeof content === 'string') content = [[module.i, content, '']];
 if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
-var update = __webpack_require__(18)("7c83d36d", content, false);
+var update = __webpack_require__(2)("60658de6", content, false);
 // Hot Module Replacement
 if(false) {
  // When the styles change, update the <style> tags
  if(!content.locals) {
-   module.hot.accept("!!../../../../../node_modules/css-loader/index.js!../../../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-570f5adc\",\"scoped\":false,\"hasInlineConfig\":true}!../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0&bustCache!./adminDashboard.vue", function() {
-     var newContent = require("!!../../../../../node_modules/css-loader/index.js!../../../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-570f5adc\",\"scoped\":false,\"hasInlineConfig\":true}!../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0&bustCache!./adminDashboard.vue");
+   module.hot.accept("!!../../../../../../node_modules/css-loader/index.js!../../../../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-4262e864\",\"scoped\":false,\"hasInlineConfig\":true}!../../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0&bustCache!./Card.vue", function() {
+     var newContent = require("!!../../../../../../node_modules/css-loader/index.js!../../../../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-4262e864\",\"scoped\":false,\"hasInlineConfig\":true}!../../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0&bustCache!./Card.vue");
      if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
      update(newContent);
    });
@@ -218,7 +173,7 @@ if(false) {
 
 /***/ }),
 
-/***/ 263:
+/***/ 248:
 /***/ (function(module, exports, __webpack_require__) {
 
 exports = module.exports = __webpack_require__(0)(undefined);
@@ -226,14 +181,14 @@ exports = module.exports = __webpack_require__(0)(undefined);
 
 
 // module
-exports.push([module.i, "\n.dialog--fullscreen{\n  overflow: hidden !important;\n}\n", ""]);
+exports.push([module.i, "\n.squareBg{\n    padding: 15px;\n    display: flex;\n    justify-content: center;\n}\n.circleBg{\n    text-align: center;\n    font-size: 100px;\n    color:white;\n}\n", ""]);
 
 // exports
 
 
 /***/ }),
 
-/***/ 264:
+/***/ 249:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -247,33 +202,42 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
-
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
-  components: {},
-  data: function data() {
-    return {
-      openDialog: false,
-      ready: false
-    };
-  },
-
-  methods: {
-    open: function open() {
-      var _this = this;
-
-      __webpack_require__.e/* import() */(22).then(__webpack_require__.bind(null, 265)).then(function (markdowneditor) {
-        _this.$options.components['markdowneditor'] = markdowneditor;
-        _this.ready = true;
-        _this.openDialog = true;
-      });
+    props: {
+        level: String,
+        colors: Object,
+        texts: Object
+    },
+    data: function data() {
+        return {
+            show: false
+        };
     }
-  }
 });
 
 /***/ }),
 
-/***/ 469:
+/***/ 250:
 /***/ (function(module, exports, __webpack_require__) {
 
 var render = function() {
@@ -281,31 +245,100 @@ var render = function() {
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
   return _c(
-    "div",
+    "v-card",
     [
       _c(
-        "v-btn",
+        "v-card-text",
         {
-          attrs: { color: "primary" },
-          nativeOn: {
-            click: function($event) {
-              _vm.open()
-            }
-          }
+          staticClass: "squareBg",
+          style: { backgroundColor: _vm.colors.squareBg }
         },
-        [_vm._v("Open the Dashboard")]
+        [
+          _c(
+            "v-avatar",
+            {
+              staticClass: "circleBg",
+              style: { backgroundColor: _vm.colors.circleBg },
+              attrs: { size: "200px" }
+            },
+            [
+              _c("span", { style: { color: _vm.colors.color } }, [
+                _vm._v(_vm._s(_vm.level))
+              ])
+            ]
+          )
+        ],
+        1
       ),
       _vm._v(" "),
-      _vm.ready
-        ? _c("markdowneditor", {
-            attrs: { openDialog: _vm.openDialog },
-            on: {
-              close: function($event) {
-                _vm.openDialog = false
+      _c("v-card-title", { attrs: { "primary-title": "" } }, [
+        _c("div", [
+          _c("div", { staticClass: "headline" }, [
+            _vm._v(_vm._s(_vm.texts.title))
+          ])
+        ])
+      ]),
+      _vm._v(" "),
+      _c(
+        "v-card-actions",
+        [
+          _c(
+            "v-btn",
+            {
+              attrs: { flat: "", to: "/courses/" + _vm.level, color: "purple" }
+            },
+            [_vm._v("Explore")]
+          ),
+          _vm._v(" "),
+          _c("v-spacer"),
+          _vm._v(" "),
+          _c(
+            "v-btn",
+            {
+              attrs: { icon: "" },
+              nativeOn: {
+                click: function($event) {
+                  _vm.show = !_vm.show
+                }
               }
-            }
-          })
-        : _vm._e()
+            },
+            [
+              _c("v-icon", [
+                _vm._v(
+                  _vm._s(_vm.show ? "keyboard_arrow_down" : "keyboard_arrow_up")
+                )
+              ])
+            ],
+            1
+          )
+        ],
+        1
+      ),
+      _vm._v(" "),
+      _c(
+        "v-slide-y-transition",
+        [
+          _c(
+            "v-card-text",
+            {
+              directives: [
+                {
+                  name: "show",
+                  rawName: "v-show",
+                  value: _vm.show,
+                  expression: "show"
+                }
+              ]
+            },
+            [
+              _vm._v(
+                "\n            " + _vm._s(_vm.texts.description) + "\n        "
+              )
+            ]
+          )
+        ],
+        1
+      )
     ],
     1
   )
@@ -316,13 +349,13 @@ module.exports = { render: render, staticRenderFns: staticRenderFns }
 if (false) {
   module.hot.accept()
   if (module.hot.data) {
-    require("vue-hot-reload-api")      .rerender("data-v-570f5adc", module.exports)
+    require("vue-hot-reload-api")      .rerender("data-v-4262e864", module.exports)
   }
 }
 
 /***/ }),
 
-/***/ 470:
+/***/ 251:
 /***/ (function(module, exports, __webpack_require__) {
 
 var render = function() {
@@ -330,289 +363,29 @@ var render = function() {
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
   return _c(
-    "v-layout",
+    "v-container",
+    { attrs: { "grid-list-md": "", "text-xs-left": "", fluid: "" } },
     [
-      _c("v-flex", { attrs: { lg2: "" } }),
-      _vm._v(" "),
-      _c("v-flex", { attrs: { lg8: "" } }, [
-        _c(
-          "div",
-          [
-            _c(
-              "v-card",
-              { attrs: { color: "grey lighten-4", flat: "" } },
-              [
-                _c(
-                  "v-card-text",
-                  [
-                    _c("v-subheader", [_vm._v("Publication")]),
-                    _vm._v(" "),
-                    _c(
-                      "v-container",
-                      { attrs: { fluid: "" } },
-                      [
-                        _c(
-                          "v-form",
-                          {
-                            on: {
-                              submit: function($event) {
-                                $event.preventDefault()
-                                _vm.publish($event)
-                              }
-                            }
-                          },
-                          [
-                            _c(
-                              "v-layout",
-                              { attrs: { column: "" } },
-                              [
-                                _c(
-                                  "v-flex",
-                                  [
-                                    _c("v-text-field", {
-                                      attrs: {
-                                        name: "title",
-                                        label: "Title",
-                                        required: ""
-                                      }
-                                    })
-                                  ],
-                                  1
-                                ),
-                                _vm._v(" "),
-                                _c(
-                                  "v-flex",
-                                  [
-                                    _c("v-text-field", {
-                                      attrs: { label: "Message", textarea: "" },
-                                      model: {
-                                        value: _vm.message,
-                                        callback: function($$v) {
-                                          _vm.message = $$v
-                                        },
-                                        expression: "message"
-                                      }
-                                    })
-                                  ],
-                                  1
-                                ),
-                                _vm._v(" "),
-                                _c(
-                                  "v-flex",
-                                  [
-                                    _c("input", {
-                                      staticStyle: { display: "none" },
-                                      attrs: {
-                                        type: "text",
-                                        name: "type",
-                                        required: ""
-                                      },
-                                      domProps: { value: _vm.page.text }
-                                    }),
-                                    _vm._v(" "),
-                                    _c("v-select", {
-                                      attrs: {
-                                        items: _vm.pages,
-                                        label: "Type",
-                                        "single-line": "",
-                                        bottom: ""
-                                      },
-                                      model: {
-                                        value: _vm.page,
-                                        callback: function($$v) {
-                                          _vm.page = $$v
-                                        },
-                                        expression: "page"
-                                      }
-                                    })
-                                  ],
-                                  1
-                                ),
-                                _vm._v(" "),
-                                _c(
-                                  "v-flex",
-                                  [
-                                    _c(
-                                      "v-dialog",
-                                      {
-                                        attrs: {
-                                          lazy: "",
-                                          "full-width": "",
-                                          width: "290px"
-                                        }
-                                      },
-                                      [
-                                        _c("v-text-field", {
-                                          attrs: {
-                                            slot: "activator",
-                                            label: "Date",
-                                            "prepend-icon": "event"
-                                          },
-                                          slot: "activator",
-                                          model: {
-                                            value: _vm.date,
-                                            callback: function($$v) {
-                                              _vm.date = $$v
-                                            },
-                                            expression: "date"
-                                          }
-                                        }),
-                                        _vm._v(" "),
-                                        _c("v-date-picker", {
-                                          attrs: {
-                                            type: "date",
-                                            scrollable: "",
-                                            actions: ""
-                                          },
-                                          model: {
-                                            value: _vm.date,
-                                            callback: function($$v) {
-                                              _vm.date = $$v
-                                            },
-                                            expression: "date"
-                                          }
-                                        })
-                                      ],
-                                      1
-                                    )
-                                  ],
-                                  1
-                                ),
-                                _vm._v(" "),
-                                _c(
-                                  "v-flex",
-                                  [
-                                    _c(
-                                      "v-dialog",
-                                      {
-                                        attrs: {
-                                          lazy: "",
-                                          "full-width": "",
-                                          width: "290px"
-                                        }
-                                      },
-                                      [
-                                        _c("v-text-field", {
-                                          attrs: {
-                                            slot: "activator",
-                                            label: "Time",
-                                            "prepend-icon": "access_time"
-                                          },
-                                          slot: "activator",
-                                          model: {
-                                            value: _vm.time,
-                                            callback: function($$v) {
-                                              _vm.time = $$v
-                                            },
-                                            expression: "time"
-                                          }
-                                        }),
-                                        _vm._v(" "),
-                                        _c("v-time-picker", {
-                                          attrs: {
-                                            scrollable: "",
-                                            actions: ""
-                                          },
-                                          model: {
-                                            value: _vm.time,
-                                            callback: function($$v) {
-                                              _vm.time = $$v
-                                            },
-                                            expression: "time"
-                                          }
-                                        })
-                                      ],
-                                      1
-                                    )
-                                  ],
-                                  1
-                                ),
-                                _vm._v(" "),
-                                _c(
-                                  "v-flex",
-                                  { staticStyle: { display: "flex" } },
-                                  [
-                                    _c(
-                                      "v-btn",
-                                      {
-                                        attrs: { color: "primary" },
-                                        on: { click: _vm.select }
-                                      },
-                                      [_vm._v("Photo")]
-                                    ),
-                                    _vm._v(" "),
-                                    _c("v-spacer"),
-                                    _vm._v(" "),
-                                    _c(
-                                      "v-btn",
-                                      {
-                                        attrs: {
-                                          color: "success",
-                                          type: "submit"
-                                        }
-                                      },
-                                      [_vm._v("Publish")]
-                                    )
-                                  ],
-                                  1
-                                ),
-                                _vm._v(" "),
-                                _c(
-                                  "v-flex",
-                                  [
-                                    _c(
-                                      "v-avatar",
-                                      { attrs: { size: "200px", tile: "" } },
-                                      [_c("img", { attrs: { src: _vm.url } })]
-                                    )
-                                  ],
-                                  1
-                                )
-                              ],
-                              1
-                            ),
-                            _vm._v(" "),
-                            _c("input", {
-                              staticStyle: { display: "none" },
-                              attrs: {
-                                type: "file",
-                                id: "photo",
-                                name: "image"
-                              },
-                              on: { change: _vm.preview }
-                            }),
-                            _vm._v(" "),
-                            _c("input", {
-                              staticStyle: { display: "none" },
-                              attrs: { type: "text", name: "published_at" },
-                              domProps: { value: _vm.published_at }
-                            }),
-                            _vm._v(" "),
-                            _c("input", {
-                              staticStyle: { display: "none" },
-                              attrs: { type: "text", name: "message" },
-                              domProps: { value: _vm.messageParsed }
-                            })
-                          ],
-                          1
-                        )
-                      ],
-                      1
-                    )
-                  ],
-                  1
-                )
-              ],
-              1
-            ),
-            _vm._v(" "),
-            _c("admin-edit")
-          ],
-          1
-        )
-      ]),
-      _vm._v(" "),
-      _c("v-flex", { attrs: { lg2: "" } })
+      _c(
+        "v-layout",
+        { attrs: { row: "", wrap: "" } },
+        _vm._l(_vm.levels, function(level, i) {
+          return _c(
+            "v-flex",
+            { key: i, attrs: { lg4: "", xs12: "" } },
+            [
+              _c("ps-card", {
+                attrs: {
+                  level: level,
+                  texts: _vm.texts[i],
+                  colors: _vm.colors[i]
+                }
+              })
+            ],
+            1
+          )
+        })
+      )
     ],
     1
   )
@@ -623,21 +396,21 @@ module.exports = { render: render, staticRenderFns: staticRenderFns }
 if (false) {
   module.hot.accept()
   if (module.hot.data) {
-    require("vue-hot-reload-api")      .rerender("data-v-79f4357e", module.exports)
+    require("vue-hot-reload-api")      .rerender("data-v-7e977f66", module.exports)
   }
 }
 
 /***/ }),
 
-/***/ 66:
+/***/ 68:
 /***/ (function(module, exports, __webpack_require__) {
 
 var disposed = false
-var normalizeComponent = __webpack_require__(17)
+var normalizeComponent = __webpack_require__(1)
 /* script */
-var __vue_script__ = __webpack_require__(260)
+var __vue_script__ = __webpack_require__(245)
 /* template */
-var __vue_template__ = __webpack_require__(470)
+var __vue_template__ = __webpack_require__(251)
 /* template functional */
 var __vue_template_functional__ = false
 /* styles */
@@ -654,7 +427,7 @@ var Component = normalizeComponent(
   __vue_scopeId__,
   __vue_module_identifier__
 )
-Component.options.__file = "resources/assets/js/components/admin/Edit.vue"
+Component.options.__file = "resources/assets/js/components/user/courses/Overview.vue"
 
 /* hot reload */
 if (false) {(function () {
@@ -663,9 +436,9 @@ if (false) {(function () {
   if (!hotAPI.compatible) return
   module.hot.accept()
   if (!module.hot.data) {
-    hotAPI.createRecord("data-v-79f4357e", Component.options)
+    hotAPI.createRecord("data-v-7e977f66", Component.options)
   } else {
-    hotAPI.reload("data-v-79f4357e", Component.options)
+    hotAPI.reload("data-v-7e977f66", Component.options)
   }
   module.hot.dispose(function (data) {
     disposed = true

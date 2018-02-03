@@ -39,8 +39,10 @@
 </template>
 
 <script>
+    import VeeValidate from 'vee-validate'
     import editProfile from './account/EditProfile.vue'
     import changePassword from './account/ChangePassword.vue'
+    Vue.use(VeeValidate)
     export default{
         components:{editProfile,changePassword},
         computed:{

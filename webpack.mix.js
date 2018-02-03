@@ -12,11 +12,15 @@ const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPl
  |
  */
 
-
+mix.js('resources/assets/js/home.js', 'public/js')
+    .setPublicPath('public')
+    .extract(['vue','vuetify','vuetify/dist/vuetify.min.css','vue-resource','vue-router'],'js/vendor')
+    .webpackConfig({output: {publicPath:'',chunkFilename: mix.inProduction() ? 'js/chunks/[name].chunk.[chunkhash].js' : 'js/chunks/[name].chunk.js'}})
+    .disableNotifications();
 mix.js('resources/assets/js/app.js', 'public/js')
     .setPublicPath('public')
-    .extract(['vue','vuex','vuetify','vue-router','vee-validate','vue-resource','vuetify/dist/vuetify.min.css','jquery', 'laravel-echo', 'pusher-js','vue-scrollto','emojionearea','emojionearea/dist/emojionearea.css'])
-	.webpackConfig({output: {publicPath:'',chunkFilename: mix.inProduction() ? 'js/chunks/[name].chunk.[chunkhash].js' : 'js/chunks/[name].chunk.js'}})
+    .extract(['vuex','vue-scrollto','laravel-echo','pusher-js','vue-timeago'],'js/vendorApp')
+    .webpackConfig({output: {publicPath:'',chunkFilename: mix.inProduction() ? 'js/chunks/[name].chunk.[chunkhash].js' : 'js/chunks/[name].chunk.js'}})
     .disableNotifications();
 if(1===2){
     mix.webpackConfig({

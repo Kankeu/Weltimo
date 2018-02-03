@@ -1,22 +1,22 @@
 webpackJsonp([13],{
 
-/***/ 481:
+/***/ 258:
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(482);
+var content = __webpack_require__(259);
 if(typeof content === 'string') content = [[module.i, content, '']];
 if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
-var update = __webpack_require__(18)("77d465d6", content, false);
+var update = __webpack_require__(2)("24e2f814", content, false);
 // Hot Module Replacement
 if(false) {
  // When the styles change, update the <style> tags
  if(!content.locals) {
-   module.hot.accept("!!../../../../../node_modules/css-loader/index.js!../../../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-153ea313\",\"scoped\":true,\"hasInlineConfig\":true}!../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0&bustCache!./Info.vue", function() {
-     var newContent = require("!!../../../../../node_modules/css-loader/index.js!../../../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-153ea313\",\"scoped\":true,\"hasInlineConfig\":true}!../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0&bustCache!./Info.vue");
+   module.hot.accept("!!../../../../../node_modules/css-loader/index.js!../../../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-10ddd0a8\",\"scoped\":false,\"hasInlineConfig\":true}!../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0&bustCache!./Admin.vue", function() {
+     var newContent = require("!!../../../../../node_modules/css-loader/index.js!../../../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-10ddd0a8\",\"scoped\":false,\"hasInlineConfig\":true}!../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0&bustCache!./Admin.vue");
      if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
      update(newContent);
    });
@@ -27,7 +27,7 @@ if(false) {
 
 /***/ }),
 
-/***/ 482:
+/***/ 259:
 /***/ (function(module, exports, __webpack_require__) {
 
 exports = module.exports = __webpack_require__(0)(undefined);
@@ -35,115 +35,19 @@ exports = module.exports = __webpack_require__(0)(undefined);
 
 
 // module
-exports.push([module.i, "\n.typo[data-v-153ea313]{\n    font-family: monospace\n}\n.center[data-v-153ea313]{\n    padding: 25px\n}\n", ""]);
+exports.push([module.i, "\n.dialog--fullscreen{\n    overflow-y: auto !important;\n}\n", ""]);
 
 // exports
 
 
 /***/ }),
 
-/***/ 483:
+/***/ 260:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__store_modules_Dashboard__ = __webpack_require__(261);
 //
 //
 //
@@ -151,11 +55,222 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 
-/* harmony default export */ __webpack_exports__["default"] = ({});
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+    data: function data() {
+        return {
+            darked: false,
+            drawer: false
+        };
+    },
+    watch: {
+        darked: function darked(data) {
+            this.$store.dispatch('setting/invertcolor');
+            if (data) {
+                document.querySelectorAll('.emojionearea-editor').map(function (elt) {
+                    elt.style.color = "white";
+                });
+            } else {
+                document.querySelectorAll('.emojionearea-editor').map(function (elt) {
+                    elt.style.color = "#424242";
+                });
+            }
+        }
+    },
+    mounted: function mounted() {
+        this.$store.registerModule('dashboard', __WEBPACK_IMPORTED_MODULE_0__store_modules_Dashboard__["a" /* default */]);
+    }
+});
 
 /***/ }),
 
-/***/ 484:
+/***/ 261:
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/*let marked = require("marked")
+ let highlight = require("highlight.js")
+ marked.setOptions({
+ highlight: function (code) {
+ return highlight.highlightAuto(code).value
+ }
+ })
+ window.marked = marked*/
+
+var saveID = function saveID(state) {
+    var idArr = [];
+    for (var i = 0, len = state.articleList.length; i < len; i++) {
+        idArr.push(state.articleList[i].id);
+        localStorage.setItem('idArr', idArr.join(','));
+    }
+};
+
+var createID = function createID() {
+    var t = '';
+    for (var i = 0; i < 15; i++) {
+        t += Math.floor(Math.random() * 10);
+    }
+    return t;
+};
+
+var state = {
+    showMenu: true,
+    articleList: [{
+        id: createID(),
+        content: 'Untitled\n---\n',
+        current: true
+    }]
+};
+
+var mutations = {
+    SHOW_MENU: function SHOW_MENU(state) {
+        state.showMenu = !state.showMenu;
+    },
+    TEXT_INPUT: function TEXT_INPUT(state, txt) {
+        for (var i = 0, len = state.articleList.length; i < len; i++) {
+            if (state.articleList[i].current) {
+                state.articleList[i].content = txt;
+            }
+        }
+    },
+    SAVE_TO_CACHE: function SAVE_TO_CACHE(state) {
+        for (var i = 0, len = state.articleList.length; i < len; i++) {
+            if (state.articleList[i].current) {
+                localStorage.setItem(state.articleList[i].id, state.articleList[i].content);
+                saveID(state);
+            }
+        }
+    },
+    READ_FROM_CACHE: function READ_FROM_CACHE(state) {
+        for (var i = 0, len = state.articleList.length; i < len; i++) {
+            if (state.articleList[i].current) {
+                state.articleList[i].content = localStorage.getItem(state.articleList[i].id);
+            }
+        }
+    },
+    SELECT_THIS: function SELECT_THIS(state, index) {
+        for (var i = 0, len = state.articleList.length; i < len; i++) {
+            state.articleList[i].current = false;
+        }
+        state.articleList[index].current = true;
+    },
+    NEW_ARTICLE: function NEW_ARTICLE(state) {
+        for (var i = 0, len = state.articleList.length; i < len; i++) {
+            state.articleList[i].current = false;
+        }
+
+        var newOne = {
+            id: createID(),
+            content: 'Untitled\n---',
+            current: true
+        };
+
+        state.articleList.push(newOne);
+    },
+    DELETE_THIS: function DELETE_THIS(state, index) {
+        if (state.articleList.length > 1) {
+            var idArr = localStorage.getItem('idArr').split(',');
+            var loc = idArr.indexOf(state.articleList[index].id);
+            idArr.splice(loc, 1);
+            localStorage.setItem('idArr', idArr);
+
+            localStorage.removeItem(state.articleList[index].id);
+            state.articleList.splice(index, 1);
+
+            for (var i = 0, len = state.articleList.length; i < len; i++) {
+                state.articleList[i].current = false;
+            }
+            state.articleList[0].current = true;
+        }
+    },
+    READ_LIST_FROM_LOCAL: function READ_LIST_FROM_LOCAL(state) {
+        if (localStorage.getItem('idArr')) {
+            state.articleList = null;
+            var idArr = localStorage.getItem('idArr').split(',');
+            var articleArr = [];
+            for (var i = 0, len = idArr.length; i < len; i++) {
+                var articleObj = {
+                    id: '',
+                    content: '',
+                    current: false
+                };
+                articleObj.id = idArr[i];
+                articleObj.content = localStorage.getItem(idArr[i]);
+                articleArr.push(articleObj);
+            }
+            state.articleList = articleArr;
+            state.articleList[0].current = true;
+        }
+    }
+};
+
+var actions = {
+    showMenu: function showMenu(_ref) {
+        var commit = _ref.commit;
+
+        commit('SHOW_MENU');
+    },
+    textInput: function textInput(_ref2, txt) {
+        var commit = _ref2.commit;
+
+        commit('TEXT_INPUT', txt);
+    },
+    selectThis: function selectThis(_ref3, index) {
+        var commit = _ref3.commit;
+
+        commit('SELECT_THIS', index);
+    },
+    newArticle: function newArticle(_ref4) {
+        var commit = _ref4.commit;
+
+        commit('NEW_ARTICLE');
+        commit('SAVE_TO_CACHE');
+    },
+    deleteThis: function deleteThis(_ref5, index) {
+        var commit = _ref5.commit;
+
+        commit('DELETE_THIS', index);
+    },
+    saveToCache: function saveToCache(_ref6) {
+        var commit = _ref6.commit;
+
+        commit('SAVE_TO_CACHE');
+    },
+    readFromCache: function readFromCache(_ref7) {
+        var commit = _ref7.commit;
+
+        commit('READ_FROM_CACHE');
+    },
+    loadCache: function loadCache(_ref8) {
+        var commit = _ref8.commit;
+
+        commit('READ_LIST_FROM_LOCAL');
+    }
+};
+
+var getters = {
+    articleRaw: function articleRaw(state) {
+        var content = '';
+        for (var i = 0, len = state.articleList.length; i < len; i++) {
+            if (state.articleList[i].current) {
+                content = state.articleList[i].content;
+            }
+        }
+        return content;
+    },
+    articleMd: function articleMd(state, getters) {
+        return getters.articleRaw;
+    },
+    articleList: function articleList(state) {
+        return state.articleList;
+    }
+};
+
+/* harmony default export */ __webpack_exports__["a"] = ({ namespaced: true, state: state, mutations: mutations, actions: actions, getters: getters });
+
+/***/ }),
+
+/***/ 262:
 /***/ (function(module, exports, __webpack_require__) {
 
 var render = function() {
@@ -163,336 +278,9 @@ var render = function() {
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
   return _c(
-    "v-container",
-    { attrs: { fluid: "" } },
-    [
-      _c(
-        "v-layout",
-        { attrs: { row: "" } },
-        [
-          _c("v-flex", { attrs: { xs0: "", md0: "", lg0: "" } }),
-          _vm._v(" "),
-          _c(
-            "v-flex",
-            { attrs: { xs0: "", md0: "", lg0: "" } },
-            [
-              _c(
-                "v-card",
-                { attrs: { flat: "" } },
-                [
-                  _c(
-                    "v-parallax",
-                    { attrs: { src: "/img/default/logoLg.jpg" } },
-                    [
-                      _c(
-                        "v-layout",
-                        {
-                          attrs: {
-                            column: "",
-                            "align-center": "",
-                            "justify-center": ""
-                          }
-                        },
-                        [
-                          _c("h1", { staticClass: "white--text" }, [
-                            _vm._v("Weltimo")
-                          ]),
-                          _vm._v(" "),
-                          _c("h4", { staticClass: "white--text" }, [
-                            _vm._v("Join the community!")
-                          ])
-                        ]
-                      )
-                    ],
-                    1
-                  ),
-                  _vm._v(" "),
-                  _c("v-card-title", [
-                    _c(
-                      "div",
-                      [
-                        _c(
-                          "v-layout",
-                          {
-                            staticClass: "center",
-                            attrs: {
-                              column: "",
-                              "align-center": "",
-                              "justify-center": ""
-                            }
-                          },
-                          [
-                            _c("p", { staticClass: "typo" }, [
-                              _c("b", [_vm._v("Weltimo")]),
-                              _vm._v(" is a platform developed by "),
-                              _c("b", [_vm._v("Kankeu Ivan, Loïc et Dannick")]),
-                              _vm._v(
-                                " for\n                                the purpose of facilitating the learning of the German language.\n                                indeed, this platform aims not only to teach you this language\n                                but also to love it. This is why our educational system is\n                                entirely playful and accessible to the general public.\n                            "
-                              )
-                            ])
-                          ]
-                        ),
-                        _vm._v(" "),
-                        _c(
-                          "v-container",
-                          { attrs: { fluid: "", "grid-list-lg": "" } },
-                          [
-                            _c("h1", [_vm._v("Team dev")]),
-                            _vm._v(" "),
-                            _c(
-                              "v-layout",
-                              { attrs: { row: "", wrap: "" } },
-                              [
-                                _c(
-                                  "v-flex",
-                                  { attrs: { xs12: "", lg4: "" } },
-                                  [
-                                    _c(
-                                      "v-card",
-                                      {
-                                        staticClass: "white--text",
-                                        attrs: { color: "blue-grey darken-2" }
-                                      },
-                                      [
-                                        _c(
-                                          "v-container",
-                                          {
-                                            attrs: {
-                                              fluid: "",
-                                              "grid-list-lg": ""
-                                            }
-                                          },
-                                          [
-                                            _c(
-                                              "v-layout",
-                                              { attrs: { row: "" } },
-                                              [
-                                                _c(
-                                                  "v-flex",
-                                                  { attrs: { xs7: "" } },
-                                                  [
-                                                    _c("div", [
-                                                      _c(
-                                                        "div",
-                                                        {
-                                                          staticClass:
-                                                            "headline"
-                                                        },
-                                                        [_vm._v("Loïc")]
-                                                      ),
-                                                      _vm._v(" "),
-                                                      _c("div", [
-                                                        _vm._v(
-                                                          "Concepteur, développeur"
-                                                        )
-                                                      ])
-                                                    ])
-                                                  ]
-                                                ),
-                                                _vm._v(" "),
-                                                _c(
-                                                  "v-flex",
-                                                  { attrs: { xs5: "" } },
-                                                  [
-                                                    _c("v-card-media", {
-                                                      attrs: {
-                                                        src:
-                                                          "/img/default/avatar.jpg",
-                                                        height: "125px",
-                                                        contain: ""
-                                                      }
-                                                    })
-                                                  ],
-                                                  1
-                                                )
-                                              ],
-                                              1
-                                            )
-                                          ],
-                                          1
-                                        )
-                                      ],
-                                      1
-                                    )
-                                  ],
-                                  1
-                                ),
-                                _vm._v(" "),
-                                _c(
-                                  "v-flex",
-                                  { attrs: { xs12: "", lg4: "" } },
-                                  [
-                                    _c(
-                                      "v-card",
-                                      {
-                                        staticClass: "white--text",
-                                        attrs: {
-                                          color: "cyan darken-2",
-                                          href: "https://twitter.com/Ikankeu12",
-                                          target: "_blank"
-                                        }
-                                      },
-                                      [
-                                        _c(
-                                          "v-container",
-                                          {
-                                            attrs: {
-                                              fluid: "",
-                                              "grid-list-lg": ""
-                                            }
-                                          },
-                                          [
-                                            _c(
-                                              "v-layout",
-                                              { attrs: { row: "" } },
-                                              [
-                                                _c(
-                                                  "v-flex",
-                                                  { attrs: { xs7: "" } },
-                                                  [
-                                                    _c("div", [
-                                                      _c(
-                                                        "div",
-                                                        {
-                                                          staticClass:
-                                                            "headline"
-                                                        },
-                                                        [_vm._v("Ivan Kankeu")]
-                                                      ),
-                                                      _vm._v(" "),
-                                                      _c("div", [
-                                                        _vm._v(
-                                                          "Concepteur, développeur"
-                                                        )
-                                                      ])
-                                                    ])
-                                                  ]
-                                                ),
-                                                _vm._v(" "),
-                                                _c(
-                                                  "v-flex",
-                                                  { attrs: { xs5: "" } },
-                                                  [
-                                                    _c("v-card-media", {
-                                                      attrs: {
-                                                        src:
-                                                          "/img/default/author1.jpg",
-                                                        height: "125px",
-                                                        contain: ""
-                                                      }
-                                                    })
-                                                  ],
-                                                  1
-                                                )
-                                              ],
-                                              1
-                                            )
-                                          ],
-                                          1
-                                        )
-                                      ],
-                                      1
-                                    )
-                                  ],
-                                  1
-                                ),
-                                _vm._v(" "),
-                                _c(
-                                  "v-flex",
-                                  { attrs: { xs12: "", lg4: "" } },
-                                  [
-                                    _c(
-                                      "v-card",
-                                      {
-                                        staticClass: "white--text",
-                                        attrs: { color: "purple" }
-                                      },
-                                      [
-                                        _c(
-                                          "v-container",
-                                          {
-                                            attrs: {
-                                              fluid: "",
-                                              "grid-list-lg": ""
-                                            }
-                                          },
-                                          [
-                                            _c(
-                                              "v-layout",
-                                              { attrs: { row: "" } },
-                                              [
-                                                _c(
-                                                  "v-flex",
-                                                  { attrs: { xs7: "" } },
-                                                  [
-                                                    _c("div", [
-                                                      _c(
-                                                        "div",
-                                                        {
-                                                          staticClass:
-                                                            "headline"
-                                                        },
-                                                        [_vm._v("Dannick")]
-                                                      ),
-                                                      _vm._v(" "),
-                                                      _c("div", [
-                                                        _vm._v(
-                                                          "Concepteur, développeur"
-                                                        )
-                                                      ])
-                                                    ])
-                                                  ]
-                                                ),
-                                                _vm._v(" "),
-                                                _c(
-                                                  "v-flex",
-                                                  { attrs: { xs5: "" } },
-                                                  [
-                                                    _c("v-card-media", {
-                                                      attrs: {
-                                                        src:
-                                                          "/img/default/avatar.jpg",
-                                                        height: "125px",
-                                                        contain: ""
-                                                      }
-                                                    })
-                                                  ],
-                                                  1
-                                                )
-                                              ],
-                                              1
-                                            )
-                                          ],
-                                          1
-                                        )
-                                      ],
-                                      1
-                                    )
-                                  ],
-                                  1
-                                )
-                              ],
-                              1
-                            )
-                          ],
-                          1
-                        )
-                      ],
-                      1
-                    )
-                  ])
-                ],
-                1
-              )
-            ],
-            1
-          ),
-          _vm._v(" "),
-          _c("v-flex", { attrs: { xs0: "", md0: "", lg0: "" } })
-        ],
-        1
-      )
-    ],
+    "div",
+    { staticStyle: { "margin-top": "80px" } },
+    [_c("router-view")],
     1
   )
 }
@@ -502,31 +290,31 @@ module.exports = { render: render, staticRenderFns: staticRenderFns }
 if (false) {
   module.hot.accept()
   if (module.hot.data) {
-    require("vue-hot-reload-api")      .rerender("data-v-153ea313", module.exports)
+    require("vue-hot-reload-api")      .rerender("data-v-10ddd0a8", module.exports)
   }
 }
 
 /***/ }),
 
-/***/ 69:
+/***/ 70:
 /***/ (function(module, exports, __webpack_require__) {
 
 var disposed = false
 function injectStyle (ssrContext) {
   if (disposed) return
-  __webpack_require__(481)
+  __webpack_require__(258)
 }
-var normalizeComponent = __webpack_require__(17)
+var normalizeComponent = __webpack_require__(1)
 /* script */
-var __vue_script__ = __webpack_require__(483)
+var __vue_script__ = __webpack_require__(260)
 /* template */
-var __vue_template__ = __webpack_require__(484)
+var __vue_template__ = __webpack_require__(262)
 /* template functional */
 var __vue_template_functional__ = false
 /* styles */
 var __vue_styles__ = injectStyle
 /* scopeId */
-var __vue_scopeId__ = "data-v-153ea313"
+var __vue_scopeId__ = null
 /* moduleIdentifier (server only) */
 var __vue_module_identifier__ = null
 var Component = normalizeComponent(
@@ -537,7 +325,7 @@ var Component = normalizeComponent(
   __vue_scopeId__,
   __vue_module_identifier__
 )
-Component.options.__file = "resources/assets/js/components/app/Info.vue"
+Component.options.__file = "resources/assets/js/components/admin/Admin.vue"
 
 /* hot reload */
 if (false) {(function () {
@@ -546,9 +334,9 @@ if (false) {(function () {
   if (!hotAPI.compatible) return
   module.hot.accept()
   if (!module.hot.data) {
-    hotAPI.createRecord("data-v-153ea313", Component.options)
+    hotAPI.createRecord("data-v-10ddd0a8", Component.options)
   } else {
-    hotAPI.reload("data-v-153ea313", Component.options)
+    hotAPI.reload("data-v-10ddd0a8", Component.options)
   }
   module.hot.dispose(function (data) {
     disposed = true

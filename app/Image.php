@@ -12,8 +12,8 @@ class Image extends Model
         "article_id" => "int"
     ];
 
-    public function article()
+    public function user()
     {
-        return $this->belongsTo('App\Article');
+        return $this->belongsTo( 'App\User');
     }
 }

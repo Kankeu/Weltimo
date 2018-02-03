@@ -21,6 +21,12 @@ class InscriptionController extends Controller
      */
     public function store(Request $request)
     {
+        $request->validate([
+            'name' => 'required',
+            'forename' => 'required',
+            'email' => 'required|unique',
+            'password' => 'required|min:6'
+        ]);
         $data = $request->all();
         $data['password'] = Hash::make($data['password']);
         $user = User::create($data);

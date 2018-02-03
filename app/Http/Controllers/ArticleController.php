@@ -46,6 +46,10 @@ class ArticleController extends Controller
      */
     public function store(Request $request)
     {
+        $request->validate([
+            'message' => 'required_without:image',
+            'image' => 'required_without:message|image',
+        ]);
         if($request->hasFile('image')){
             return $this->storeWithFile($request);
         }else{
@@ -64,7 +68,7 @@ class ArticleController extends Controller
         if($article){
             $article->load("image","liked");
             $article->likes_count = $article->likes()->where("likable_id",$article->id)->count();
-            $article->comments_count = $article->comments()->where("article_id",$article->id)->count();
+            $article->comments_count = $article->comments()->count();
             return new Response($article);
         }
         return new Response(['status'=>0]);
@@ -90,6 +94,10 @@ class ArticleController extends Controller
      */
     public function update(Request $request, Article $article)
     {
+        $request->validate([
+            'message' => 'required_without:image',
+            'image' => 'required_without:message|image',
+        ]);
         if($article){
             if($request->hasFile('image')){
                 return $this->updateWithFile($request, $article);
@@ -97,7 +105,7 @@ class ArticleController extends Controller
             $article->update($request->all());
             $article->load("image","user","liked");
             $article->likes_count = $article->likes()->where("likable_id",$article->id)->count();
-            $article->comments_count = $article->comments()->where("article_id",$article->id)->count();
+            $article->comments_count = $article->comments()->count();
             return new Response($article);
         }
         return Response(["status"=>0]);
@@ -112,14 +120,7 @@ class ArticleController extends Controller
     public function destroy(Article $article)
     {
         if(!is_null($article)){
-            $article->likes()->delete();
-            if($article->image){
-                $url = $article->image->path;
-                $this->dispatch(new DeleteImage(public_path($url)));
-                $article->delete();
-            }else{
-                $article->delete();
-            }
+            $article->delete();
             return new Response(["status"=>1]);
         }
     }
@@ -137,14 +138,14 @@ class ArticleController extends Controller
             unset($data["image"]);
             $data["user_id"] = Auth::id();
             if($article = Article::create($data)){
-                Image::create(['path'=>$global_path,'article_id'=>$article->id]);
+                $article->image()->create(['path'=>$global_path,'user_id'=>Auth::id()]);
+                $this->dispatch(new ResizeImage($path, [0=>['w'=>660,'h'=>520]]));
+                $article->load('user','image');
+                $article->likes_count = $article->likes()->where("likable_id",$article->id)->count();
+                $article->comments_count = $article->comments()->count();
+                broadcast(new ArticleCreatedEvent($article->toJson(), Auth::user()))->toOthers();
+                return new Response($article);
             }
-            $this->dispatch(new ResizeImage($path, [0=>['w'=>660,'h'=>520]]));
-            $article->load("image","user","liked");
-            $article->likes_count = $article->likes()->where("likable_id",$article->id)->count();
-            $article->comments_count = $article->comments()->where("article_id",$article->id)->count();
-            broadcast(new ArticleCreatedEvent($article->toJson(), Auth::user()))->toOthers();
-            return new Response($article);
         }
         return new Response(["status"=>0]);
     }
@@ -155,9 +156,9 @@ class ArticleController extends Controller
         unset($data['image']);
         $data["user_id"] = Auth::id();
         if($article = Article::create($data)){
-            $article->load('user','liked');
+            $article->load('user');
             $article->likes_count = $article->likes()->where("likable_id",$article->id)->count();
-            $article->comments_count = $article->comments()->where("article_id",$article->id)->count();
+            $article->comments_count = $article->comments()->count();
             broadcast(new ArticleCreatedEvent($article->toJson(), Auth::user()))->toOthers();
             return new Response($article);
         }
@@ -185,13 +186,11 @@ class ArticleController extends Controller
                 if($article->image){
                     $article->image->update(['path'=>$global_path]);
                 }else{
-                    Image::create(['path'=>$global_path,'article_id'=>$article->id]);
+                    $article->image()->create(['path'=>$global_path,'user_id'=>Auth::id()]);
                 }
             }
             $this->dispatch(new ResizeImage($path, [0=>['w'=>660,'h'=>520]]));
-            $article->load("image","user","liked");
-            $article->likes_count = $article->likes()->where("likable_id",$article->id)->count();
-            $article->comments_count = $article->comments()->where("article_id",$article->id)->count();
+            $article->load("image","user");
             return new Response($article);
         }
         return new Response(["status"=>0]);
@@ -221,5 +220,15 @@ class ArticleController extends Controller
         $likers = Article::find($article)->likes()->where('type',$type)->with('user')
             ->paginate(20);
         return new Response($likers);
+    }
+
+    public function likes(int $article)
+    {
+        $article = Article::with("image","liked")
+            ->withCount('likes_love',
+            'likes_like','likes_haha','likes_wow',
+            'likes_glad','likes_brother','likes_sad','likes_angry','comments','likes')
+            ->find($article);
+        return new Response($article);
     }
 }

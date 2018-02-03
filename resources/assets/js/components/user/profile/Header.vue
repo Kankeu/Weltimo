@@ -24,22 +24,22 @@
         </v-parallax>
         <v-card style="height:55px">
             <v-bottom-nav absolute :value="true" style="justify-content:flex-end" class="hBtnNav" color="transparent">
-                <v-btn flat :to="'/user/profile/'+profile.id+'/'" exact>
+                <v-btn flat :to="'/profile/'+profile.id+'/'" exact>
                     <span>Home</span>
                     <v-icon></v-icon>
                 </v-btn>
-                <v-btn flat :to="'/user/profile/'+profile.id+'/following'">
+                <v-btn flat :to="'/profile/'+profile.id+'/following'">
                     <span>Following<br>
                     {{profile.following_count}}
                     </span>
                     <v-icon></v-icon>
                 </v-btn>
-                <v-btn flat :to="'/user/profile/'+profile.id+'/followers'">
+                <v-btn flat :to="'/profile/'+profile.id+'/followers'">
                     <span>Followers<br>
                     {{profile.followers_count}}
                     </span>
                 </v-btn>
-                <v-btn flat :to="'/user/profile/'+profile.id+'/albums'">
+                <v-btn flat :to="'/profile/'+profile.id+'/albums'">
                     <span>Albums</span>
                 </v-btn>
             </v-bottom-nav>
@@ -91,7 +91,7 @@
                 this.loadingSubs = true
                 let profile = this.profile
                 if(this.profile.followed){
-                    this.$http.delete("user/subscription/"+ this.profile.followed.id).then(response=>{
+                    this.$http.get("user/unfollow/"+ this.profile.id).then(response=>{
                         if(response.body.status === 1){
                             this.loadingSubs = false
                             this.$set(profile,'followed',null)

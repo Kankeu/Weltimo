@@ -1,7 +1,7 @@
 <template>
     <v-dialog v-model="dialog" max-width="290">
         <v-card>
-            <v-card-title class="headline">Share the publication</v-card-title>
+            <v-card-title class="headline">Share the publication <v-spacer></v-spacer><v-btn icon @click="dialog=false"><v-icon>close</v-icon></v-btn></v-card-title>
             <v-divider></v-divider>
             <v-container grid-list-md text-xs-left fluid>
                 <v-layout column>

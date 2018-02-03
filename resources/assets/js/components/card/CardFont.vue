@@ -16,7 +16,7 @@
                     </v-avatar>
                     <v-card v-if="userPopover">
                         <v-list>
-                            <v-list-tile avatar :to="'/user/profile/'+owner.id">
+                            <v-list-tile avatar :to="'/profile/'+owner.id">
                                 <v-list-tile-avatar>
                                     <img :src="owner.avatar" alt="avatar">
                                 </v-list-tile-avatar>
@@ -38,18 +38,29 @@
                             </v-list-tile>
                         </v-list>
                         <v-divider></v-divider>
-                        <v-avatar
-                                size="200px"
-                                :tile="true"
-                                class="menuCover"
-                        >
-                            <img :src="owner.cover" alt="cover picture">
-                        </v-avatar>
+                        <v-layout column>
+                            <v-flex lg12 xs12>
+                                <v-avatar
+                                        size="200px"
+                                        :tile="true"
+                                        class="menuCover"
+                                        style="height: 150px"
+                                >
+                                    <img :src="owner.cover" alt="cover picture">
+                                </v-avatar>
+                            </v-flex>
+                            <v-flex lg12 xs12>
+                                <v-layout row wrap style="margin: 10px" align-center justify-center>
+                                    <v-flex><p style="margin-bottom: 0px">Following</p><span style="color:#1B95E0 !important;font-size: 20px">{{owner.following_count}}</span></v-flex>
+                                    <v-flex><p style="margin-bottom: 0px">Followers</p><span style="color:#1B95E0 !important;font-size: 20px">{{owner.followers_count}}</span></v-flex>
+                                </v-layout>
+                            </v-flex>
+                        </v-layout>
                     </v-card>
                 </v-menu>
                 <v-layout style="margin-left: 4px;text-align:left;font-family:monospace" column>
-                    <v-flex style="padding:0" @click="$router.push('/user/profile/'+owner.id)">
-                        <b style="font-weight:100">{{owner.name+" "+owner.forename}}</b>
+                    <v-flex style="padding:0" @click="$router.push('profile/'+owner.id)">
+                        <b style="font-weight:100;cursor: pointer">{{owner.name+" "+owner.forename}}</b>
                     </v-flex>
                     <v-flex style="padding:0">
                         <small><timeago :since="article.created_at" :auto-update="61" :max-time="86400 * 365"></timeago></small>
@@ -174,7 +185,7 @@
                 </v-card-actions>
             </v-card>
         </v-dialog>
-        <dialog-share :open="openDialogShare" :url="urlArticle(article.id,this.article.user_id)" :message="article.message" @close="openDialogShare=false"></dialog-share>
+        <dialog-share :open="openDialogShare" :url="urlArticle(article.id,article.user_id)" :message="article.message" @close="openDialogShare=false"></dialog-share>
     </div>
 </template>
 

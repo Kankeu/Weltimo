@@ -4,8 +4,8 @@
             <v-card class="elevation-0">
                 <v-toolbar class="elevation-0" style="background:transparent">
                     <v-avatar
-                            @click="$router.push('/user/profile/'+user.id)"
-                            style="margin-left: 10px;margin-right: 10px"
+                            @click="$router.push('profile/'+user.id)"
+                            style="cursor: pointer;margin-left: 10px;margin-right: 10px"
                             size="40px"
                     >
                         <img :src="user.avatar" alt="avatar">

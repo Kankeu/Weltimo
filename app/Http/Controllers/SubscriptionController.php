@@ -41,7 +41,8 @@ class SubscriptionController extends Controller
     {
         $request->validate(["receiver_id"=>"required|integer"]);
         $receiver_id = $request->input("receiver_id");
-        if($receiver_id !== Auth::id()){
+        $subscription = Subscription::where('receiver_id',$receiver_id)->where('sender_id',Auth::id())->first();
+        if($receiver_id !== Auth::id() && is_null($subscription)){
             if($subscription = Subscription::create(["sender_id"=>Auth::id(),"receiver_id"=>$receiver_id])){
                 return new Response($subscription);
             }
@@ -104,5 +105,13 @@ class SubscriptionController extends Controller
         if(!is_null($subscription) && $subscription->delete()){
             return new Response(["status"=>1]);
         }
+    }
+
+    public function unfollow(int $id){
+        return $this->destroy(Subscription::where('receiver_id',$id)->where('sender_id',Auth::id())->first());
+    }
+
+    public function deletefollower(int $id){
+        $this->destroy(Subscription::where('receiver_id',Auth::id())->where('sender_id',$id)->first());
     }
 }

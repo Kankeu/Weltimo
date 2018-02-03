@@ -1,12 +1,17 @@
 <template>
-    <div :class="emojiClass">
-        <textarea class="emojionearea"></textarea>
-    </div>
+    <v-layout>
+        <v-flex xs10 lg12>
+            <div :class="emojiClass">
+                <textarea class="emojionearea"></textarea>
+            </div>
+        </v-flex>
+        <v-flex xs2 lg0 v-if="!$vuetify.breakpoint.smAndUp">
+            <v-icon @click="publish" color="primary" style="margin-left: 11px">send</v-icon>
+        </v-flex>
+    </v-layout>
 </template>
 
 <script>
-    import "emojionearea"
-    import "emojionearea/dist/emojionearea.css"
     import store from './state.js'
     export default{
         props:{
@@ -27,6 +32,9 @@
                     (this.darked) ? 'commentForm blackForm' : 'commentForm',
                     (!this.$vuetify.breakpoint.smAndUp) ? ' noEmoji enlargeCmt' : null
                 ].join(' ')
+            },
+            name(){
+                return (this.article.type) ? this.article.type : 'article'
             }
         },
         data(){
@@ -37,27 +45,29 @@
         methods:{
             publish(){
                 let message = this.parseText()
-                let data = {message,article_id:this.article.id,user_id:this.user.id}
-                let elt = this.$el.querySelector('.emojionearea-editor').querySelector('.replyUser')
-                if(elt && elt.innerText.trim().length>1 && this.store.replyUser_id){
-                     data['comment_id'] = this.store.replyUser_id
-                }
-                store.set('loading',true)
-                this.$http.post("/user/article/"+this.article.id+"/comment",data).then(response=>{
-                    if(response.body.id){
-                        this.clear()
-                        let replyUser = response.body.replyed_user
-                        delete response.body.replyed_user
-                        this.$store.dispatch('comment/save',response.body)
-                        if(replyUser) this.$store.dispatch('users/save',replyUser)
-                        this.$store.dispatch('article/addComment',this.article)
-                        this.$store.dispatch('comment/scrollTo',response.body.id)
-                        this.$nextTick(()=>{
-                            this.$scrollTo('#showComment',500,{container:'#comments'})
-                        })
+                if(JSON.parse(message).length>0){
+                    let data = {message,user_id:this.user.id}
+                    let elt = this.$el.querySelector('.emojionearea-editor').querySelector('.replyUser')
+                    if(elt && elt.innerText.trim().length>1 && this.store.replyUser_id){
+                         data['comment_id'] = this.store.replyUser_id
                     }
-                    store.set('loading',false)
-                })
+                    store.set('loading',true)
+                    this.$http.post("/user/"+this.name+"/"+this.article.id+"/comment",data).then(response=>{
+                        if(response.body.id){
+                            this.clear()
+                            let replyUser = response.body.replyed_user
+                            delete response.body.replyed_user
+                            this.$store.dispatch('comment/save',response.body)
+                            if(replyUser) this.$store.dispatch('users/save',replyUser)
+                            this.$store.dispatch(this.name+'/addComment',this.article)
+                            this.$store.dispatch('comment/scrollTo',response.body.id)
+                            this.$nextTick(()=>{
+                                this.$scrollTo('#showComment',500,{container:'#comments'})
+                            })
+                        }
+                        store.set('loading',false)
+                    })
+                }else{this.$el.querySelector(".emojionearea-editor").innerHTML = ""}
             },
             clear(){
                 this.$el.querySelector("textarea").value = ""

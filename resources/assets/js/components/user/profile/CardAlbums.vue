@@ -1,5 +1,5 @@
 <template>
-    <v-container fluid md :style="$vuetify.breakpoint.smAndUp || 'padding:0;padding-top:8px'">
+    <v-container fluid md :style="$vuetify.breakpoint.smAndUp ? 'margin-top:50px' : 'padding:0;padding-top:8px'">
         <v-layout>
             <v-flex xs12 sm10 offset-sm1 offset-xs0>
                 <v-card>

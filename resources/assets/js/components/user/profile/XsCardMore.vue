@@ -8,7 +8,7 @@
                         <v-avatar size="77px" @click="$router.push('/user/profile/'+morePerson.id)">
                             <img :src="morePerson.avatar">
                         </v-avatar>
-                        <v-card-text>
+                        <v-card-text style="overflow: auto;height: 53px;">
                             {{morePerson.name+" "+morePerson.forename}}
                         </v-card-text>
                         <v-card-actions>
@@ -60,11 +60,12 @@
             follow(user){
                 this.$set(user, "loadingSubs",true)
                 if(user.followed){
-                    this.$http.delete("user/subscription/"+ user.followed.id).then(response=>{
+                    this.$http.delete("user/unfollow/"+ user.id).then(response=>{
                         if(response.body.status === 1){
                             this.$set(user, "loadingSubs",false)
                             this.$set(user,'followed',null)
                             this.$store.dispatch('users/removeFollowing', this.user)
+                            user.followers_count--
                         }
                     })
                 }else{
@@ -73,6 +74,7 @@
                             this.$store.dispatch('users/addFollowing', this.user)
                             this.$set(user, "loadingSubs",false)
                             this.$set(user,'followed',response.body)
+                            user.followers_count++
                         }
                     })
                 }

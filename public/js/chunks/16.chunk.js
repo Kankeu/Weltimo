@@ -1,6 +1,6 @@
 webpackJsonp([16],{
 
-/***/ 222:
+/***/ 237:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -48,19 +48,11 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
-//
-//
-//
-//
-//
-//
-//
-//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
     data: function data() {
         return {
-            followers: []
+            followings: []
         };
     },
 
@@ -69,65 +61,57 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             return this.$store.state.user.user;
         },
         query: function query() {
+            var _this = this;
+
             return this.$store.state.query.queries.find(function (e) {
-                return e.name === "cardFollower";
+                return e.name === "cardFollowing" && e.id === _this.profile.id;
             });
         },
         profile: function profile() {
-            var _this = this;
+            var _this2 = this;
 
             return this.$store.state.users.users.find(function (user) {
-                return user.id === parseInt(_this.$route.params.id);
+                return user.id === parseInt(_this2.$route.params.id);
             });
         },
         scrollTop: function scrollTop() {
             var scroll = this.$store.state.setting.scrollTops.find(function (e) {
-                return e.name === "cardFollower";
+                return e.name === "cardFollowing";
             }) || {};
             return scroll.scrollTop;
         }
     },
     methods: {
         load: function load() {
-            var _this2 = this;
+            var _this3 = this;
 
             if (!this.query) {
-                this.$http.get('/user/profile/' + this.profile.id + '/follower').then(function (response) {
+                this.$http.get('/user/profile/' + this.profile.id + '/following').then(function (response) {
                     if (response.body instanceof Object) {
-                        _this2.followers = response.body.data;
-                        _this2.$nextTick(function () {
-                            return document.body.scrollTop = _this2.scrollTop;
+                        _this3.followings = response.body.data;
+                        _this3.$nextTick(function () {
+                            return document.body.scrollTop = _this3.scrollTop;
                         });
                     }
                 });
             }
         },
-        remove: function remove(user) {
-            var _this3 = this;
-
-            this.$set(user, "loadingSubs", true);
-            this.$http.delete("/user/subscription/" + user.follower_of.id).then(function (response) {
-                if (response.body.status === 1) {
-                    user.loadingSubs = false;
-                    var index = _this3.followers.indexOf(_this3.followers.find(function (follower) {
-                        return follower.id === user.id;
-                    }));
-                    if (index > -1) _this3.followers.splice(index, 1);
-                    _this3.$store.dispatch('users/removeFollower', _this3.user);
-                }
-            });
-        },
         follow: function follow(user) {
             var _this4 = this;
 
             this.$set(user, "loadingSubs", true);
-            this.$http.post('user/subscription', { receiver_id: user.id }).then(function (response) {
-                if (response.body.id) {
-                    user.followed = response.body;
-                    _this4.$store.dispatch('users/addFollowing', _this4.user);
-                    _this4.$set(user, "loadingSubs", false);
-                }
-            });
+            if (user.followed) {
+                this.$http.get("user/unfollow/" + user.id).then(function (response) {
+                    if (response.body.status === 1) {
+                        _this4.$set(user, "loadingSubs", false);
+                        var index = _this4.followings.indexOf(_this4.followings.find(function (following) {
+                            return following.id === user.id;
+                        }));
+                        if (index > -1) _this4.followings.splice(index, 1);
+                        _this4.$store.dispatch('users/removeFollowing', _this4.user);
+                    }
+                });
+            }
         }
     },
     mounted: function mounted() {
@@ -135,13 +119,13 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         document.body.scrollTop = this.scrollTop;
     },
     destroyed: function destroyed() {
-        this.$store.dispatch('setting/addScrollTop', { scrollTop: document.body.scrollTop, name: "cardFollower" });
+        this.$store.dispatch('setting/addScrollTop', { scrollTop: document.body.scrollTop, name: "cardFollowing" });
     }
 });
 
 /***/ }),
 
-/***/ 223:
+/***/ 238:
 /***/ (function(module, exports, __webpack_require__) {
 
 var render = function() {
@@ -151,13 +135,15 @@ var render = function() {
   return _c(
     "v-layout",
     {
-      staticStyle: { "justify-content": "space-between" },
+      style: _vm.$vuetify.breakpoint.smAndUp
+        ? "margin-top:50px"
+        : "justify-content:space-between;",
       attrs: { row: "", wrap: "" }
     },
-    _vm._l(_vm.followers, function(follower) {
+    _vm._l(_vm.followings, function(following) {
       return _c(
         "v-flex",
-        { key: follower.id, attrs: { xs12: "", lg6: "" } },
+        { key: following.id, attrs: { xs12: "", lg6: "" } },
         [
           _c(
             "v-card",
@@ -183,13 +169,13 @@ var render = function() {
                               {
                                 staticStyle: { "text-decoration": "none" },
                                 attrs: {
-                                  href: "/#/user/profile/" + follower.id
+                                  href: "/#/user/profile/" + following.id
                                 }
                               },
                               [
                                 _vm._v(
                                   _vm._s(
-                                    follower.name + " " + follower.forename
+                                    following.name + " " + following.forename
                                   )
                                 )
                               ]
@@ -202,81 +188,57 @@ var render = function() {
                           _c(
                             "div",
                             [
-                              _vm.user.id !== follower.id && !follower.followed
-                                ? _c(
-                                    "v-btn",
-                                    {
-                                      attrs: {
-                                        slot: "activator",
-                                        loading: follower.loadingSubs,
-                                        color: follower.followed
-                                          ? null
-                                          : "primary",
-                                        outline: ""
-                                      },
-                                      on: {
-                                        click: function($event) {
-                                          $event.stopPropagation()
-                                          $event.preventDefault()
-                                          _vm.follow(follower)
-                                        }
-                                      },
-                                      slot: "activator"
-                                    },
-                                    [
-                                      !follower.followed
-                                        ? _c("v-icon", [_vm._v("person_add")])
-                                        : _vm._e(),
-                                      _vm._v(
-                                        _vm._s(
-                                          follower.followed
-                                            ? "Unfollow"
-                                            : "Follow"
-                                        ) + "\n                                "
-                                      )
-                                    ],
-                                    1
-                                  )
-                                : _vm._e(),
-                              _vm._v(" "),
                               _c(
                                 "v-tooltip",
                                 { attrs: { top: "" } },
                                 [
-                                  _vm.profile.id === _vm.user.id
+                                  following.followed
                                     ? _c(
                                         "v-btn",
                                         {
                                           attrs: {
                                             slot: "activator",
-                                            loading: follower.loadingSubs,
-                                            color: "danger",
+                                            loading: following.loadingSubs,
+                                            color: following.followed
+                                              ? null
+                                              : "primary",
                                             outline: ""
                                           },
                                           on: {
                                             click: function($event) {
                                               $event.stopPropagation()
                                               $event.preventDefault()
-                                              _vm.remove(follower)
+                                              _vm.follow(following)
                                             }
                                           },
                                           slot: "activator"
                                         },
                                         [
-                                          _c("v-icon", [_vm._v("delete")]),
+                                          !following.followed
+                                            ? _c("v-icon", [
+                                                _vm._v("person_add")
+                                              ])
+                                            : _vm._e(),
                                           _vm._v(
-                                            "Delete\n                                    "
+                                            _vm._s(
+                                              following.followed
+                                                ? "Unfollow"
+                                                : "Follow"
+                                            ) +
+                                              "\n                                    "
                                           )
                                         ],
                                         1
                                       )
                                     : _vm._e(),
                                   _vm._v(" "),
-                                  _c("span", [
-                                    _vm._v(
-                                      "Click here to remove of followers list"
-                                    )
-                                  ])
+                                  !following.followed
+                                    ? _c("span", [
+                                        _vm._v("Click here to unfollow")
+                                      ])
+                                    : _c("span", [
+                                        _vm._v("Click here to follow")
+                                      ])
                                 ],
                                 1
                               )
@@ -292,7 +254,7 @@ var render = function() {
                         [
                           _c("v-card-media", {
                             attrs: {
-                              src: follower.avatar,
+                              src: following.avatar,
                               height: "125px",
                               contain: ""
                             }
@@ -321,21 +283,21 @@ module.exports = { render: render, staticRenderFns: staticRenderFns }
 if (false) {
   module.hot.accept()
   if (module.hot.data) {
-    require("vue-hot-reload-api")      .rerender("data-v-51c46f72", module.exports)
+    require("vue-hot-reload-api")      .rerender("data-v-1de0dfee", module.exports)
   }
 }
 
 /***/ }),
 
-/***/ 61:
+/***/ 64:
 /***/ (function(module, exports, __webpack_require__) {
 
 var disposed = false
-var normalizeComponent = __webpack_require__(17)
+var normalizeComponent = __webpack_require__(1)
 /* script */
-var __vue_script__ = __webpack_require__(222)
+var __vue_script__ = __webpack_require__(237)
 /* template */
-var __vue_template__ = __webpack_require__(223)
+var __vue_template__ = __webpack_require__(238)
 /* template functional */
 var __vue_template_functional__ = false
 /* styles */
@@ -352,7 +314,7 @@ var Component = normalizeComponent(
   __vue_scopeId__,
   __vue_module_identifier__
 )
-Component.options.__file = "resources/assets/js/components/user/profile/CardFollowers.vue"
+Component.options.__file = "resources/assets/js/components/user/profile/CardFollowing.vue"
 
 /* hot reload */
 if (false) {(function () {
@@ -361,9 +323,9 @@ if (false) {(function () {
   if (!hotAPI.compatible) return
   module.hot.accept()
   if (!module.hot.data) {
-    hotAPI.createRecord("data-v-51c46f72", Component.options)
+    hotAPI.createRecord("data-v-1de0dfee", Component.options)
   } else {
-    hotAPI.reload("data-v-51c46f72", Component.options)
+    hotAPI.reload("data-v-1de0dfee", Component.options)
   }
   module.hot.dispose(function (data) {
     disposed = true

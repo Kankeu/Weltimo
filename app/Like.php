@@ -24,7 +24,4 @@ class Like extends Model
         return $this->belongsTo('App\User');
     }
 
-    protected $hidden = [
-        'likable_type',
-    ];
 }

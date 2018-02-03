@@ -8,35 +8,32 @@
                 </div>
                 <v-btn round color="primary" @click.native="select('cover')" icon v-else><v-icon>insert_photo</v-icon></v-btn>
             </v-layout>
-            <v-tooltip class="btnSubs" top>
-                <v-btn
-                        :loading="loadingSubs"
-                        :color="profile.followed ? null :'primary'"
-                        @click.native="follow"
-                        v-if="user.id!==profile.id"
-                        slot="activator"
-                        rounded
-                >
-                    <v-icon v-if="!profile.followed">person_add</v-icon>{{profile.followed ? "Unfollow" : "Follow"}}
-                </v-btn>
-                <span v-if="profile.followed">Click here to unfollow</span><span v-else>Click here to follow</span>
-            </v-tooltip>
         </v-parallax>
         <v-card>
+            <v-card-title style="margin: 0;padding: 0">
+                <v-spacer></v-spacer>
+                <v-tooltip top>
+                    <v-btn
+                            :loading="loadingSubs"
+                            :color="profile.followed ? null :'primary'"
+                            @click.native="follow"
+                            v-if="user.id!==profile.id"
+                            slot="activator"
+                            rounded
+                    >
+                        <v-icon v-if="!profile.followed">person_add</v-icon>{{profile.followed ? "Unfollow" : "Follow"}}
+                    </v-btn>
+                    <span v-if="profile.followed">Click here to unfollow</span><span v-else>Click here to follow</span>
+                </v-tooltip>
+            </v-card-title>
             <v-list style="text-align: left" subheader>
-                <v-list-tile class="list__item">
-                    <v-list-tile-avatar >
-                        Name:
-                    </v-list-tile-avatar>
-                    <v-list-tile-content>
-                        {{profile.name+" "+profile.forename}}
-                    </v-list-tile-content>
-                </v-list-tile>
-                <v-list-tile class="list__item" v-if="profile.role==='admin' || profile.title">
-                    <v-list-tile-content>
-                        {{(profile.role==="admin") ? "Founder of Weltimo" : profile.title}}
-                    </v-list-tile-content>
-                </v-list-tile>
+                <div style="display: flex;padding: 15px">
+                    <div style="margin-right: 5px">Name: </div>
+                    <div>{{profile.name+" "+profile.forename}}</div>
+                </div>
+                <div style="display: flex;padding: 15px"  v-if="profile.role==='admin' || profile.title">
+                    <div>{{(profile.role==="admin") ? "Founder of Weltimo" : profile.title}}</div>
+                </div>
                 <v-subheader v-if="profile.biography" style="display: inherit;margin-bottom: 10px"><span style=" color: black;font-weight: 400;">Biography: </span>{{profile.biography}}</v-subheader>
             </v-list>
         </v-card>
@@ -45,22 +42,22 @@
                 <v-tabs-bar class="transparent tabsProfile" dark>
                     <v-tabs-slider class="yellow"></v-tabs-slider>
                     <v-tabs-item
-                            :to="'/user/profile/'+profile.id+'/'" exact
+                            :to="'/profile/'+profile.id+'/'" exact
                     >
                         Home
                     </v-tabs-item>
                     <v-tabs-item
-                            :to="'/user/profile/'+profile.id+'/following'"
+                            :to="'/profile/'+profile.id+'/following'"
                     >
                         Following ({{profile.following_count}})
                     </v-tabs-item>
                     <v-tabs-item
-                            :to="'/user/profile/'+profile.id+'/followers'" exact
+                            :to="'/profile/'+profile.id+'/followers'" exact
                     >
                         Followers ({{profile.followers_count}})
                     </v-tabs-item>
                     <v-tabs-item
-                            :to="'/user/profile/'+profile.id+'/albums'"
+                            :to="'/profile/'+profile.id+'/albums'"
                     >
                         Albums
                     </v-tabs-item>
@@ -114,7 +111,7 @@
                 this.loadingSubs = true
                 let profile = this.profile
                 if(this.profile.followed){
-                    this.$http.delete("user/subscription/"+ this.profile.followed.id).then(response=>{
+                    this.$http.get("user/unfollow/"+ this.profile.id).then(response=>{
                         if(response.body.status === 1){
                             this.loadingSubs = false
                             this.$set(profile,'followed',null)

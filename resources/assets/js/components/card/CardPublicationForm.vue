@@ -2,7 +2,7 @@
     <div class="cardPublicationForm">
         <v-card height="auto">
             <v-progress-linear v-bind:indeterminate="true" v-if="loading" style="margin: 0"></v-progress-linear>
-            <v-card-title v-if="dialog">Form Publication <v-spacer></v-spacer><span @click="$emit('switchDialog')">x</span></v-card-title>
+            <v-card-title v-if="dialog">Form Publication <v-spacer></v-spacer><v-btn icon @click="$emit('switchDialog')"><v-icon>close</v-icon></v-btn></v-card-title>
             <v-divider></v-divider>
             <v-card-title :style="$vuetify.breakpoint.smAndUp||'padding:0'" primary-title>
                 <v-layout row wrap>
@@ -110,7 +110,7 @@
             },
             publish(){
                 let text = this.parseText()
-                if(JSON.parse(text).length>0){
+                if(JSON.parse(text).length>0 || this.file){
                     let formdata = new FormData()
                     formdata.append("image",this.file)
                     formdata.append("message",text)
@@ -119,10 +119,12 @@
                     this.$http.post("/user/article",formdata).then(response=>{
                         if(response.body.id){
                             this.loading = false
-                            let user = response.body.user
-                            delete response.body.user
+                            response.body.comments_count = 0
+                            response.body.likes_count = 0
+                            response.body.liked = null
+                            if(this.url) response.body.image = {path: this.url}
                             this.$store.dispatch('article/save',response.body)
-                            this.$store.dispatch('users/save',user)
+                            this.$store.dispatch('users/save',this.user)
                             this.clear()
                         }
                     })
@@ -134,6 +136,7 @@
                 this.color = "background1"
                 this.$el.querySelector("textarea").value = ""
                 this.$el.querySelector(".emojionearea-editor").innerHTML = ""
+                document.querySelector('#photo').value = ""
             },
             parseText(){
                 let message = this.$el.querySelector("textarea").value.trim()
@@ -195,9 +198,9 @@
     .noEmoji .emojionearea-button{
         display: none;
     }
-    .cardPublicationForm .emojionearea .emojionearea-editor{
+    .cardPublicationForm  .emojionearea-editor{
         text-align: left;
-        font-size: 30px;
+        font-size: 30px !important;
         color: black;
         font-family: monospace;
         min-height: 50px !important;
