@@ -46,7 +46,7 @@ export default function webSocketPlugin () {
                             store.dispatch('users/save', replyedUser)
                             store.dispatch('article/addComment',{id:event.comment.article_id})
                         })
-                    Echo.join(`user.online.${store.state.user.user.id}`)
+                    Echo.join(`user.online.21`)
                         .here((users) => {
                         console.log('here',users)
                             users.map(user=>user.online=true)

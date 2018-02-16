@@ -20,7 +20,7 @@ class LoginController extends Controller
             $user = User::withCount('followers','following')
                 ->find(Auth::user()->id);
             Auth::setUser($user);
-            broadcast(new UserOnlineEvent($user))->toOthers();
+            //broadcast(new UserOnlineEvent($user))->toOthers();
             return new Response($user);
         }
         return new Response(["status"=>0,"message"=>"Not authentificated. Email or password invalid"]);
@@ -32,7 +32,7 @@ class LoginController extends Controller
             $user = User::withCount('followers','following')
                 ->find(Auth::user()->id);
             Auth::setUser($user);
-            broadcast(new UserOnlineEvent($user))->toOthers();
+            //broadcast(new UserOnlineEvent($user))->toOthers();
             return new Response($user);
         }else{
             return new Response(["status"=>0,"Authentificate with remember token failed"]);

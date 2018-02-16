@@ -5,7 +5,6 @@
 </template>
 
 <script>
-    import dashboard from '../store/modules/Dashboard'
     export default {
         data: ()=>({
             darked: false,
@@ -25,9 +24,6 @@
                 }
             }
         },
-        mounted(){
-            this.$store.registerModule('dashboard',dashboard)
-        }
     }
 </script>
 

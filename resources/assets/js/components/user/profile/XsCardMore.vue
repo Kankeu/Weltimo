@@ -5,7 +5,7 @@
             <v-layout style="overflow-x: auto" row>
                 <v-flex xs6 v-for="morePerson,i in morePersons" :key="i">
                     <v-card height="190px">
-                        <v-avatar size="77px" @click="$router.push('/user/profile/'+morePerson.id)">
+                        <v-avatar size="77px" @click="$router.push('/profile/'+morePerson.id)">
                             <img :src="morePerson.avatar">
                         </v-avatar>
                         <v-card-text style="overflow: auto;height: 53px;">

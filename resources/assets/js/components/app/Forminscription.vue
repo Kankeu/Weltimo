@@ -35,7 +35,7 @@
         name="password"
         ></v-text-field>
         <v-text-field
-        label="Password"
+        label="Confirm password"
         type="password"
         v-model.trim="data.cPassword"
         :error-messages="errors.collect('cPassword')"

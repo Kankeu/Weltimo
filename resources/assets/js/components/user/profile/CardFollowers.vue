@@ -6,7 +6,7 @@
                     <v-layout row>
                         <v-flex xs7>
                             <div>
-                                <div class="headline"><a style="text-decoration: none" :href="'/#/user/profile/'+follower.id">{{follower.name+" "+follower.forename}}</a></div>
+                                <div class="headline"><a style="text-decoration: none" :href="'/#/profile/'+follower.id">{{follower.name+" "+follower.forename}}</a></div>
                                 <br><br>
                                 <div>
                                     <v-btn

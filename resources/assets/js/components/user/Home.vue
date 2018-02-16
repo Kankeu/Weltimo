@@ -69,7 +69,7 @@
                     this.ready = false
                     this.$store.dispatch('setting/setLoading',true)
                     this.$http.get("/user/article").then(response=>{
-                        if(typeof response.body === "object"){
+                        if(Array.isArray(response.body.data)){
                             let users = []
                             response.body.data.map(article=>{
                                 users.push(article.user)

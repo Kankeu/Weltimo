@@ -20,9 +20,103 @@
             </div>
             <v-layout column>
                 <v-flex>
-                    <v-container grid-list-lg text-xs-center fluid>
+                    <v-container :class="$vuetify.breakpoint.smAndUp || 'noPadding'" grid-list-lg text-xs-center fluid>
                         <v-layout column>
-                            <v-flex>
+                            <v-flex lg12>
+                                <v-container grid-list-lg text-xs-center :class="$vuetify.breakpoint.smAndUp || 'noPadding'" fluid>
+                                    <v-layout column>
+                                        <v-flex lg12 style="background: #f1f1f1;">
+                                            <v-container fluid>
+                                                <v-layout style="flex-wrap: wrap-reverse"  row>
+                                                    <v-flex lg1></v-flex>
+                                                    <v-flex lg5>
+                                                        <v-card-text style="text-align: left">
+                                                            <h1>Prise en charge de dossiers</h1>
+                                                            Grâce à nos contactes dans les universités allemandes
+                                                            nos sommes capable de vous offrir des preinscriptions,
+                                                            des inscriptions... mais aussi les foyés d'accueil pour
+                                                            les filles oper et les comptes bloqués pour les cautions.
+                                                            Tout ceux ci dans le but de planifier et d'organiser vos
+                                                            etudes en allemagne.
+                                                        </v-card-text>
+                                                    </v-flex>
+                                                    <v-flex lg5>
+                                                        <img src="/img/default/dossier.jpg" width="100%" height="200px">
+                                                    </v-flex>
+                                                    <v-flex lg1></v-flex>
+                                                </v-layout>
+                                            </v-container>
+                                        </v-flex>
+                                        <v-flex lg12>
+                                            <v-container fluid>
+                                                <v-layout wrap row>
+                                                    <v-flex lg1></v-flex>
+                                                    <v-flex lg5>
+                                                        <img src="/img/default/ebook.jpg" width="100%" height="200px">
+                                                    </v-flex>
+                                                    <v-flex lg5>
+                                                        <v-card-text style="text-align: left">
+                                                            <h1>Cours d'allemand</h1>
+                                                            Avec nos nombreux livres et exercices  la prise en main
+                                                            de la langue allemande n'a jamais été aussi facile. De
+                                                            plus nos programmes allant du A1 au C2 vous permet d'apprendre
+                                                            la grammaire allemande de la base jusqu'au sommet. Ce qui vous
+                                                            prépare ainsi pour vos differents examens (ZDAF,Mittelstufe, DSH).
+                                                        </v-card-text>
+                                                    </v-flex>
+                                                    <v-flex lg1></v-flex>
+                                                </v-layout>
+                                            </v-container>
+                                        </v-flex>
+                                        <v-flex style="background: #f1f1f1;" lg12>
+                                            <v-container fluid>
+                                                <v-layout style="flex-wrap: wrap-reverse" row>
+                                                    <v-flex lg1></v-flex>
+                                                    <v-flex lg5>
+                                                        <v-card-text style="text-align: left">
+                                                            <h1>Reseau social</h1>
+                                                            Toujours dans la même optique de vous offir
+                                                            un cadre convenable et adequa pour l'apprentissage
+                                                            de la langue allemande, nous avons mis sur pied
+                                                            un reseau social dans lequel vous pourriez non seulement
+                                                            partager les moments favoris de votre vie mais aussi rencontrer
+                                                            d'autres apprenants de la langue allemande du monde entier. Ce qui
+                                                            facilitera l'apprentissage des allemands termes simple qui nous
+                                                            sont utile dans la vie de tous les jours.
+                                                        </v-card-text>
+                                                    </v-flex>
+                                                    <v-flex lg5>
+                                                        <img src="/img/default/network.jpg" width="100%" height="200px">
+                                                    </v-flex>
+                                                    <v-flex lg1></v-flex>
+                                                </v-layout>
+                                            </v-container>
+                                        </v-flex>
+                                        <v-flex lg12>
+                                            <v-container fluid>
+                                                <v-layout wrap row>
+                                                    <v-flex lg1></v-flex>
+                                                    <v-flex lg5>
+                                                        <img src="/img/default/forum.jpg" width="100%" height="200px">
+                                                    </v-flex>
+                                                    <v-flex lg5>
+                                                        <v-card-text style="text-align: left">
+                                                            <h1>Forum</h1>
+                                                            Pour vos questions et problemes au sujet de la
+                                                            langue allemande ou des dossiers, vous pouvez
+                                                            les poser sur notre forum afin de beneficier des
+                                                            réponses et des conseils de toute la communauté
+                                                            Weltimo.
+                                                        </v-card-text>
+                                                    </v-flex>
+                                                    <v-flex lg1></v-flex>
+                                                </v-layout>
+                                            </v-container>
+                                        </v-flex>
+                                    </v-layout>
+                                </v-container>
+                            </v-flex>
+                            <v-flex lg12>
                                 <v-container grid-list-lg text-xs-center fluid>
                                     <v-layout wrap row>
                                         <v-flex v-for="article,i in articles" :key="i" lg4>
@@ -32,60 +126,10 @@
                                 </v-container>
                             </v-flex>
                             <v-flex>
-                                <v-container grid-list-lg text-xs-center fluid>
-                                    <v-layout column>
-                                        <v-flex lg12 style="background: #f1f1f1;">
-                                            <v-container>
-                                                <v-layout row>
-                                                    <v-flex lg1></v-flex>
-                                                    <v-flex lg5>
-                                                        <v-card-text style="text-align: left">
-                                                            <h1>Title</h1>
-                                                            sdfsdfsfsqdfqdfsMMMMMMMMMMMMMMMMMMMMMMMM
-                                                            GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG
-                                                            GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG
-                                                            GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG
-                                                            GGGGGGGGGGGGGGGGGGGGG
-                                                            GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG
-                                                        </v-card-text>
-                                                    </v-flex>
-                                                    <v-flex lg5>
-                                                        <img src="/img/default/weltimo.png">
-                                                    </v-flex>
-                                                    <v-flex lg1></v-flex>
-                                                </v-layout>
-                                            </v-container>
-                                        </v-flex>
-                                        <v-flex lg12>
-                                            <v-container>
-                                                <v-layout row>
-                                                    <v-flex lg1></v-flex>
-                                                    <v-flex lg5>
-                                                        <img src="/img/default/weltimo.png">
-                                                    </v-flex>
-                                                    <v-flex lg5>
-                                                        <v-card-text style="text-align: left">
-                                                            <h1>Title</h1>
-                                                            sdfsdfsfsqdfqdfsMMMMMMMMMMMMMMMMMMMMMMMM
-                                                            GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG
-                                                            GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG
-                                                            GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG
-                                                            GGGGGGGGGGGGGGGGGGGGG
-                                                            GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG
-                                                        </v-card-text>
-                                                    </v-flex>
-                                                    <v-flex lg1></v-flex>
-                                                </v-layout>
-                                            </v-container>
-                                        </v-flex>
-                                    </v-layout>
-                                </v-container>
-                            </v-flex>
-                            <v-flex>
                                 <v-flex style="align-items: center;margin-top: 80px">
-                                    Join us and discover a new way to learn German
-                                    learn German in a fun way :)<br><br><br><br>
-                                    <v-btn  color="orange" outline large>Sign in</v-btn>
+                                    Join us and discover a new way to learn German.
+                                    #German in a fun way :)<br><br><br><br>
+                                    <v-btn  color="orange" to="sign_in" outline large>Sign in</v-btn>
                                 </v-flex>
                             </v-flex>
                         </v-layout>
@@ -121,6 +165,9 @@
 </script>
 
 <style scoped lang="scss">
+    .noPadding{
+        padding: 0 !important;
+    }
     .blogBg{
         position: relative;
         height: 170vh;
@@ -137,7 +184,7 @@
         position: relative;
         width: 100%;
         background-image: url('/img/default/weltimoBackground.jpg');
-        background-size: 100%;
+        background-size: cover;
         display: flex;
         justify-content: center;
         align-items: center

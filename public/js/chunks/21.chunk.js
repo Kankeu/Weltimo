@@ -1,59 +1,9 @@
 webpackJsonp([21],{
 
-/***/ 294:
+/***/ 185:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
 //
 //
 //
@@ -98,367 +48,262 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 
-/* harmony default export */ __webpack_exports__["default"] = ({
+/* harmony default export */ __webpack_exports__["a"] = ({
     data: function data() {
         return {
-            url: null,
-            file: null,
-            time: "",
-            date: "",
-            pages: [{ text: "offer" }, { text: "actuality" }],
-            page: {},
-            message: null
+            followings: []
         };
     },
+
     computed: {
-        published_at: function published_at() {
-            var time = this.time.replace('pm', ' pm');
-            time = time.replace('am', ' am');
-            return new Date(this.date + " " + time);
+        user: function user() {
+            return this.$store.state.user.user;
         },
-        messageParsed: function messageParsed() {
-            return JSON.stringify([{ text: this.message }]);
+        query: function query() {
+            var _this = this;
+
+            return this.$store.state.query.queries.find(function (e) {
+                return e.name === "cardFollowing" && e.id === _this.profile.id;
+            });
+        },
+        profile: function profile() {
+            var _this2 = this;
+
+            return this.$store.state.users.users.find(function (user) {
+                return user.id === parseInt(_this2.$route.params.id);
+            });
+        },
+        scrollTop: function scrollTop() {
+            var scroll = this.$store.state.setting.scrollTops.find(function (e) {
+                return e.name === "cardFollowing";
+            }) || {};
+            return scroll.scrollTop;
         }
     },
     methods: {
-        preview: function preview(event) {
-            this.file = event.target.files[0];
-            this.url = window.URL.createObjectURL(event.target.files[0]);
+        load: function load() {
+            var _this3 = this;
+
+            if (!this.query) {
+                this.$http.get('/user/profile/' + this.profile.id + '/following').then(function (response) {
+                    if (response.body instanceof Object) {
+                        _this3.followings = response.body.data;
+                        _this3.$nextTick(function () {
+                            return document.body.scrollTop = _this3.scrollTop;
+                        });
+                    }
+                });
+            }
         },
-        select: function select() {
-            this.$el.querySelector("#photo").click();
-        },
-        publish: function publish(event) {
-            var formdata = new FormData(event.target);
-            this.$http.post('/admin/actuality', formdata).then(function (response) {});
+        follow: function follow(user) {
+            var _this4 = this;
+
+            this.$set(user, "loadingSubs", true);
+            if (user.followed) {
+                this.$http.get("user/unfollow/" + user.id).then(function (response) {
+                    if (response.body.status === 1) {
+                        _this4.$set(user, "loadingSubs", false);
+                        var index = _this4.followings.indexOf(_this4.followings.find(function (following) {
+                            return following.id === user.id;
+                        }));
+                        if (index > -1) _this4.followings.splice(index, 1);
+                        _this4.$store.dispatch('users/removeFollowing', _this4.user);
+                    }
+                });
+            }
         }
+    },
+    mounted: function mounted() {
+        this.load();
+        document.body.scrollTop = this.scrollTop;
+    },
+    destroyed: function destroyed() {
+        this.$store.dispatch('setting/addScrollTop', { scrollTop: document.body.scrollTop, name: "cardFollowing" });
     }
 });
 
 /***/ }),
 
-/***/ 295:
-/***/ (function(module, exports, __webpack_require__) {
+/***/ 291:
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return render; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return staticRenderFns; });
 var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
   return _c(
     "v-layout",
-    [
-      _c("v-flex", { attrs: { lg2: "" } }),
-      _vm._v(" "),
-      _c("v-flex", { attrs: { lg8: "" } }, [
-        _c(
-          "div",
-          [
-            _c(
-              "v-card",
-              [
-                _c(
-                  "v-card-text",
-                  [
-                    _c("v-subheader", [_vm._v("Publication")]),
-                    _vm._v(" "),
-                    _c(
-                      "v-container",
-                      { attrs: { fluid: "" } },
-                      [
-                        _c(
-                          "v-form",
-                          {
-                            on: {
-                              submit: function($event) {
-                                $event.preventDefault()
-                                _vm.publish($event)
-                              }
-                            }
-                          },
-                          [
+    {
+      style: _vm.$vuetify.breakpoint.smAndUp
+        ? "margin-top:50px"
+        : "justify-content:space-between;",
+      attrs: { row: "", wrap: "" }
+    },
+    _vm._l(_vm.followings, function(following) {
+      return _c(
+        "v-flex",
+        { key: following.id, attrs: { xs12: "", lg6: "" } },
+        [
+          _c(
+            "v-card",
+            [
+              _c(
+                "v-container",
+                {
+                  style:
+                    _vm.$vuetify.breakpoint.smAndUp ||
+                    "padding:0;padding-top:8px",
+                  attrs: { fluid: "", "grid-list-lg": "" }
+                },
+                [
+                  _c(
+                    "v-layout",
+                    { attrs: { row: "" } },
+                    [
+                      _c("v-flex", { attrs: { xs7: "" } }, [
+                        _c("div", [
+                          _c("div", { staticClass: "headline" }, [
                             _c(
-                              "v-layout",
-                              { attrs: { column: "" } },
-                              [
-                                _c(
-                                  "v-flex",
-                                  [
-                                    _c("v-text-field", {
-                                      attrs: {
-                                        name: "title",
-                                        label: "Title",
-                                        required: ""
-                                      }
-                                    })
-                                  ],
-                                  1
-                                ),
-                                _vm._v(" "),
-                                _c(
-                                  "v-flex",
-                                  [
-                                    _c("v-text-field", {
-                                      attrs: { label: "Message", textarea: "" },
-                                      model: {
-                                        value: _vm.message,
-                                        callback: function($$v) {
-                                          _vm.message = $$v
-                                        },
-                                        expression: "message"
-                                      }
-                                    })
-                                  ],
-                                  1
-                                ),
-                                _vm._v(" "),
-                                _c(
-                                  "v-flex",
-                                  [
-                                    _c("input", {
-                                      staticStyle: { display: "none" },
-                                      attrs: {
-                                        type: "text",
-                                        name: "type",
-                                        required: ""
-                                      },
-                                      domProps: { value: _vm.page.text }
-                                    }),
-                                    _vm._v(" "),
-                                    _c("v-select", {
-                                      attrs: {
-                                        items: _vm.pages,
-                                        label: "Type",
-                                        "single-line": "",
-                                        bottom: ""
-                                      },
-                                      model: {
-                                        value: _vm.page,
-                                        callback: function($$v) {
-                                          _vm.page = $$v
-                                        },
-                                        expression: "page"
-                                      }
-                                    })
-                                  ],
-                                  1
-                                ),
-                                _vm._v(" "),
-                                _c(
-                                  "v-flex",
-                                  [
-                                    _c(
-                                      "v-dialog",
-                                      {
-                                        attrs: {
-                                          lazy: "",
-                                          "full-width": "",
-                                          width: "290px"
-                                        }
-                                      },
-                                      [
-                                        _c("v-text-field", {
-                                          attrs: {
-                                            slot: "activator",
-                                            label: "Date",
-                                            "prepend-icon": "event"
-                                          },
-                                          slot: "activator",
-                                          model: {
-                                            value: _vm.date,
-                                            callback: function($$v) {
-                                              _vm.date = $$v
-                                            },
-                                            expression: "date"
-                                          }
-                                        }),
-                                        _vm._v(" "),
-                                        _c("v-date-picker", {
-                                          attrs: {
-                                            type: "date",
-                                            scrollable: "",
-                                            actions: ""
-                                          },
-                                          model: {
-                                            value: _vm.date,
-                                            callback: function($$v) {
-                                              _vm.date = $$v
-                                            },
-                                            expression: "date"
-                                          }
-                                        })
-                                      ],
-                                      1
-                                    )
-                                  ],
-                                  1
-                                ),
-                                _vm._v(" "),
-                                _c(
-                                  "v-flex",
-                                  [
-                                    _c(
-                                      "v-dialog",
-                                      {
-                                        attrs: {
-                                          lazy: "",
-                                          "full-width": "",
-                                          width: "290px"
-                                        }
-                                      },
-                                      [
-                                        _c("v-text-field", {
-                                          attrs: {
-                                            slot: "activator",
-                                            label: "Time",
-                                            "prepend-icon": "access_time"
-                                          },
-                                          slot: "activator",
-                                          model: {
-                                            value: _vm.time,
-                                            callback: function($$v) {
-                                              _vm.time = $$v
-                                            },
-                                            expression: "time"
-                                          }
-                                        }),
-                                        _vm._v(" "),
-                                        _c("v-time-picker", {
-                                          attrs: {
-                                            scrollable: "",
-                                            actions: ""
-                                          },
-                                          model: {
-                                            value: _vm.time,
-                                            callback: function($$v) {
-                                              _vm.time = $$v
-                                            },
-                                            expression: "time"
-                                          }
-                                        })
-                                      ],
-                                      1
-                                    )
-                                  ],
-                                  1
-                                ),
-                                _vm._v(" "),
-                                _c(
-                                  "v-flex",
-                                  { staticStyle: { display: "flex" } },
-                                  [
-                                    _c(
-                                      "v-btn",
-                                      {
-                                        attrs: { color: "primary" },
-                                        on: { click: _vm.select }
-                                      },
-                                      [_vm._v("Photo")]
-                                    ),
-                                    _vm._v(" "),
-                                    _c("v-spacer"),
-                                    _vm._v(" "),
-                                    _c(
-                                      "v-btn",
-                                      {
-                                        attrs: {
-                                          color: "success",
-                                          type: "submit"
-                                        }
-                                      },
-                                      [_vm._v("Publish")]
-                                    )
-                                  ],
-                                  1
-                                ),
-                                _vm._v(" "),
-                                _c(
-                                  "v-flex",
-                                  [
-                                    _c(
-                                      "v-avatar",
-                                      { attrs: { size: "200px", tile: "" } },
-                                      [_c("img", { attrs: { src: _vm.url } })]
-                                    )
-                                  ],
-                                  1
-                                )
-                              ],
-                              1
-                            ),
-                            _vm._v(" "),
-                            _c("input", {
-                              staticStyle: { display: "none" },
-                              attrs: {
-                                type: "file",
-                                id: "photo",
-                                name: "image"
+                              "a",
+                              {
+                                staticStyle: { "text-decoration": "none" },
+                                attrs: { href: "/#/profile/" + following.id }
                               },
-                              on: { change: _vm.preview }
-                            }),
-                            _vm._v(" "),
-                            _c("input", {
-                              staticStyle: { display: "none" },
-                              attrs: { type: "text", name: "published_at" },
-                              domProps: { value: _vm.published_at }
-                            }),
-                            _vm._v(" "),
-                            _c("input", {
-                              staticStyle: { display: "none" },
-                              attrs: { type: "text", name: "message" },
-                              domProps: { value: _vm.messageParsed }
-                            }),
-                            _vm._v(" "),
-                            _c("input", {
-                              staticStyle: { display: "none" },
-                              attrs: {
-                                type: "text",
-                                name: "color",
-                                value: "background1"
-                              }
-                            })
-                          ],
-                          1
-                        )
-                      ],
-                      1
-                    )
-                  ],
-                  1
-                )
-              ],
-              1
-            )
-          ],
-          1
-        )
-      ]),
-      _vm._v(" "),
-      _c("v-flex", { attrs: { lg2: "" } })
-    ],
-    1
+                              [
+                                _vm._v(
+                                  _vm._s(
+                                    following.name + " " + following.forename
+                                  )
+                                )
+                              ]
+                            )
+                          ]),
+                          _vm._v(" "),
+                          _c("br"),
+                          _c("br"),
+                          _vm._v(" "),
+                          _c(
+                            "div",
+                            [
+                              _c(
+                                "v-tooltip",
+                                { attrs: { top: "" } },
+                                [
+                                  following.followed
+                                    ? _c(
+                                        "v-btn",
+                                        {
+                                          attrs: {
+                                            slot: "activator",
+                                            loading: following.loadingSubs,
+                                            color: following.followed
+                                              ? null
+                                              : "primary",
+                                            outline: ""
+                                          },
+                                          on: {
+                                            click: function($event) {
+                                              $event.stopPropagation()
+                                              $event.preventDefault()
+                                              _vm.follow(following)
+                                            }
+                                          },
+                                          slot: "activator"
+                                        },
+                                        [
+                                          !following.followed
+                                            ? _c("v-icon", [
+                                                _vm._v("person_add")
+                                              ])
+                                            : _vm._e(),
+                                          _vm._v(
+                                            _vm._s(
+                                              following.followed
+                                                ? "Unfollow"
+                                                : "Follow"
+                                            ) +
+                                              "\n                                    "
+                                          )
+                                        ],
+                                        1
+                                      )
+                                    : _vm._e(),
+                                  _vm._v(" "),
+                                  !following.followed
+                                    ? _c("span", [
+                                        _vm._v("Click here to unfollow")
+                                      ])
+                                    : _c("span", [
+                                        _vm._v("Click here to follow")
+                                      ])
+                                ],
+                                1
+                              )
+                            ],
+                            1
+                          )
+                        ])
+                      ]),
+                      _vm._v(" "),
+                      _c(
+                        "v-flex",
+                        { attrs: { xs5: "" } },
+                        [
+                          _c("v-card-media", {
+                            attrs: {
+                              src: following.avatar,
+                              height: "125px",
+                              contain: ""
+                            }
+                          })
+                        ],
+                        1
+                      )
+                    ],
+                    1
+                  )
+                ],
+                1
+              )
+            ],
+            1
+          )
+        ],
+        1
+      )
+    })
   )
 }
 var staticRenderFns = []
 render._withStripped = true
-module.exports = { render: render, staticRenderFns: staticRenderFns }
+
 if (false) {
   module.hot.accept()
   if (module.hot.data) {
-    require("vue-hot-reload-api")      .rerender("data-v-79f4357e", module.exports)
+    require("vue-hot-reload-api")      .rerender("data-v-1de0dfee", { render: render, staticRenderFns: staticRenderFns })
   }
 }
 
 /***/ }),
 
-/***/ 74:
-/***/ (function(module, exports, __webpack_require__) {
+/***/ 68:
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__babel_loader_cacheDirectory_true_presets_env_modules_false_targets_browsers_2_uglify_true_env_modules_false_targets_browsers_last_2_versions_safari_7_debug_true_plugins_transform_object_rest_spread_transform_runtime_polyfill_false_helpers_false_syntax_dynamic_import_node_modules_vue_loader_lib_selector_type_script_index_0_CardFollowing_vue__ = __webpack_require__(185);
+/* empty harmony namespace reexport */
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_1de0dfee_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_CardFollowing_vue__ = __webpack_require__(291);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__node_modules_vue_loader_lib_runtime_component_normalizer__ = __webpack_require__(3);
 var disposed = false
-var normalizeComponent = __webpack_require__(1)
 /* script */
-var __vue_script__ = __webpack_require__(294)
+
+
 /* template */
-var __vue_template__ = __webpack_require__(295)
+
 /* template functional */
 var __vue_template_functional__ = false
 /* styles */
@@ -467,15 +312,17 @@ var __vue_styles__ = null
 var __vue_scopeId__ = null
 /* moduleIdentifier (server only) */
 var __vue_module_identifier__ = null
-var Component = normalizeComponent(
-  __vue_script__,
-  __vue_template__,
+
+var Component = Object(__WEBPACK_IMPORTED_MODULE_2__node_modules_vue_loader_lib_runtime_component_normalizer__["a" /* default */])(
+  __WEBPACK_IMPORTED_MODULE_0__babel_loader_cacheDirectory_true_presets_env_modules_false_targets_browsers_2_uglify_true_env_modules_false_targets_browsers_last_2_versions_safari_7_debug_true_plugins_transform_object_rest_spread_transform_runtime_polyfill_false_helpers_false_syntax_dynamic_import_node_modules_vue_loader_lib_selector_type_script_index_0_CardFollowing_vue__["a" /* default */],
+  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_1de0dfee_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_CardFollowing_vue__["a" /* render */],
+  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_1de0dfee_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_CardFollowing_vue__["b" /* staticRenderFns */],
   __vue_template_functional__,
   __vue_styles__,
   __vue_scopeId__,
   __vue_module_identifier__
 )
-Component.options.__file = "resources/assets/js/components/admin/Edit.vue"
+Component.options.__file = "resources/assets/js/components/user/profile/CardFollowing.vue"
 
 /* hot reload */
 if (false) {(function () {
@@ -484,16 +331,16 @@ if (false) {(function () {
   if (!hotAPI.compatible) return
   module.hot.accept()
   if (!module.hot.data) {
-    hotAPI.createRecord("data-v-79f4357e", Component.options)
+    hotAPI.createRecord("data-v-1de0dfee", Component.options)
   } else {
-    hotAPI.reload("data-v-79f4357e", Component.options)
+    hotAPI.reload("data-v-1de0dfee", Component.options)
   }
   module.hot.dispose(function (data) {
     disposed = true
   })
 })()}
 
-module.exports = Component.exports
+/* harmony default export */ __webpack_exports__["default"] = (Component.exports);
 
 
 /***/ })

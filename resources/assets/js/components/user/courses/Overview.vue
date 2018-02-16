@@ -30,32 +30,32 @@
                 return [
                     {
                         niveau: "A1",
-                        squareBg: "#adda93",
-                        circleBg: "#73c045",
+                        squareBg: "rgba(0, 160, 172, .8)",
+                        circleBg: "rgba(0, 160, 172, 1)",
                         color: "#fefefe"
                     },
                     {
                         niveau: "A2",
-                        squareBg: "#adda93",
-                        circleBg: "#73c045",
+                        squareBg: "rgba(234, 140, 69, .5)",
+                        circleBg: "rgba(234, 140, 69, 1)",
                         color: "#fefefe"
                     },
                     {
                         niveau: "B1",
-                        squareBg: "#adda93",
-                        circleBg: "#73c045",
+                        squareBg: "rgba(189, 73, 81, .5)",
+                        circleBg: "rgba(189, 73, 81, 1)",
                         color: "#fefefe"
                     },
                     {
                         niveau: "B2",
-                        squareBg: "#6bd1f6",
-                        circleBg: "#00aff0",
+                        squareBg: "rgba(0, 147, 93, .5)",
+                        circleBg: "rgba(0, 147, 93, 1)",
                         color: "#fefefe"
                     },
                     {
                         niveau: "C1",
-                        squareBg: "#6bd1f6",
-                        circleBg: "#00aff0",
+                        squareBg: "rgba(135, 75, 148, .5)",
+                        circleBg: "rgba(135, 75, 148, 1)",
                         color: "#fefefe"
                     },
                     {

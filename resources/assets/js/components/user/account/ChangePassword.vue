@@ -1,7 +1,7 @@
 <template>
     <v-form @submit.prevent="save">
         <v-text-field
-                label="Last Password"
+                label="Last password"
                 type="password"
                 v-model.trim="data.lpassword"
                 :error-messages="errors.collect('lPassword')"
@@ -11,7 +11,7 @@
                 name="lPassword"
         ></v-text-field>
         <v-text-field
-                label="New Password"
+                label="New password"
                 v-model.trim="data.password"
                 type="password"
                 :append-icon="visibility ? 'visibility' : 'visibility_off'"
@@ -24,7 +24,7 @@
                 name="password"
         ></v-text-field>
         <v-text-field
-                label="New Password"
+                label="Confirm new password"
                 type="password"
                 v-model.trim="data.cPassword"
                 :error-messages="errors.collect('cPassword')"

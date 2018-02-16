@@ -1,7 +1,7 @@
 <template>
     <v-dialog v-model="dialog" fullscreen transition="dialog-bottom-transition" :overlay=false>
         <v-card>
-            <v-btn icon @click="$router.go(-1)" class="btn-close" dark exact>
+            <v-btn icon @click="$router.go(-2)" class="btn-close" dark exact>
                 <v-icon>close</v-icon>
             </v-btn>
             <div style="position: relative;height: 100vh;width: 100%">

@@ -7,7 +7,7 @@
                     <v-layout row>
                         <v-flex xs7>
                             <div>
-                                <div class="headline"><a style="text-decoration: none" :href="'/#/user/profile/'+following.id">{{following.name+" "+following.forename}}</a></div>
+                                <div class="headline"><a style="text-decoration: none" :href="'/#/profile/'+following.id">{{following.name+" "+following.forename}}</a></div>
                                 <br><br>
                                 <div>
                                     <v-tooltip top>

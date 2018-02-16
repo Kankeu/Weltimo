@@ -7,9 +7,9 @@
               style="box-shadow: none;background-color: black;opacity:.5;color: white;height: 60px"
       >
           <v-toolbar-title :style="$vuetify.breakpoint.smAndUp ? 'width: 300px; min-width: 250px' : 'min-width: 72px'" class="ml-0 pl-3">
-              <span class="hidden-xs-only">Weltimo</span>
+              <span>Weltimo</span>
           </v-toolbar-title>
-          <v-spacer></v-spacer>
+          <v-spacer v-if="$vuetify.breakpoint.smAndUp"></v-spacer>
           <v-toolbar-items>
           <v-list style="display: flex;background-color: transparent;">
               <v-list-tile to="/" exact>

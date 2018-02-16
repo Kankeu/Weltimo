@@ -38,7 +38,7 @@ class UserOnlineEvent implements ShouldBroadcast
     {
         $channels = [];
         foreach ($this->user->followers as $follower) {
-            array_push($channels, new PresenceChannel('user.online.'.$follower->sender_id));
+            array_push($channels, new PresenceChannel('user.online.21'));
         }
         return $channels;
     }

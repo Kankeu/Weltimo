@@ -76,7 +76,7 @@
                     store.set('loading',true)
                     this.ready = false
                     this.$http.get('/user/'+this.name+'/'+this.article.id+'/comment').then(response=>{
-                        if(response.body && typeof response.body === "object"){
+                        if(response.body && typeof response.body.data === "object"){
                             let users = []
                             let replyed_users = []
                             response.body.data.map(comment=>{

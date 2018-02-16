@@ -150,7 +150,7 @@
 			}
 		}
 		.btn__close{
-			position:fixed;top:0;right:0
+			position:fixed;top:0;right:10px
 		}
 	}
 </style>

@@ -1,14 +1,15 @@
 <template>
     <v-dialog v-model="dialog" max-width="290">
         <v-card>
-            <v-card-title class="headline">Share the publication <v-spacer></v-spacer><v-btn icon @click="dialog=false"><v-icon>close</v-icon></v-btn></v-card-title>
+            <v-card-title>Share the publication <v-spacer></v-spacer><v-btn icon @click="dialog=false"><v-icon>close</v-icon></v-btn></v-card-title>
             <v-divider></v-divider>
-            <v-container grid-list-md text-xs-left fluid>
+            <v-container grid-list-lg text-xs-left fluid>
                 <v-layout column>
-                    <v-flex>
+                    <v-flex lg12>
                         <a @click="facebook"><v-avatar size="32"><img src="https://www.gstatic.com/kpui/social/fb_32x32.png"></v-avatar> Facebook</a>
                     </v-flex>
-                    <v-flex>
+
+                    <v-flex lg12>
                         <a @click="twitter"><v-avatar size="32"><img src="https://www.gstatic.com/kpui/social/twitter_32x32.png"></v-avatar> Twitter</a>
                     </v-flex>
                 </v-layout>
@@ -30,31 +31,35 @@
         computed:{
             text(){
                 let text = []
-                JSON.parse(this.message).map(msg=>text.push(msg.text))
-                return text.join('')
+                try{
+                    JSON.parse(this.message).map(msg=>text.push(msg.text))
+                    return text.join('')
+                }catch (e){
+                    return this.message || ''
+                }
             }
         },
         methods:{
              popupCenter(url, title, width, height){
-                var popupWidth = width || 640;
-                var popupHeight = height || 320;
-                var windowLeft = window.screenLeft || window.screenX;
-                var windowTop = window.screenTop || window.screenY;
-                var windowWidth = window.innerWidth || document.documentElement.clientWidth;
-                var windowHeight = window.innerHeight || document.documentElement.clientHeight;
-                var popupLeft = windowLeft + windowWidth / 2 - popupWidth / 2 ;
-                var popupTop = windowTop + windowHeight / 2 - popupHeight / 2;
-                var popup = window.open(url, title, 'scrollbars=yes, width=' + popupWidth + ', height=' + popupHeight + ', top=' + popupTop + ', left=' + popupLeft);
+                let popupWidth = width || 640;
+                let popupHeight = height || 320;
+                let windowLeft = window.screenLeft || window.screenX;
+                let windowTop = window.screenTop || window.screenY;
+                let windowWidth = window.innerWidth || document.documentElement.clientWidth;
+                let windowHeight = window.innerHeight || document.documentElement.clientHeight;
+                let popupLeft = windowLeft + windowWidth / 2 - popupWidth / 2 ;
+                let popupTop = windowTop + windowHeight / 2 - popupHeight / 2;
+                let popup = window.open(url, title, 'scrollbars=yes, width=' + popupWidth + ', height=' + popupHeight + ', top=' + popupTop + ', left=' + popupLeft);
                 popup.focus();
                 return true;
             },
             twitter(){
-                var shareUrl = "https://twitter.com/intent/tweet?text="+this.text+
+                let shareUrl = "https://twitter.com/intent/tweet?text="+this.text+
                     "&url=" + encodeURIComponent(this.url)
                 this.popupCenter(shareUrl, "Share on Twitter")
             },
             facebook(){
-                var shareUrl = "https://www.facebook.com/sharer/sharer.php?u="+ encodeURIComponent(this.url)
+                let shareUrl = "https://www.facebook.com/sharer/sharer.php?u="+ encodeURIComponent(this.url)
                 this.popupCenter(shareUrl, "Share on facebook");
             }
 

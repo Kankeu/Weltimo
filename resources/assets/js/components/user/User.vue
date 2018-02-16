@@ -1,7 +1,7 @@
 <template>
     <v-app :dark="darked"  id="showTop">
         <v-card :dark="darked"  :color="(darked) ? 'theme--dark' :'theme--light bg_app'" class="block_app" flat>
-            <v-toolbar :scroll-off-screen="!$vuetify.breakpoint.smAndUp" :dark="darked" :class="$vuetify.breakpoint.smAndUp || 'phone'" :style="(darked) ? 'z-index:8' : 'z-index:8;background: #00b4ff'" :color="(darked) ? 'theme--dark' : null"  prominent fixed flat extended>
+            <v-toolbar  :scroll-off-screen="!$vuetify.breakpoint.smAndUp" :dark="darked" :class="$vuetify.breakpoint.smAndUp || 'phone'" :style="(darked) ? 'z-index:8' : 'z-index:8;background: #00b4ff'" :color="(darked) ? 'theme--dark' : null"  prominent fixed flat extended>
                 <v-toolbar-side-icon class="white--text" @click="($vuetify.breakpoint.smAndUp) ? mini=!mini : drawer=!drawer" v-if="$route.path==='/' || $vuetify.breakpoint.smAndUp"></v-toolbar-side-icon>
                 <v-btn icon class="white--text" @click="$router.go(-1)" v-else><v-icon>chevron_left</v-icon></v-btn>
                 <v-toolbar-title class="white--text" v-if="$vuetify.breakpoint.smAndUp">Weltimo</v-toolbar-title>
@@ -205,6 +205,7 @@
                             hide-overlay
                             class="menuDrawer"
                             right
+                            app
                             :style="$vuetify.breakpoint.smAndUp||'margin-top:63px !important'"
                             v-model="drawerUsers"
                     >
@@ -233,7 +234,7 @@
                 </v-flex>
             </v-layout>
         </v-card>
-        <v-navigation-drawer fixed app :style="!$vuetify.breakpoint.smAndUp || 'margin-top:63px'" clipped :class="$vuetify.breakpoint.smAndUp ? 'menuDrawer' : null"  :dark="darked" :mini-variant.sync="mini" v-model="drawer">
+        <v-navigation-drawer  stateless  fixed app :style="!$vuetify.breakpoint.smAndUp || 'margin-top:63px'" clipped :class="$vuetify.breakpoint.smAndUp ? 'menuDrawer' : null"  :dark="darked" :mini-variant.sync="mini" v-model="drawer">
             <v-toolbar flat class="transparent">
                 <v-list class="pa-0">
                     <v-list-tile avatar>
@@ -342,7 +343,7 @@
                             <v-icon>keyboard_arrow_down</v-icon>
                         </v-list-tile-action>
                     </v-list-tile>
-                    <v-list-tile @click="">
+                    <v-list-tile to="/university">
                         <v-list-tile-content>
                             <v-list-tile-title>Germany</v-list-tile-title>
                         </v-list-tile-content>
@@ -395,7 +396,7 @@
                             <v-list-tile-title>Scholarship</v-list-tile-title>
                         </v-list-tile-content>
                     </v-list-tile>
-                    <v-list-tile to="forum">
+                    <v-list-tile to="/forum">
                         <v-list-tile-action>
                             <v-icon>forum</v-icon>
                         </v-list-tile-action>
@@ -511,12 +512,12 @@
                             <v-list-tile-title>Books</v-list-tile-title>
                         </v-list-tile-content>
                     </v-list-tile>
-                    <v-list-tile to="/admin/server">
+                    <v-list-tile to="/admin/university">
                         <v-list-tile-action>
-                            <v-icon dark>dns</v-icon>
+                            <v-icon dark>school</v-icon>
                         </v-list-tile-action>
                         <v-list-tile-content>
-                            <v-list-tile-title>Process</v-list-tile-title>
+                            <v-list-tile-title>University</v-list-tile-title>
                         </v-list-tile-content>
                     </v-list-tile>
                     <v-list-tile to="/admin/edit">
@@ -525,6 +526,14 @@
                         </v-list-tile-action>
                         <v-list-tile-content>
                             <v-list-tile-title>Edit</v-list-tile-title>
+                        </v-list-tile-content>
+                    </v-list-tile>
+                    <v-list-tile to="/admin/server">
+                        <v-list-tile-action>
+                            <v-icon dark>dns</v-icon>
+                        </v-list-tile-action>
+                        <v-list-tile-content>
+                            <v-list-tile-title>Process</v-list-tile-title>
                         </v-list-tile-content>
                     </v-list-tile>
                 </v-list-group>
@@ -659,7 +668,7 @@
             },
             selectedUser(data){
                 if(data.length>0){
-                    this.$router.push('/user/profile/'+data[0].value)
+                    this.$router.push('/profile/'+data[0].value)
                 }
             },
             '$vuetify.breakpoint.smAndUp'(data){
@@ -679,6 +688,9 @@
     }
     #showTop{
         overflow-x: hidden;
+    }
+    .noOverflow{
+        overflow: hidden !important;
     }
     .layout_bloc{
         margin-top: 60px;

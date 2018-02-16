@@ -74,6 +74,12 @@
         mounted(){
             this.load()
             document.body.scrollTop = this.scrollTop
+        },
+        watch:{
+            '$route.params.level'(){
+                this.load()
+                document.body.scrollTop = this.scrollTop
+            }
         }
     }
 </script>

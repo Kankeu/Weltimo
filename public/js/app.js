@@ -1,30 +1,44 @@
-webpackJsonp([23],[
+webpackJsonp([30],[
 /* 0 */,
 /* 1 */
 /***/ (function(module, exports) {
 
+//
+//
+//
+//
+//
+//
+
+/***/ }),
+/* 2 */,
+/* 3 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (immutable) */ __webpack_exports__["a"] = normalizeComponent;
 /* globals __VUE_SSR_CONTEXT__ */
 
-// IMPORTANT: Do NOT use ES2015 features in this file.
+// IMPORTANT: Do NOT use ES2015 features in this file (except for modules).
 // This module is a runtime utility for cleaner component module output and will
 // be included in the final webpack user bundle.
 
-module.exports = function normalizeComponent (
-  rawScriptExports,
-  compiledTemplate,
+function normalizeComponent (
+  scriptExports,
+  render,
+  staticRenderFns,
   functionalTemplate,
   injectStyles,
   scopeId,
-  moduleIdentifier /* server only */
+  moduleIdentifier, /* server only */
+  shadowMode /* vue-cli only */
 ) {
-  var esModule
-  var scriptExports = rawScriptExports = rawScriptExports || {}
+  scriptExports = scriptExports || {}
 
   // ES6 modules interop
-  var type = typeof rawScriptExports.default
+  var type = typeof scriptExports.default
   if (type === 'object' || type === 'function') {
-    esModule = rawScriptExports
-    scriptExports = rawScriptExports.default
+    scriptExports = scriptExports.default
   }
 
   // Vue.extend constructor export interop
@@ -33,9 +47,9 @@ module.exports = function normalizeComponent (
     : scriptExports
 
   // render functions
-  if (compiledTemplate) {
-    options.render = compiledTemplate.render
-    options.staticRenderFns = compiledTemplate.staticRenderFns
+  if (render) {
+    options.render = render
+    options.staticRenderFns = staticRenderFns
     options._compiled = true
   }
 
@@ -74,34 +88,32 @@ module.exports = function normalizeComponent (
     // never gets called
     options._ssrRegister = hook
   } else if (injectStyles) {
-    hook = injectStyles
+    hook = shadowMode
+      ? function () { injectStyles.call(this, this.$root.$options.shadowRoot) }
+      : injectStyles
   }
 
   if (hook) {
-    var functional = options.functional
-    var existing = functional
-      ? options.render
-      : options.beforeCreate
-
-    if (!functional) {
-      // inject component registration as beforeCreate hook
-      options.beforeCreate = existing
-        ? [].concat(existing, hook)
-        : [hook]
-    } else {
+    if (options.functional) {
       // for template-only hot-reload because in that case the render fn doesn't
       // go through the normalizer
       options._injectStyles = hook
       // register for functioal component in vue file
+      var originalRender = options.render
       options.render = function renderWithStyleInjection (h, context) {
         hook.call(context)
-        return existing(h, context)
+        return originalRender(h, context)
       }
+    } else {
+      // inject component registration as beforeCreate hook
+      var existing = options.beforeCreate
+      options.beforeCreate = existing
+        ? [].concat(existing, hook)
+        : [hook]
     }
   }
 
   return {
-    esModule: esModule,
     exports: scriptExports,
     options: options
   }
@@ -109,14 +121,20 @@ module.exports = function normalizeComponent (
 
 
 /***/ }),
-/* 2 */
-/***/ (function(module, exports, __webpack_require__) {
+/* 4 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony export (immutable) */ __webpack_exports__["default"] = addStylesClient;
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__listToStyles__ = __webpack_require__(14);
 /*
   MIT License http://www.opensource.org/licenses/mit-license.php
   Author Tobias Koppers @sokra
   Modified by Evan You @yyx990803
 */
+
+
 
 var hasDocument = typeof document !== 'undefined'
 
@@ -127,8 +145,6 @@ if (typeof DEBUG !== 'undefined' && DEBUG) {
     "Use { target: 'node' } in your Webpack config to indicate a server-rendering environment."
   ) }
 }
-
-var listToStyles = __webpack_require__(13)
 
 /*
 type StyleObject = {
@@ -156,15 +172,19 @@ var singletonElement = null
 var singletonCounter = 0
 var isProduction = false
 var noop = function () {}
+var options = null
+var ssrIdKey = 'data-vue-ssr-id'
 
 // Force single-tag solution on IE6-9, which has a hard limit on the # of <style>
 // tags it will allow on a page
 var isOldIE = typeof navigator !== 'undefined' && /msie [6-9]\b/.test(navigator.userAgent.toLowerCase())
 
-module.exports = function (parentId, list, _isProduction) {
+function addStylesClient (parentId, list, _isProduction, _options) {
   isProduction = _isProduction
 
-  var styles = listToStyles(parentId, list)
+  options = _options || {}
+
+  var styles = Object(__WEBPACK_IMPORTED_MODULE_0__listToStyles__["a" /* default */])(parentId, list)
   addStylesToDom(styles)
 
   return function update (newList) {
@@ -176,7 +196,7 @@ module.exports = function (parentId, list, _isProduction) {
       mayRemove.push(domStyle)
     }
     if (newList) {
-      styles = listToStyles(parentId, newList)
+      styles = Object(__WEBPACK_IMPORTED_MODULE_0__listToStyles__["a" /* default */])(parentId, newList)
       addStylesToDom(styles)
     } else {
       styles = []
@@ -227,7 +247,7 @@ function createStyleElement () {
 
 function addStyle (obj /* StyleObjectPart */) {
   var update, remove
-  var styleElement = document.querySelector('style[data-vue-ssr-id~="' + obj.id + '"]')
+  var styleElement = document.querySelector('style[' + ssrIdKey + '~="' + obj.id + '"]')
 
   if (styleElement) {
     if (isProduction) {
@@ -309,6 +329,9 @@ function applyToTag (styleElement, obj) {
   if (media) {
     styleElement.setAttribute('media', media)
   }
+  if (options.ssrId) {
+    styleElement.setAttribute(ssrIdKey, obj.id)
+  }
 
   if (sourceMap) {
     // https://developer.chrome.com/devtools/docs/javascript-debugging
@@ -330,19 +353,25 @@ function applyToTag (styleElement, obj) {
 
 
 /***/ }),
-/* 3 */
-/***/ (function(module, exports, __webpack_require__) {
+/* 5 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__babel_loader_cacheDirectory_true_presets_env_modules_false_targets_browsers_2_uglify_true_env_modules_false_targets_browsers_last_2_versions_safari_7_debug_true_plugins_transform_object_rest_spread_transform_runtime_polyfill_false_helpers_false_syntax_dynamic_import_node_modules_vue_loader_lib_selector_type_script_index_0_Route_vue__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__babel_loader_cacheDirectory_true_presets_env_modules_false_targets_browsers_2_uglify_true_env_modules_false_targets_browsers_last_2_versions_safari_7_debug_true_plugins_transform_object_rest_spread_transform_runtime_polyfill_false_helpers_false_syntax_dynamic_import_node_modules_vue_loader_lib_selector_type_script_index_0_Route_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__babel_loader_cacheDirectory_true_presets_env_modules_false_targets_browsers_2_uglify_true_env_modules_false_targets_browsers_last_2_versions_safari_7_debug_true_plugins_transform_object_rest_spread_transform_runtime_polyfill_false_helpers_false_syntax_dynamic_import_node_modules_vue_loader_lib_selector_type_script_index_0_Route_vue__);
+/* unused harmony namespace reexport */
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_5258311c_hasScoped_true_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_Route_vue__ = __webpack_require__(15);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__node_modules_vue_loader_lib_runtime_component_normalizer__ = __webpack_require__(3);
 var disposed = false
-function injectStyle (ssrContext) {
+function injectStyle (context) {
   if (disposed) return
-  __webpack_require__(11)
+  __webpack_require__(12)
 }
-var normalizeComponent = __webpack_require__(1)
 /* script */
-var __vue_script__ = __webpack_require__(14)
+
+
 /* template */
-var __vue_template__ = __webpack_require__(15)
+
 /* template functional */
 var __vue_template_functional__ = false
 /* styles */
@@ -351,9 +380,11 @@ var __vue_styles__ = injectStyle
 var __vue_scopeId__ = "data-v-5258311c"
 /* moduleIdentifier (server only) */
 var __vue_module_identifier__ = null
-var Component = normalizeComponent(
-  __vue_script__,
-  __vue_template__,
+
+var Component = Object(__WEBPACK_IMPORTED_MODULE_2__node_modules_vue_loader_lib_runtime_component_normalizer__["a" /* default */])(
+  __WEBPACK_IMPORTED_MODULE_0__babel_loader_cacheDirectory_true_presets_env_modules_false_targets_browsers_2_uglify_true_env_modules_false_targets_browsers_last_2_versions_safari_7_debug_true_plugins_transform_object_rest_spread_transform_runtime_polyfill_false_helpers_false_syntax_dynamic_import_node_modules_vue_loader_lib_selector_type_script_index_0_Route_vue___default.a,
+  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_5258311c_hasScoped_true_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_Route_vue__["a" /* render */],
+  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_5258311c_hasScoped_true_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_Route_vue__["b" /* staticRenderFns */],
   __vue_template_functional__,
   __vue_styles__,
   __vue_scopeId__,
@@ -377,34 +408,34 @@ if (false) {(function () {
   })
 })()}
 
-module.exports = Component.exports
+/* harmony default export */ __webpack_exports__["default"] = (Component.exports);
 
 
 /***/ }),
-/* 4 */,
-/* 5 */,
 /* 6 */,
 /* 7 */,
 /* 8 */,
 /* 9 */,
 /* 10 */,
-/* 11 */
+/* 11 */,
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(12);
+var content = __webpack_require__(13);
 if(typeof content === 'string') content = [[module.i, content, '']];
 if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
-var update = __webpack_require__(2)("6f10e44d", content, false);
+var add = __webpack_require__(4).default
+var update = add("6d7b1fac", content, false, {});
 // Hot Module Replacement
 if(false) {
  // When the styles change, update the <style> tags
  if(!content.locals) {
-   module.hot.accept("!!../../../../../node_modules/css-loader/index.js!../../../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-5258311c\",\"scoped\":true,\"hasInlineConfig\":true}!../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0&bustCache!./Route.vue", function() {
-     var newContent = require("!!../../../../../node_modules/css-loader/index.js!../../../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-5258311c\",\"scoped\":true,\"hasInlineConfig\":true}!../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0&bustCache!./Route.vue");
+   module.hot.accept("!!../../../../../node_modules/css-loader/index.js!../../../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-5258311c\",\"scoped\":true,\"sourceMap\":false}!../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./Route.vue", function() {
+     var newContent = require("!!../../../../../node_modules/css-loader/index.js!../../../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-5258311c\",\"scoped\":true,\"sourceMap\":false}!../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./Route.vue");
      if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
      update(newContent);
    });
@@ -414,7 +445,7 @@ if(false) {
 }
 
 /***/ }),
-/* 12 */
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 exports = module.exports = __webpack_require__(0)(undefined);
@@ -428,14 +459,16 @@ exports.push([module.i, "\n.bounce-enter-active[data-v-5258311c] {\n    animatio
 
 
 /***/ }),
-/* 13 */
-/***/ (function(module, exports) {
+/* 14 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
+"use strict";
+/* harmony export (immutable) */ __webpack_exports__["a"] = listToStyles;
 /**
  * Translates the list format produced by css-loader into something
  * easier to manipulate.
  */
-module.exports = function listToStyles (parentId, list) {
+function listToStyles (parentId, list) {
   var styles = []
   var newStyles = {}
   for (var i = 0; i < list.length; i++) {
@@ -461,20 +494,12 @@ module.exports = function listToStyles (parentId, list) {
 
 
 /***/ }),
-/* 14 */
-/***/ (function(module, exports) {
-
-//
-//
-//
-//
-//
-//
-
-/***/ }),
 /* 15 */
-/***/ (function(module, exports, __webpack_require__) {
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return render; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return staticRenderFns; });
 var render = function() {
   var _vm = this
   var _h = _vm.$createElement
@@ -488,11 +513,11 @@ var render = function() {
 }
 var staticRenderFns = []
 render._withStripped = true
-module.exports = { render: render, staticRenderFns: staticRenderFns }
+
 if (false) {
   module.hot.accept()
   if (module.hot.data) {
-    require("vue-hot-reload-api")      .rerender("data-v-5258311c", module.exports)
+    require("vue-hot-reload-api")      .rerender("data-v-5258311c", { render: render, staticRenderFns: staticRenderFns })
   }
 }
 
@@ -507,19 +532,25 @@ if (false) {
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_vuex__ = __webpack_require__(21);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__modules_User__ = __webpack_require__(41);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__modules_Users__ = __webpack_require__(42);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__modules_Setting__ = __webpack_require__(43);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__modules_Article__ = __webpack_require__(44);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__modules_Actuality__ = __webpack_require__(45);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__modules_Comment__ = __webpack_require__(46);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__modules_Query__ = __webpack_require__(47);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__modules_MsgFlash__ = __webpack_require__(48);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__webSocket_webSocketPlugin__ = __webpack_require__(49);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__modules_Like__ = __webpack_require__(50);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__modules_Book__ = __webpack_require__(51);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__modules_User__ = __webpack_require__(42);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__modules_Users__ = __webpack_require__(43);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__modules_Setting__ = __webpack_require__(44);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__modules_Article__ = __webpack_require__(45);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__modules_Actuality__ = __webpack_require__(46);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__modules_Comment__ = __webpack_require__(47);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__modules_Query__ = __webpack_require__(48);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__modules_MsgFlash__ = __webpack_require__(49);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__webSocket_webSocketPlugin__ = __webpack_require__(50);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__modules_Like__ = __webpack_require__(51);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__modules_Book__ = __webpack_require__(52);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_12__modules_Topic__ = __webpack_require__(53);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_13__modules_Category__ = __webpack_require__(54);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_14__modules_Topicresponse__ = __webpack_require__(55);
 
 Vue.use(__WEBPACK_IMPORTED_MODULE_0_vuex__["default"]);
+
+
+
 
 
 
@@ -544,7 +575,10 @@ Vue.use(__WEBPACK_IMPORTED_MODULE_0_vuex__["default"]);
         comment: __WEBPACK_IMPORTED_MODULE_6__modules_Comment__["a" /* default */],
         like: __WEBPACK_IMPORTED_MODULE_10__modules_Like__["a" /* default */],
         setting: __WEBPACK_IMPORTED_MODULE_3__modules_Setting__["a" /* default */],
-        book: __WEBPACK_IMPORTED_MODULE_11__modules_Book__["a" /* default */]
+        book: __WEBPACK_IMPORTED_MODULE_11__modules_Book__["a" /* default */],
+        topic: __WEBPACK_IMPORTED_MODULE_12__modules_Topic__["a" /* default */],
+        category: __WEBPACK_IMPORTED_MODULE_13__modules_Category__["a" /* default */],
+        topicresponse: __WEBPACK_IMPORTED_MODULE_14__modules_Topicresponse__["a" /* default */]
     },
     plugins: [Object(__WEBPACK_IMPORTED_MODULE_9__webSocket_webSocketPlugin__["a" /* default */])()]
 }));
@@ -559,53 +593,53 @@ Vue.use(__WEBPACK_IMPORTED_MODULE_0_vuex__["default"]);
 /* 27 */,
 /* 28 */,
 /* 29 */,
-/* 30 */
+/* 30 */,
+/* 31 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(31);
+module.exports = __webpack_require__(32);
 
-
-/***/ }),
-/* 31 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__bootstrap__ = __webpack_require__(32);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__components_route_Route_vue__ = __webpack_require__(3);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__components_route_Route_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__components_route_Route_vue__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__components_store_store__ = __webpack_require__(20);
-
-
-
-
-var app = new Vue({
-    components: { App: __WEBPACK_IMPORTED_MODULE_1__components_route_Route_vue___default.a },
-    el: "#main",
-    router: __WEBPACK_IMPORTED_MODULE_0__bootstrap__["a" /* router */],
-    store: __WEBPACK_IMPORTED_MODULE_2__components_store_store__["default"]
-});
 
 /***/ }),
 /* 32 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__bootstrap__ = __webpack_require__(33);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__components_route_Route_vue__ = __webpack_require__(5);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__components_store_store__ = __webpack_require__(20);
+
+
+
+
+var app = new Vue({
+    components: { App: __WEBPACK_IMPORTED_MODULE_1__components_route_Route_vue__["default"] },
+    el: "#main",
+    router: __WEBPACK_IMPORTED_MODULE_0__bootstrap__["a" /* router */],
+    store: __WEBPACK_IMPORTED_MODULE_2__components_store_store__["default"]
+});
+
+/***/ }),
+/* 33 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return router; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_vue_router__ = __webpack_require__(6);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_vuetify__ = __webpack_require__(7);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_vue_router__ = __webpack_require__(7);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_vuetify__ = __webpack_require__(8);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_vuetify___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_vuetify__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_vuetify_dist_vuetify_min_css__ = __webpack_require__(8);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_vuetify_dist_vuetify_min_css__ = __webpack_require__(9);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_vuetify_dist_vuetify_min_css___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_vuetify_dist_vuetify_min_css__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_vue_resource__ = __webpack_require__(10);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_emojionearea_dist_emojionearea_css__ = __webpack_require__(33);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_vue_resource__ = __webpack_require__(11);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_emojionearea_dist_emojionearea_css__ = __webpack_require__(34);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_emojionearea_dist_emojionearea_css___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_4_emojionearea_dist_emojionearea_css__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_emojionearea__ = __webpack_require__(35);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_emojionearea__ = __webpack_require__(36);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_emojionearea___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_5_emojionearea__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__components_mixin_config__ = __webpack_require__(37);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__components_mixin_config__ = __webpack_require__(38);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__components_mixin_config___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_6__components_mixin_config__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__components_mixin_GlobalMixin__ = __webpack_require__(38);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__components_faceMotion_FaceMotion_css__ = __webpack_require__(39);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__components_mixin_GlobalMixin__ = __webpack_require__(39);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__components_faceMotion_FaceMotion_css__ = __webpack_require__(40);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__components_faceMotion_FaceMotion_css___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_8__components_faceMotion_FaceMotion_css__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_9_vue_scrollto__ = __webpack_require__(16);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_9_vue_scrollto___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_9_vue_scrollto__);
@@ -613,7 +647,7 @@ var app = new Vue({
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_10_vue_timeago___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_10_vue_timeago__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_11_laravel_echo__ = __webpack_require__(18);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_11_laravel_echo___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_11_laravel_echo__);
-window.Vue = __webpack_require__(4);
+window.Vue = __webpack_require__(6);
 
 
 
@@ -649,7 +683,7 @@ Vue.use(__WEBPACK_IMPORTED_MODULE_10_vue_timeago___default.a, {
     name: 'timeago',
     locale: 'en-US',
     locales: {
-        'en-US': __webpack_require__(52)
+        'en-US': __webpack_require__(56)
     }
 });
 var router = new __WEBPACK_IMPORTED_MODULE_0_vue_router__["default"]({
@@ -657,7 +691,7 @@ var router = new __WEBPACK_IMPORTED_MODULE_0_vue_router__["default"]({
     routes: [{
         path: "/",
         component: function component(resolve) {
-            return __webpack_require__.e/* require */(29).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(58)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
+            return __webpack_require__.e/* require */(2).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(62)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
         },
         beforeEnter: function beforeEnter(to, from, next) {
             var connected = store.default.state.user.user ? store.default.state.user.user.confirmated : 0;
@@ -676,128 +710,159 @@ var router = new __WEBPACK_IMPORTED_MODULE_0_vue_router__["default"]({
         children: [{
             path: "/",
             component: function component(resolve) {
-                return __webpack_require__.e/* require */(30).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(59)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
+                return __webpack_require__.e/* require */(3).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(63)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
             },
             name: "Home"
         }, {
             path: "actualities",
             component: function component(resolve) {
-                return __webpack_require__.e/* require */(31).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(60)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
+                return __webpack_require__.e/* require */(4).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(64)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
             },
             name: "Actualities"
         }, {
             path: "profile/:id",
             component: function component(resolve) {
-                return __webpack_require__.e/* require */(33).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(61)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
+                return __webpack_require__.e/* require */(7).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(65)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
             },
             name: "Profile",
             children: [{
                 path: "/",
                 component: function component(resolve) {
-                    return __webpack_require__.e/* require */(28).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(62)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
+                    return __webpack_require__.e/* require */(1).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(66)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
                 },
                 children: [{
                     path: "article/:article",
                     component: function component(resolve) {
-                        return __webpack_require__.e/* require */(32).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(63)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
+                        return __webpack_require__.e/* require */(5).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(67)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
                     }
                 }]
             }, {
                 path: "following",
                 component: function component(resolve) {
-                    return __webpack_require__.e/* require */(41).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(64)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
+                    return __webpack_require__.e/* require */(21).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(68)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
                 },
                 name: "Following"
             }, {
                 path: "followers",
                 component: function component(resolve) {
-                    return __webpack_require__.e/* require */(42).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(65)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
+                    return __webpack_require__.e/* require */(22).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(69)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
                 },
                 name: "Followers"
             }, {
                 path: "albums",
                 component: function component(resolve) {
-                    return __webpack_require__.e/* require */(43).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(66)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
+                    return __webpack_require__.e/* require */(23).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(70)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
                 },
                 name: "Albums"
             }]
         }, {
             path: "courses",
             component: function component(resolve) {
-                return __webpack_require__.e/* require */(45).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(67)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
+                return __webpack_require__.e/* require */(26).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(71)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
             },
             children: [{
                 path: "/",
                 component: function component(resolve) {
-                    return __webpack_require__.e/* require */(37).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(68)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
+                    return __webpack_require__.e/* require */(14).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(72)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
                 },
                 name: "Courses"
             }, {
                 path: ":level/:book?",
                 component: function component(resolve) {
-                    return __webpack_require__.e/* require */(38).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(69)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
+                    return __webpack_require__.e/* require */(15).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(73)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
                 },
                 name: "Books"
             }]
         }, {
-            path: "admin",
-            component: function component(resolve) {
-                return __webpack_require__.e/* require */(39).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(70)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
-            },
-            name: "Admin",
-            children: [{
-                path: "/",
-                component: function component(resolve) {
-                    return __webpack_require__.e/* require */(35).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(71)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
-                }
-            }, {
-                path: "users",
-                component: function component(resolve) {
-                    return __webpack_require__.e/* require */(34).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(72)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
-                }
-            }, {
-                path: "books",
-                component: function component(resolve) {
-                    return __webpack_require__.e/* require */(48).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(73)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
-                }
-            }, {
-                path: "edit",
-                component: function component(resolve) {
-                    return __webpack_require__.e/* require */(47).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(74)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
-                }
-            }, {
-                path: "server",
-                component: function component(resolve) {
-                    return __webpack_require__.e/* require */(46).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(75)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
-                }
-            }, {
-                path: "*",
-                redirect: "/user"
-            }]
-        }, {
             path: "forum",
             component: function component(resolve) {
-                return __webpack_require__.e/* require */(44).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(310)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
+                return __webpack_require__.e/* require */(25).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(74)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
             },
             name: "Forum",
             children: [{
                 path: "/",
                 component: function component(resolve) {
-                    return __webpack_require__.e/* require */(49).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(311)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
+                    return __webpack_require__.e/* require */(11).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(75)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
+                }
+            }, {
+                path: ":type",
+                component: function component(resolve) {
+                    return __webpack_require__.e/* require */(16).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(76)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
+                }
+            }, {
+                path: "topic/:id",
+                component: function component(resolve) {
+                    return __webpack_require__.e/* require */(0/* duplicate */).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(22)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
+                }
+            }, {
+                path: "topic/:id/response/:response_id",
+                component: function component(resolve) {
+                    return __webpack_require__.e/* require */(0/* duplicate */).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(22)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
+                }
+            }]
+        }, {
+            path: 'university',
+            component: function component(resolve) {
+                return __webpack_require__.e/* require */(24).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(77)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
+            },
+            children: [{
+                path: '/',
+                component: function component(resolve) {
+                    return __webpack_require__.e/* require */(20).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(78)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
                 }
             }]
         }, {
             path: "account",
             component: function component(resolve) {
-                return __webpack_require__.e/* require */(36).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(76)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
+                return __webpack_require__.e/* require */(12).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(79)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
             },
             name: "Account"
         }, {
             path: "about",
             component: function component(resolve) {
-                return __webpack_require__.e/* require */(40).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(77)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
+                return __webpack_require__.e/* require */(18).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(80)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
             },
             name: "About"
+        }, {
+            path: "admin",
+            component: function component(resolve) {
+                return __webpack_require__.e/* require */(19).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(81)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
+            },
+            name: "Admin",
+            children: [{
+                path: "/",
+                component: function component(resolve) {
+                    return __webpack_require__.e/* require */(10).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(82)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
+                }
+            }, {
+                path: "users",
+                component: function component(resolve) {
+                    return __webpack_require__.e/* require */(8).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(83)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
+                }
+            }, {
+                path: "books",
+                component: function component(resolve) {
+                    return __webpack_require__.e/* require */(29).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(84)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
+                }
+            }, {
+                path: "edit",
+                component: function component(resolve) {
+                    return __webpack_require__.e/* require */(28).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(85)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
+                }
+            }, {
+                path: "server",
+                component: function component(resolve) {
+                    return __webpack_require__.e/* require */(27).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(86)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
+                }
+            }, {
+                path: "university",
+                component: function component(resolve) {
+                    return __webpack_require__.e/* require */(6).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(87)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
+                }
+            }, {
+                path: "*",
+                redirect: "/user"
+            }]
         }, {
             path: "*",
             redirect: "/"
@@ -816,13 +881,13 @@ router.beforeEach(function (to, from, next) {
 
 
 /***/ }),
-/* 33 */
+/* 34 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(34);
+var content = __webpack_require__(35);
 if(typeof content === 'string') content = [[module.i, content, '']];
 // Prepare cssTransformation
 var transform;
@@ -830,7 +895,7 @@ var transform;
 var options = {}
 options.transform = transform
 // add the styles to the DOM
-var update = __webpack_require__(9)(content, options);
+var update = __webpack_require__(10)(content, options);
 if(content.locals) module.exports = content.locals;
 // Hot Module Replacement
 if(false) {
@@ -847,7 +912,7 @@ if(false) {
 }
 
 /***/ }),
-/* 34 */
+/* 35 */
 /***/ (function(module, exports, __webpack_require__) {
 
 exports = module.exports = __webpack_require__(0)(undefined);
@@ -855,23 +920,23 @@ exports = module.exports = __webpack_require__(0)(undefined);
 
 
 // module
-exports.push([module.i, "/* line 3, ../scss/_text-complete.scss */\n.dropdown-menu.textcomplete-dropdown[data-strategy=\"emojionearea\"] {\n  position: absolute;\n  z-index: 1000;\n  min-width: 160px;\n  padding: 5px 0;\n  margin: 2px 0 0;\n  font-size: 14px;\n  text-align: left;\n  list-style: none;\n  background-color: #fff;\n  -webkit-background-clip: padding-box;\n  background-clip: padding-box;\n  border: 1px solid #ccc;\n  border: 1px solid rgba(0, 0, 0, 0.15);\n  -moz-border-radius: 4px;\n  -webkit-border-radius: 4px;\n  border-radius: 4px;\n  -moz-box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);\n  -webkit-box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);\n  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175); }\n  /* line 20, ../scss/_text-complete.scss */\n  .dropdown-menu.textcomplete-dropdown[data-strategy=\"emojionearea\"] li.textcomplete-item {\n    font-size: 14px;\n    padding: 1px 3px;\n    border: 0; }\n    /* line 25, ../scss/_text-complete.scss */\n    .dropdown-menu.textcomplete-dropdown[data-strategy=\"emojionearea\"] li.textcomplete-item a {\n      text-decoration: none;\n      display: block;\n      height: 100%;\n      line-height: 1.8em;\n      padding: 0 1.54em 0 .615em;\n      color: #4f4f4f; }\n    /* line 34, ../scss/_text-complete.scss */\n    .dropdown-menu.textcomplete-dropdown[data-strategy=\"emojionearea\"] li.textcomplete-item:hover, .dropdown-menu.textcomplete-dropdown[data-strategy=\"emojionearea\"] li.textcomplete-item.active {\n      background-color: #e4e4e4; }\n      /* line 39, ../scss/_text-complete.scss */\n      .dropdown-menu.textcomplete-dropdown[data-strategy=\"emojionearea\"] li.textcomplete-item:hover a, .dropdown-menu.textcomplete-dropdown[data-strategy=\"emojionearea\"] li.textcomplete-item.active a {\n        color: #333; }\n    /* line 44, ../scss/_text-complete.scss */\n    .dropdown-menu.textcomplete-dropdown[data-strategy=\"emojionearea\"] li.textcomplete-item .emojioneemoji {\n      font-size: inherit;\n      height: 2ex;\n      width: 2.1ex;\n      min-height: 20px;\n      min-width: 20px;\n      display: inline-block;\n      margin: 0 5px .2ex 0;\n      line-height: normal;\n      vertical-align: middle;\n      max-width: 100%;\n      top: 0; }\n\n/* line 7, ../scss/emojionearea.scss */\n.emojionearea-text [class*=emojione-], .emojionearea-text .emojioneemoji {\n  font-size: inherit;\n  height: 2ex;\n  width: 2.1ex;\n  min-height: 20px;\n  min-width: 20px;\n  display: inline-block;\n  margin: -.2ex .15em .2ex;\n  line-height: normal;\n  vertical-align: middle;\n  max-width: 100%;\n  top: 0; }\n\n/* line 23, ../scss/emojionearea.scss */\n.emojionearea, .emojionearea * {\n  -moz-box-sizing: border-box;\n  -webkit-box-sizing: border-box;\n  box-sizing: border-box; }\n/* line 27, ../scss/emojionearea.scss */\n.emojionearea.emojionearea-disable {\n  position: relative;\n  background-color: #eee;\n  -moz-user-select: -moz-none;\n  -ms-user-select: none;\n  -webkit-user-select: none;\n  user-select: none; }\n  /* line 31, ../scss/emojionearea.scss */\n  .emojionearea.emojionearea-disable:before {\n    content: \"\";\n    display: block;\n    top: 0;\n    left: 0;\n    right: 0;\n    bottom: 0;\n    z-index: 1;\n    opacity: 0.3;\n    position: absolute;\n    background-color: #eee; }\n/* line 45, ../scss/emojionearea.scss */\n.emojionearea, .emojionearea.form-control {\n  display: block;\n  position: relative !important;\n  width: 100%;\n  height: auto;\n  padding: 0;\n  font-size: 14px;\n  border: 0;\n  background-color: #FFFFFF;\n  border: 1px solid #CCCCCC;\n  -moz-border-radius: 3px;\n  -webkit-border-radius: 3px;\n  border-radius: 3px;\n  -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);\n  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);\n  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);\n  -moz-transition: border-color 0.15s ease-in-out,    -moz-box-shadow 0.15s ease-in-out;\n  -o-transition: border-color 0.15s ease-in-out,         box-shadow 0.15s ease-in-out;\n  -webkit-transition: border-color 0.15s ease-in-out, -webkit-box-shadow 0.15s ease-in-out;\n  transition: border-color 0.15s ease-in-out,         box-shadow 0.15s ease-in-out; }\n/* line 63, ../scss/emojionearea.scss */\n.emojionearea.focused {\n  border-color: #66AFE9;\n  outline: 0;\n  -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(102, 175, 233, 0.6);\n  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(102, 175, 233, 0.6);\n  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(102, 175, 233, 0.6); }\n/* line 69, ../scss/emojionearea.scss */\n.emojionearea .emojionearea-editor {\n  display: block;\n  height: auto;\n  min-height: 8em;\n  max-height: 15em;\n  overflow: auto;\n  padding: 6px 24px 6px 12px;\n  line-height: 1.42857143;\n  font-size: inherit;\n  color: #555555;\n  background-color: transparent;\n  border: 0;\n  cursor: text;\n  margin-right: 1px;\n  -moz-border-radius: 0;\n  -webkit-border-radius: 0;\n  border-radius: 0;\n  -moz-box-shadow: none;\n  -webkit-box-shadow: none;\n  box-shadow: none; }\n  /* line 86, ../scss/emojionearea.scss */\n  .emojionearea .emojionearea-editor:empty:before {\n    content: attr(placeholder);\n    display: block;\n    color: #BBBBBB; }\n  /* line 92, ../scss/emojionearea.scss */\n  .emojionearea .emojionearea-editor:focus {\n    border: 0;\n    outline: 0;\n    -moz-box-shadow: none;\n    -webkit-box-shadow: none;\n    box-shadow: none; }\n  /* line 98, ../scss/emojionearea.scss */\n  .emojionearea .emojionearea-editor [class*=emojione-], .emojionearea .emojionearea-editor .emojioneemoji {\n    font-size: inherit;\n    height: 2ex;\n    width: 2.1ex;\n    min-height: 20px;\n    min-width: 20px;\n    display: inline-block;\n    margin: -.2ex .15em .2ex;\n    line-height: normal;\n    vertical-align: middle;\n    max-width: 100%;\n    top: 0; }\n/* line 113, ../scss/emojionearea.scss */\n.emojionearea.emojionearea-inline {\n  height: 34px; }\n  /* line 116, ../scss/emojionearea.scss */\n  .emojionearea.emojionearea-inline > .emojionearea-editor {\n    height: 32px;\n    min-height: 20px;\n    overflow: hidden;\n    white-space: nowrap;\n    position: absolute;\n    top: 0;\n    left: 12px;\n    right: 24px;\n    padding: 6px 0; }\n  /* line 127, ../scss/emojionearea.scss */\n  .emojionearea.emojionearea-inline > .emojionearea-button {\n    top: 4px; }\n/* line 132, ../scss/emojionearea.scss */\n.emojionearea .emojionearea-button {\n  z-index: 5;\n  position: absolute;\n  right: 3px;\n  top: 3px;\n  width: 24px;\n  height: 24px;\n  opacity: 0.6;\n  cursor: pointer;\n  -moz-transition: opacity 300ms ease-in-out;\n  -o-transition: opacity 300ms ease-in-out;\n  -webkit-transition: opacity 300ms ease-in-out;\n  transition: opacity 300ms ease-in-out; }\n  /* line 143, ../scss/emojionearea.scss */\n  .emojionearea .emojionearea-button:hover {\n    opacity: 1; }\n  /* line 147, ../scss/emojionearea.scss */\n  .emojionearea .emojionearea-button > div {\n    display: block;\n    width: 24px;\n    height: 24px;\n    position: absolute;\n    -moz-transition: all 400ms ease-in-out;\n    -o-transition: all 400ms ease-in-out;\n    -webkit-transition: all 400ms ease-in-out;\n    transition: all 400ms ease-in-out; }\n    /* line 155, ../scss/emojionearea.scss */\n    .emojionearea .emojionearea-button > div.emojionearea-button-open {\n      background-position: 0 -24px;\n      filter: progid:DXImageTransform.Microsoft.Alpha(enabled=false);\n      opacity: 1; }\n    /* line 160, ../scss/emojionearea.scss */\n    .emojionearea .emojionearea-button > div.emojionearea-button-close {\n      background-position: 0 0;\n      -webkit-transform: rotate(-45deg);\n      -o-transform: rotate(-45deg);\n      transform: rotate(-45deg);\n      filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=0);\n      opacity: 0; }\n  /* line 170, ../scss/emojionearea.scss */\n  .emojionearea .emojionearea-button.active > div.emojionearea-button-open {\n    -webkit-transform: rotate(45deg);\n    -o-transform: rotate(45deg);\n    transform: rotate(45deg);\n    filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=0);\n    opacity: 0; }\n  /* line 177, ../scss/emojionearea.scss */\n  .emojionearea .emojionearea-button.active > div.emojionearea-button-close {\n    -webkit-transform: rotate(0deg);\n    -o-transform: rotate(0deg);\n    transform: rotate(0deg);\n    filter: progid:DXImageTransform.Microsoft.Alpha(enabled=false);\n    opacity: 1; }\n/* line 187, ../scss/emojionearea.scss */\n.emojionearea .emojionearea-picker {\n  background: #FFFFFF;\n  position: absolute;\n  -moz-box-shadow: 0 1px 5px rgba(0, 0, 0, 0.32);\n  -webkit-box-shadow: 0 1px 5px rgba(0, 0, 0, 0.32);\n  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.32);\n  -moz-border-radius: 5px;\n  -webkit-border-radius: 5px;\n  border-radius: 5px;\n  height: 276px;\n  width: 316px;\n  top: -15px;\n  right: -15px;\n  z-index: 90;\n  -moz-transition: all 0.25s ease-in-out;\n  -o-transition: all 0.25s ease-in-out;\n  -webkit-transition: all 0.25s ease-in-out;\n  transition: all 0.25s ease-in-out;\n  filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=0);\n  opacity: 0;\n  -moz-user-select: -moz-none;\n  -ms-user-select: none;\n  -webkit-user-select: none;\n  user-select: none; }\n  /* line 201, ../scss/emojionearea.scss */\n  .emojionearea .emojionearea-picker.hidden {\n    display: none; }\n  /* line 205, ../scss/emojionearea.scss */\n  .emojionearea .emojionearea-picker .emojionearea-wrapper {\n    position: relative;\n    height: 276px;\n    width: 316px; }\n    /* line 210, ../scss/emojionearea.scss */\n    .emojionearea .emojionearea-picker .emojionearea-wrapper:after {\n      content: \"\";\n      display: block;\n      position: absolute;\n      background-repeat: no-repeat;\n      z-index: 91; }\n  /* line 220, ../scss/emojionearea.scss */\n  .emojionearea .emojionearea-picker .emojionearea-filters, .emojionearea .emojionearea-picker .emojionearea-search {\n    width: 100%;\n    position: absolute;\n    z-index: 95; }\n  /* line 226, ../scss/emojionearea.scss */\n  .emojionearea .emojionearea-picker .emojionearea-search {\n    padding: 5px 0 0 8px;\n    height: 40px;\n    width: 160px; }\n    /* line 230, ../scss/emojionearea.scss */\n    .emojionearea .emojionearea-picker .emojionearea-search > input {\n      outline: none;\n      width: 160px;\n      min-width: 160px; }\n  /* line 237, ../scss/emojionearea.scss */\n  .emojionearea .emojionearea-picker .emojionearea-filters {\n    background: #F5F7F9;\n    padding: 0 0 0 7px;\n    height: 40px; }\n    /* line 242, ../scss/emojionearea.scss */\n    .emojionearea .emojionearea-picker .emojionearea-filters .emojionearea-filter {\n      display: block;\n      float: left;\n      height: 40px;\n      width: 32px;\n      filter: inherit;\n      padding: 7px 1px 0;\n      cursor: pointer;\n      -webkit-filter: grayscale(1);\n      filter: grayscale(1); }\n      /* line 252, ../scss/emojionearea.scss */\n      .emojionearea .emojionearea-picker .emojionearea-filters .emojionearea-filter.active {\n        background: #fff; }\n      /* line 256, ../scss/emojionearea.scss */\n      .emojionearea .emojionearea-picker .emojionearea-filters .emojionearea-filter.active, .emojionearea .emojionearea-picker .emojionearea-filters .emojionearea-filter:hover {\n        -webkit-filter: grayscale(0);\n        filter: grayscale(0); }\n      /* line 260, ../scss/emojionearea.scss */\n      .emojionearea .emojionearea-picker .emojionearea-filters .emojionearea-filter > i {\n        width: 24px;\n        height: 24px;\n        top: 0; }\n      /* line 266, ../scss/emojionearea.scss */\n      .emojionearea .emojionearea-picker .emojionearea-filters .emojionearea-filter > img {\n        width: 24px;\n        height: 24px;\n        margin: 0 3px; }\n  /* line 274, ../scss/emojionearea.scss */\n  .emojionearea .emojionearea-picker .emojionearea-tones {\n    position: absolute;\n    top: 46px;\n    right: 10px;\n    height: 22px;\n    z-index: 95; }\n    /* line 281, ../scss/emojionearea.scss */\n    .emojionearea .emojionearea-picker .emojionearea-tones > .btn-tone {\n      display: inline-block;\n      padding: 0;\n      border: 0;\n      vertical-align: middle;\n      outline: none;\n      background: transparent;\n      cursor: pointer;\n      position: relative; }\n      /* line 292, ../scss/emojionearea.scss */\n      .emojionearea .emojionearea-picker .emojionearea-tones > .btn-tone.btn-tone-0, .emojionearea .emojionearea-picker .emojionearea-tones > .btn-tone.btn-tone-0:after {\n        background-color: #ffcf3e; }\n      /* line 297, ../scss/emojionearea.scss */\n      .emojionearea .emojionearea-picker .emojionearea-tones > .btn-tone.btn-tone-1, .emojionearea .emojionearea-picker .emojionearea-tones > .btn-tone.btn-tone-1:after {\n        background-color: #fae3c5; }\n      /* line 302, ../scss/emojionearea.scss */\n      .emojionearea .emojionearea-picker .emojionearea-tones > .btn-tone.btn-tone-2, .emojionearea .emojionearea-picker .emojionearea-tones > .btn-tone.btn-tone-2:after {\n        background-color: #e2cfa5; }\n      /* line 307, ../scss/emojionearea.scss */\n      .emojionearea .emojionearea-picker .emojionearea-tones > .btn-tone.btn-tone-3, .emojionearea .emojionearea-picker .emojionearea-tones > .btn-tone.btn-tone-3:after {\n        background-color: #daa478; }\n      /* line 312, ../scss/emojionearea.scss */\n      .emojionearea .emojionearea-picker .emojionearea-tones > .btn-tone.btn-tone-4, .emojionearea .emojionearea-picker .emojionearea-tones > .btn-tone.btn-tone-4:after {\n        background-color: #a78058; }\n      /* line 317, ../scss/emojionearea.scss */\n      .emojionearea .emojionearea-picker .emojionearea-tones > .btn-tone.btn-tone-5, .emojionearea .emojionearea-picker .emojionearea-tones > .btn-tone.btn-tone-5:after {\n        background-color: #5e4d43; }\n    /* line 325, ../scss/emojionearea.scss */\n    .emojionearea .emojionearea-picker .emojionearea-tones.emojionearea-tones-bullet > .btn-tone, .emojionearea .emojionearea-picker .emojionearea-tones.emojionearea-tones-square > .btn-tone {\n      width: 20px;\n      height: 20px;\n      margin: 0;\n      background-color: transparent; }\n      /* line 330, ../scss/emojionearea.scss */\n      .emojionearea .emojionearea-picker .emojionearea-tones.emojionearea-tones-bullet > .btn-tone:after, .emojionearea .emojionearea-picker .emojionearea-tones.emojionearea-tones-square > .btn-tone:after {\n        content: \"\";\n        position: absolute;\n        display: block;\n        top: 4px;\n        left: 4px;\n        width: 12px;\n        height: 12px; }\n      /* line 339, ../scss/emojionearea.scss */\n      .emojionearea .emojionearea-picker .emojionearea-tones.emojionearea-tones-bullet > .btn-tone.active:after, .emojionearea .emojionearea-picker .emojionearea-tones.emojionearea-tones-square > .btn-tone.active:after {\n        top: 0;\n        left: 0;\n        width: 20px;\n        height: 20px; }\n    /* line 351, ../scss/emojionearea.scss */\n    .emojionearea .emojionearea-picker .emojionearea-tones.emojionearea-tones-radio > .btn-tone, .emojionearea .emojionearea-picker .emojionearea-tones.emojionearea-tones-checkbox > .btn-tone {\n      width: 16px;\n      height: 16px;\n      margin: 0px 2px; }\n      /* line 356, ../scss/emojionearea.scss */\n      .emojionearea .emojionearea-picker .emojionearea-tones.emojionearea-tones-radio > .btn-tone.active:after, .emojionearea .emojionearea-picker .emojionearea-tones.emojionearea-tones-checkbox > .btn-tone.active:after {\n        content: \"\";\n        position: absolute;\n        display: block;\n        background-color: transparent;\n        border: 2px solid #fff;\n        width: 8px;\n        height: 8px;\n        top: 2px;\n        left: 2px;\n        box-sizing: initial; }\n    /* line 375, ../scss/emojionearea.scss */\n    .emojionearea .emojionearea-picker .emojionearea-tones.emojionearea-tones-bullet > .btn-tone, .emojionearea .emojionearea-picker .emojionearea-tones.emojionearea-tones-bullet > .btn-tone:after, .emojionearea .emojionearea-picker .emojionearea-tones.emojionearea-tones-radio > .btn-tone, .emojionearea .emojionearea-picker .emojionearea-tones.emojionearea-tones-radio > .btn-tone:after {\n      -moz-border-radius: 100%;\n      -webkit-border-radius: 100%;\n      border-radius: 100%; }\n    /* line 384, ../scss/emojionearea.scss */\n    .emojionearea .emojionearea-picker .emojionearea-tones.emojionearea-tones-square > .btn-tone, .emojionearea .emojionearea-picker .emojionearea-tones.emojionearea-tones-square > .btn-tone:after, .emojionearea .emojionearea-picker .emojionearea-tones.emojionearea-tones-checkbox > .btn-tone, .emojionearea .emojionearea-picker .emojionearea-tones.emojionearea-tones-checkbox > .btn-tone:after {\n      -moz-border-radius: 1px;\n      -webkit-border-radius: 1px;\n      border-radius: 1px; }\n  /* line 391, ../scss/emojionearea.scss */\n  .emojionearea .emojionearea-picker .emojionearea-scroll-area {\n    height: 196px;\n    overflow: auto;\n    overflow-x: hidden;\n    width: 100%;\n    position: absolute;\n    padding: 0 0 5px; }\n    /* line 399, ../scss/emojionearea.scss */\n    .emojionearea .emojionearea-picker .emojionearea-scroll-area .emojionearea-emojis-list {\n      z-index: 1; }\n    /* line 403, ../scss/emojionearea.scss */\n    .emojionearea .emojionearea-picker .emojionearea-scroll-area .emojionearea-category-title {\n      display: block;\n      font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;\n      font-size: 13px;\n      font-weight: normal;\n      color: #b2b2b2;\n      background: #FFFFFF;\n      line-height: 20px;\n      margin: 0;\n      padding: 7px 0 5px 6px; }\n      /* line 414, ../scss/emojionearea.scss */\n      .emojionearea .emojionearea-picker .emojionearea-scroll-area .emojionearea-category-title:after, .emojionearea .emojionearea-picker .emojionearea-scroll-area .emojionearea-category-title:before {\n        content: \" \";\n        display: block;\n        clear: both; }\n    /* line 421, ../scss/emojionearea.scss */\n    .emojionearea .emojionearea-picker .emojionearea-scroll-area .emojionearea-category {\n      padding: 0 0 0 7px; }\n      /* line 424, ../scss/emojionearea.scss */\n      .emojionearea .emojionearea-picker .emojionearea-scroll-area .emojionearea-category > .emojionearea-category {\n        padding: 0 !important; }\n      /* line 428, ../scss/emojionearea.scss */\n      .emojionearea .emojionearea-picker .emojionearea-scroll-area .emojionearea-category:after, .emojionearea .emojionearea-picker .emojionearea-scroll-area .emojionearea-category:before {\n        content: \" \";\n        display: block;\n        clear: both; }\n    /* line 435, ../scss/emojionearea.scss */\n    .emojionearea .emojionearea-picker .emojionearea-scroll-area [class*=emojione-] {\n      -moz-box-sizing: content-box;\n      -webkit-box-sizing: content-box;\n      box-sizing: content-box;\n      margin: 0;\n      width: 24px;\n      height: 24px;\n      top: 0; }\n    /* line 443, ../scss/emojionearea.scss */\n    .emojionearea .emojionearea-picker .emojionearea-scroll-area .emojibtn {\n      -moz-box-sizing: content-box;\n      -webkit-box-sizing: content-box;\n      box-sizing: content-box;\n      width: 24px;\n      height: 24px;\n      float: left;\n      display: block;\n      margin: 1px;\n      padding: 3px; }\n      /* line 452, ../scss/emojionearea.scss */\n      .emojionearea .emojionearea-picker .emojionearea-scroll-area .emojibtn:hover {\n        -moz-border-radius: 4px;\n        -webkit-border-radius: 4px;\n        border-radius: 4px;\n        background-color: #e4e4e4;\n        cursor: pointer; }\n      /* line 458, ../scss/emojionearea.scss */\n      .emojionearea .emojionearea-picker .emojionearea-scroll-area .emojibtn i, .emojionearea .emojionearea-picker .emojionearea-scroll-area .emojibtn img {\n        float: left;\n        display: block;\n        width: 24px;\n        height: 24px; }\n      /* line 465, ../scss/emojionearea.scss */\n      .emojionearea .emojionearea-picker .emojionearea-scroll-area .emojibtn img.lazy-emoji {\n        filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=0);\n        opacity: 0; }\n  /* line 472, ../scss/emojionearea.scss */\n  .emojionearea .emojionearea-picker.emojionearea-filters-position-top .emojionearea-filters {\n    top: 0;\n    -moz-border-radius-topleft: 5px;\n    -webkit-border-top-left-radius: 5px;\n    border-top-left-radius: 5px;\n    -moz-border-radius-topright: 5px;\n    -webkit-border-top-right-radius: 5px;\n    border-top-right-radius: 5px; }\n  /* line 477, ../scss/emojionearea.scss */\n  .emojionearea .emojionearea-picker.emojionearea-filters-position-top .emojionearea-search {\n    top: 40px; }\n  /* line 480, ../scss/emojionearea.scss */\n  .emojionearea .emojionearea-picker.emojionearea-filters-position-top .emojionearea-scroll-area {\n    bottom: 0; }\n  /* line 486, ../scss/emojionearea.scss */\n  .emojionearea .emojionearea-picker.emojionearea-filters-position-bottom .emojionearea-filters {\n    bottom: 0;\n    -moz-border-radius-bottomleft: 5px;\n    -webkit-border-bottom-left-radius: 5px;\n    border-bottom-left-radius: 5px;\n    -moz-border-radius-bottomright: 5px;\n    -webkit-border-bottom-right-radius: 5px;\n    border-bottom-right-radius: 5px; }\n  /* line 491, ../scss/emojionearea.scss */\n  .emojionearea .emojionearea-picker.emojionearea-filters-position-bottom .emojionearea-search {\n    bottom: 40px; }\n  /* line 494, ../scss/emojionearea.scss */\n  .emojionearea .emojionearea-picker.emojionearea-filters-position-bottom .emojionearea-tones {\n    top: initial;\n    bottom: 53px; }\n  /* line 498, ../scss/emojionearea.scss */\n  .emojionearea .emojionearea-picker.emojionearea-filters-position-bottom .emojionearea-scroll-area {\n    top: 0; }\n  /* line 503, ../scss/emojionearea.scss */\n  .emojionearea .emojionearea-picker.emojionearea-picker-position-top {\n    margin-top: -286px;\n    right: -14px; }\n    /* line 507, ../scss/emojionearea.scss */\n    .emojionearea .emojionearea-picker.emojionearea-picker-position-top .emojionearea-wrapper:after {\n      width: 19px;\n      height: 10px;\n      background-position: -2px -49px;\n      bottom: -10px;\n      right: 20px; }\n    /* line 516, ../scss/emojionearea.scss */\n    .emojionearea .emojionearea-picker.emojionearea-picker-position-top.emojionearea-filters-position-bottom .emojionearea-wrapper:after {\n      background-position: -2px -80px; }\n  /* line 522, ../scss/emojionearea.scss */\n  .emojionearea .emojionearea-picker.emojionearea-picker-position-left, .emojionearea .emojionearea-picker.emojionearea-picker-position-right {\n    margin-right: -326px;\n    top: -8px; }\n    /* line 527, ../scss/emojionearea.scss */\n    .emojionearea .emojionearea-picker.emojionearea-picker-position-left .emojionearea-wrapper:after, .emojionearea .emojionearea-picker.emojionearea-picker-position-right .emojionearea-wrapper:after {\n      width: 10px;\n      height: 19px;\n      background-position: 0px -60px;\n      top: 13px;\n      left: -10px; }\n    /* line 536, ../scss/emojionearea.scss */\n    .emojionearea .emojionearea-picker.emojionearea-picker-position-left.emojionearea-filters-position-bottom .emojionearea-wrapper:after, .emojionearea .emojionearea-picker.emojionearea-picker-position-right.emojionearea-filters-position-bottom .emojionearea-wrapper:after {\n      background-position: right -60px; }\n  /* line 542, ../scss/emojionearea.scss */\n  .emojionearea .emojionearea-picker.emojionearea-picker-position-bottom {\n    margin-top: 10px;\n    right: -14px;\n    top: 47px; }\n    /* line 547, ../scss/emojionearea.scss */\n    .emojionearea .emojionearea-picker.emojionearea-picker-position-bottom .emojionearea-wrapper:after {\n      width: 19px;\n      height: 10px;\n      background-position: -2px -100px;\n      top: -10px;\n      right: 20px; }\n    /* line 556, ../scss/emojionearea.scss */\n    .emojionearea .emojionearea-picker.emojionearea-picker-position-bottom.emojionearea-filters-position-bottom .emojionearea-wrapper:after {\n      background-position: -2px -90px; }\n/* line 564, ../scss/emojionearea.scss */\n.emojionearea .emojionearea-button.active + .emojionearea-picker {\n  filter: progid:DXImageTransform.Microsoft.Alpha(enabled=false);\n  opacity: 1; }\n/* line 568, ../scss/emojionearea.scss */\n.emojionearea .emojionearea-button.active + .emojionearea-picker-position-top {\n  margin-top: -269px; }\n/* line 572, ../scss/emojionearea.scss */\n.emojionearea .emojionearea-button.active + .emojionearea-picker-position-left,\n.emojionearea .emojionearea-button.active + .emojionearea-picker-position-right {\n  margin-right: -309px; }\n/* line 577, ../scss/emojionearea.scss */\n.emojionearea .emojionearea-button.active + .emojionearea-picker-position-bottom {\n  margin-top: -7px; }\n/* line 582, ../scss/emojionearea.scss */\n.emojionearea.emojionearea-standalone {\n  display: inline-block;\n  width: auto;\n  box-shadow: none; }\n  /* line 587, ../scss/emojionearea.scss */\n  .emojionearea.emojionearea-standalone .emojionearea-editor {\n    min-height: 33px;\n    position: relative;\n    padding: 6px 42px 6px 6px; }\n    /* line 591, ../scss/emojionearea.scss */\n    .emojionearea.emojionearea-standalone .emojionearea-editor::before {\n      content: \"\";\n      position: absolute;\n      top: 4px;\n      left: 50%;\n      bottom: 4px;\n      border-left: 1px solid #e6e6e6; }\n    /* line 599, ../scss/emojionearea.scss */\n    .emojionearea.emojionearea-standalone .emojionearea-editor.has-placeholder {\n      background-repeat: no-repeat;\n      background-position: 20px 4px; }\n      /* line 604, ../scss/emojionearea.scss */\n      .emojionearea.emojionearea-standalone .emojionearea-editor.has-placeholder .emojioneemoji {\n        opacity: 0.4; }\n  /* line 610, ../scss/emojionearea.scss */\n  .emojionearea.emojionearea-standalone .emojionearea-button {\n    top: 0;\n    right: 0;\n    bottom: 0;\n    left: 0;\n    width: auto;\n    height: auto; }\n    /* line 617, ../scss/emojionearea.scss */\n    .emojionearea.emojionearea-standalone .emojionearea-button > div {\n      right: 6px;\n      top: 5px; }\n  /* line 626, ../scss/emojionearea.scss */\n  .emojionearea.emojionearea-standalone .emojionearea-picker.emojionearea-picker-position-bottom .emojionearea-wrapper:after, .emojionearea.emojionearea-standalone .emojionearea-picker.emojionearea-picker-position-top .emojionearea-wrapper:after {\n    right: 23px; }\n  /* line 633, ../scss/emojionearea.scss */\n  .emojionearea.emojionearea-standalone .emojionearea-picker.emojionearea-picker-position-left .emojionearea-wrapper:after, .emojionearea.emojionearea-standalone .emojionearea-picker.emojionearea-picker-position-right .emojionearea-wrapper:after {\n    top: 15px; }\n\n/* line 32, ../scss/_image.scss */\n.emojionearea .emojionearea-button > div, .emojionearea .emojionearea-picker .emojionearea-wrapper:after {\n  background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABcAAABuCAYAAADMB4ipAAAHfElEQVRo3u1XS1NT2Rb+9uOcQF4YlAJzLymFUHaLrdxKULvEUNpdTnRqD532f+AHMLMc94gqR1Zbt8rBnUh3YXipPGKwRDoWgXvrYiFUlEdIkPPYZ/dAkwox5yQCVt/bzRrBPnt9e+211/etFeDQDu3ArL+/X37OeqmRWoH7+vpItfWawStF1tfXR+zW9xW5ne0p8loOcAKuCdwpRft60C8a+X5zTvebCqcAvmidf1GGHtqhHdpf1qqKzsrKipyensbi4iKWl5cBAMFgEG1tbYhGo2hpadlbmxseHpaDg4MAgI6ODng8HgBAPp/H/Pw8AODatWvo7e2tvUHrui7v3r2L+fl5XL58GVeuXIHH49m1N5/Py0ePHmF0dBQdHR24desWVFXdtYdXAn/48CHm5+dx8+ZNRKPRigEUDpuenpb3799H4YaOnWh5eVmOj48jFoshGo0STdPkwMCAXF5elqV7BgYGpKZpMhqNklgshrGxMbx580Y6gicSCTDGEIvFAADpdBqpVArJZLK4J5lMIpVKIZ1OAwBisRgYY0gkEs6Rp1IphMNh+Hw+AgCGYQAANE0r7in8Xfjm8/lIOBzGq1evnMHX19fR1NRU/D8UCoFzjnA4XFwLh8PgnCMUChXXmpqakM1mUfVBS62xsZHk83lZWi1nz579ZA0AhBDO4A0NDchkMsWSJIRAURRiVy26rktVVUkmk0EgEHAGP3XqFKamppDP56Vpmrhz5w5u374t/X4/OP+w3TRNZLNZ6LoO0zSRz+dlf38/Ll686Jzz8+fPQwiBeDwOt9tNrl+/jkwmU6yaQpVkMhncuHEDbrebxONxCCEQiUScIw8Gg+TBgwdyZGQEyWRSdnV1kVQqJYeGhrC6ugrGGEKhEHp7e3Hy5EmSTCblvXv30NPTg2AwSA6M/vF4HCMjI7b0/yzh8vv9AIBsNrt34aokuQsLC7skt729varkHtqftUFf++FHsrq0QN3eBvp68Tfvf9Mv12oFCYU7G//e9nVuO7dpNbe2W4M//yQr0p8yRvyBo1Zr++lwLcCt7afD/sBRizJGavrB1dDYYh47Htrq+Kb7jBNwxzfdZ44dD201NLaYVUkU7ozQpuAJBkARwnRZpunN5zaa5hJjiXLH05GeiMd7JEM5zzHGNQBGZvk/Iv0yYVWMvK0zKk1Dl6ahW5RQobjqdjy+wEZn9PKF0n2d0csXPL7AhuKq26GECtPQLdPQZVtn1LlB69p7yRVVSEiDEGJwRd12e4+8PR3piRQidnuPvOWKuk0IMSSkwRVV6Np7WVVbSqvGsgSnlKkAFNPQXdrOtuKqcxtcUTUAhmUJnVJmlleJo3CVHmAaOlPUOmYJkxFKibQsSRkXhr4juKIKO2BHVSwcoLrqCVdUYho6K3YYRRWmoUtdey/tgKtK7rUffiQAsLq08MnbNLe2WwBgB/zHzueFyD8nwlIfbvdx8eU0WV1aKD1cVAMs9+F2j9gUPEEKemEJIe3AnXy4XfkBoNKSZHNthWfX31EA69VKttyHVyIOY1wRwmS6tqNsrr31vXo5k/bUu4gT2cp9lhbm0rzCJpeUUrE0vS63+c7/6uXMbDUWl/ssLczNFrVFddUT09AZpUy1LKvO0DVfPrfR9HxqfNbuEe185l9MFX3o6tIC5YpKFLWOfdQQ93Zu49j0+FDCDtjOp1yaOQCYhs4Y40wI05XfWj8yPT40Ua2ey33mEmMTtp2IUEq0nW3FKeJPGPjRp1Iz2QUuLUu66txG9NLVSK3gBZ+C1lcE54oqKOOCK6rm8QU2unu+u1ANuNynvFsBAG1ubbdMQ5eGviMAFDuP0w3sfMpvQEtb24fOQncU1bXl8R7JnOu+ZNv97XxKJwY6+PNPsrm13drObVqUMlMIU5OWpVHOc96Go5lTnV2fzC/VfAozD7HTCa6olBBa1Imlhbmq2lLuQ5xaW6nCPfnln0Yt7bDUhzhps8cfKH5//uTXmvS81OeLdqI/ZoROzSZrHqG/OvOPzxuhK5VgJTvV2bW3EdqJRABwrvvS/kfoSkoZvXT1YEbociHr7vnuYEfogpBFL109HKH/h0fomnXg3Lff79r7/MmvVbWG7gX4QObzc99+Tz7mHKah05KcW6ahQ9feS6cbMCdgt7eBWJagjCuUAC5tZzuouuo0Spm0hElc9R4cbf4bVl8v1p6WUmCuqEwIs34ruxaeeTy4uJVd67As08UVlVmWoG5vA7FLG3WMmHEupVTyW+vh2cn4DADMTsaTuc21LiGEhzHOnQ6gNtMrJSBMCKHkNt999WLi0S7hejEZH81n174WpukiIMw0dKq66p3Bw50RwhUVXFGJKUy28Xal48VkfKrSlWenhsc23q2cEB9SR7iiItwZIbbgHn8AlDFCCMW7laXjqZnHjkNpaubJzNuVpWZCKChjxOMPVH/QlaW0f/G3ZLqWWl6ce/bvlddp7yFD/w8Z+njoX1+GoZMjgzMAMDkyeLAMnRh+uKveJ0YGD4ahEyODFRk6OfrL/hj67GnckaHPng7vjaGzyYmaGDr77KktQ38H8tqx8Wja+WIAAAAASUVORK5CYII=') !important; }\n\n/* line 32, ../scss/_image.scss */\n.emojionearea.emojionearea-standalone .emojionearea-editor.has-placeholder {\n  background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMAQMAAABsu86kAAAABlBMVEUAAAC/v79T5hyIAAAAAXRSTlMAQObYZgAAABNJREFUCNdjYGNgQEb/P4AQqiAASiUEG6Vit44AAAAASUVORK5CYII=') !important; }\n", ""]);
+exports.push([module.i, ".dropdown-menu.textcomplete-dropdown[data-strategy=\"emojionearea\"] {\n  position: absolute;\n  z-index: 1000;\n  min-width: 160px;\n  padding: 5px 0;\n  margin: 2px 0 0;\n  font-size: 14px;\n  text-align: left;\n  list-style: none;\n  background-color: #fff;\n  -webkit-background-clip: padding-box;\n  background-clip: padding-box;\n  border: 1px solid #ccc;\n  border: 1px solid rgba(0, 0, 0, 0.15);\n  -moz-border-radius: 4px;\n  -webkit-border-radius: 4px;\n  border-radius: 4px;\n  -moz-box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);\n  -webkit-box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);\n  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175); }\n  .dropdown-menu.textcomplete-dropdown[data-strategy=\"emojionearea\"] li.textcomplete-item {\n    font-size: 14px;\n    padding: 1px 3px;\n    border: 0; }\n    .dropdown-menu.textcomplete-dropdown[data-strategy=\"emojionearea\"] li.textcomplete-item a {\n      text-decoration: none;\n      display: block;\n      height: 100%;\n      line-height: 1.8em;\n      padding: 0 1.54em 0 .615em;\n      color: #4f4f4f; }\n    .dropdown-menu.textcomplete-dropdown[data-strategy=\"emojionearea\"] li.textcomplete-item:hover, .dropdown-menu.textcomplete-dropdown[data-strategy=\"emojionearea\"] li.textcomplete-item.active {\n      background-color: #e4e4e4; }\n      .dropdown-menu.textcomplete-dropdown[data-strategy=\"emojionearea\"] li.textcomplete-item:hover a, .dropdown-menu.textcomplete-dropdown[data-strategy=\"emojionearea\"] li.textcomplete-item.active a {\n        color: #333; }\n    .dropdown-menu.textcomplete-dropdown[data-strategy=\"emojionearea\"] li.textcomplete-item .emojioneemoji {\n      font-size: inherit;\n      height: 2ex;\n      width: 2.1ex;\n      min-height: 20px;\n      min-width: 20px;\n      display: inline-block;\n      margin: 0 5px .2ex 0;\n      line-height: normal;\n      vertical-align: middle;\n      max-width: 100%;\n      top: 0; }\n\n.emojionearea-text [class*=emojione-], .emojionearea-text .emojioneemoji {\n  font-size: inherit;\n  height: 2ex;\n  width: 2.1ex;\n  min-height: 20px;\n  min-width: 20px;\n  display: inline-block;\n  margin: -.2ex .15em .2ex;\n  line-height: normal;\n  vertical-align: middle;\n  max-width: 100%;\n  top: 0; }\n\n.emojionearea, .emojionearea * {\n  -moz-box-sizing: border-box;\n  -webkit-box-sizing: border-box;\n  box-sizing: border-box; }\n.emojionearea.emojionearea-disable {\n  position: relative;\n  background-color: #eee;\n  -moz-user-select: -moz-none;\n  -ms-user-select: none;\n  -webkit-user-select: none;\n  user-select: none; }\n  .emojionearea.emojionearea-disable:before {\n    content: \"\";\n    display: block;\n    top: 0;\n    left: 0;\n    right: 0;\n    bottom: 0;\n    z-index: 1;\n    opacity: 0.3;\n    position: absolute;\n    background-color: #eee; }\n.emojionearea, .emojionearea.form-control {\n  display: block;\n  position: relative !important;\n  width: 100%;\n  height: auto;\n  padding: 0;\n  font-size: 14px;\n  border: 0;\n  background-color: #FFFFFF;\n  border: 1px solid #CCCCCC;\n  -moz-border-radius: 3px;\n  -webkit-border-radius: 3px;\n  border-radius: 3px;\n  -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);\n  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);\n  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);\n  -moz-transition: border-color 0.15s ease-in-out,    -moz-box-shadow 0.15s ease-in-out;\n  -o-transition: border-color 0.15s ease-in-out,         box-shadow 0.15s ease-in-out;\n  -webkit-transition: border-color 0.15s ease-in-out, -webkit-box-shadow 0.15s ease-in-out;\n  transition: border-color 0.15s ease-in-out,         box-shadow 0.15s ease-in-out; }\n.emojionearea.focused {\n  border-color: #66AFE9;\n  outline: 0;\n  -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(102, 175, 233, 0.6);\n  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(102, 175, 233, 0.6);\n  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(102, 175, 233, 0.6); }\n.emojionearea .emojionearea-editor {\n  display: block;\n  height: auto;\n  min-height: 8em;\n  max-height: 15em;\n  overflow: auto;\n  padding: 6px 24px 6px 12px;\n  line-height: 1.42857143;\n  font-size: inherit;\n  color: #555555;\n  background-color: transparent;\n  border: 0;\n  cursor: text;\n  margin-right: 1px;\n  -moz-border-radius: 0;\n  -webkit-border-radius: 0;\n  border-radius: 0;\n  -moz-box-shadow: none;\n  -webkit-box-shadow: none;\n  box-shadow: none; }\n  .emojionearea .emojionearea-editor:empty:before {\n    content: attr(placeholder);\n    display: block;\n    color: #BBBBBB; }\n  .emojionearea .emojionearea-editor:focus {\n    border: 0;\n    outline: 0;\n    -moz-box-shadow: none;\n    -webkit-box-shadow: none;\n    box-shadow: none; }\n  .emojionearea .emojionearea-editor [class*=emojione-], .emojionearea .emojionearea-editor .emojioneemoji {\n    font-size: inherit;\n    height: 2ex;\n    width: 2.1ex;\n    min-height: 20px;\n    min-width: 20px;\n    display: inline-block;\n    margin: -.2ex .15em .2ex;\n    line-height: normal;\n    vertical-align: middle;\n    max-width: 100%;\n    top: 0; }\n.emojionearea.emojionearea-inline {\n  height: 34px; }\n  .emojionearea.emojionearea-inline > .emojionearea-editor {\n    height: 32px;\n    min-height: 20px;\n    overflow: hidden;\n    white-space: nowrap;\n    position: absolute;\n    top: 0;\n    left: 12px;\n    right: 24px;\n    padding: 6px 0; }\n  .emojionearea.emojionearea-inline > .emojionearea-button {\n    top: 4px; }\n.emojionearea .emojionearea-button {\n  z-index: 5;\n  position: absolute;\n  right: 3px;\n  top: 3px;\n  width: 24px;\n  height: 24px;\n  opacity: 0.6;\n  cursor: pointer;\n  -moz-transition: opacity 300ms ease-in-out;\n  -o-transition: opacity 300ms ease-in-out;\n  -webkit-transition: opacity 300ms ease-in-out;\n  transition: opacity 300ms ease-in-out; }\n  .emojionearea .emojionearea-button:hover {\n    opacity: 1; }\n  .emojionearea .emojionearea-button > div {\n    display: block;\n    width: 24px;\n    height: 24px;\n    position: absolute;\n    -moz-transition: all 400ms ease-in-out;\n    -o-transition: all 400ms ease-in-out;\n    -webkit-transition: all 400ms ease-in-out;\n    transition: all 400ms ease-in-out; }\n    .emojionearea .emojionearea-button > div.emojionearea-button-open {\n      background-position: 0 -24px;\n      filter: progid:DXImageTransform.Microsoft.Alpha(enabled=false);\n      opacity: 1; }\n    .emojionearea .emojionearea-button > div.emojionearea-button-close {\n      background-position: 0 0;\n      -webkit-transform: rotate(-45deg);\n      -o-transform: rotate(-45deg);\n      transform: rotate(-45deg);\n      filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=0);\n      opacity: 0; }\n  .emojionearea .emojionearea-button.active > div.emojionearea-button-open {\n    -webkit-transform: rotate(45deg);\n    -o-transform: rotate(45deg);\n    transform: rotate(45deg);\n    filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=0);\n    opacity: 0; }\n  .emojionearea .emojionearea-button.active > div.emojionearea-button-close {\n    -webkit-transform: rotate(0deg);\n    -o-transform: rotate(0deg);\n    transform: rotate(0deg);\n    filter: progid:DXImageTransform.Microsoft.Alpha(enabled=false);\n    opacity: 1; }\n.emojionearea .emojionearea-picker {\n  background: #FFFFFF;\n  position: absolute;\n  -moz-box-shadow: 0 1px 5px rgba(0, 0, 0, 0.32);\n  -webkit-box-shadow: 0 1px 5px rgba(0, 0, 0, 0.32);\n  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.32);\n  -moz-border-radius: 5px;\n  -webkit-border-radius: 5px;\n  border-radius: 5px;\n  height: 276px;\n  width: 316px;\n  top: -15px;\n  right: -15px;\n  z-index: 90;\n  -moz-transition: all 0.25s ease-in-out;\n  -o-transition: all 0.25s ease-in-out;\n  -webkit-transition: all 0.25s ease-in-out;\n  transition: all 0.25s ease-in-out;\n  filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=0);\n  opacity: 0;\n  -moz-user-select: -moz-none;\n  -ms-user-select: none;\n  -webkit-user-select: none;\n  user-select: none; }\n  .emojionearea .emojionearea-picker.hidden {\n    display: none; }\n  .emojionearea .emojionearea-picker .emojionearea-wrapper {\n    position: relative;\n    height: 276px;\n    width: 316px; }\n    .emojionearea .emojionearea-picker .emojionearea-wrapper:after {\n      content: \"\";\n      display: block;\n      position: absolute;\n      background-repeat: no-repeat;\n      z-index: 91; }\n  .emojionearea .emojionearea-picker .emojionearea-filters {\n    width: 100%;\n    position: absolute;\n    z-index: 95; }\n  .emojionearea .emojionearea-picker .emojionearea-filters {\n    background: #F5F7F9;\n    padding: 0 0 0 7px;\n    height: 40px; }\n    .emojionearea .emojionearea-picker .emojionearea-filters .emojionearea-filter {\n      display: block;\n      float: left;\n      height: 40px;\n      width: 32px;\n      filter: inherit;\n      padding: 7px 1px 0;\n      cursor: pointer;\n      -webkit-filter: grayscale(1);\n      filter: grayscale(1); }\n      .emojionearea .emojionearea-picker .emojionearea-filters .emojionearea-filter.active {\n        background: #fff; }\n      .emojionearea .emojionearea-picker .emojionearea-filters .emojionearea-filter.active, .emojionearea .emojionearea-picker .emojionearea-filters .emojionearea-filter:hover {\n        -webkit-filter: grayscale(0);\n        filter: grayscale(0); }\n      .emojionearea .emojionearea-picker .emojionearea-filters .emojionearea-filter > i {\n        width: 24px;\n        height: 24px;\n        top: 0; }\n      .emojionearea .emojionearea-picker .emojionearea-filters .emojionearea-filter > img {\n        width: 24px;\n        height: 24px;\n        margin: 0 3px; }\n  .emojionearea .emojionearea-picker .emojionearea-search-panel {\n    height: 30px;\n    position: absolute;\n    z-index: 95;\n    top: 40px;\n    left: 0;\n    right: 0;\n    padding: 5px 0 5px 8px; }\n    .emojionearea .emojionearea-picker .emojionearea-search-panel .emojionearea-tones {\n      float: right;\n      margin-right: 10px;\n      margin-top: -1px; }\n  .emojionearea .emojionearea-picker .emojionearea-tones-panel .emojionearea-tones {\n    position: absolute;\n    top: 4px;\n    left: 171px; }\n  .emojionearea .emojionearea-picker .emojionearea-search {\n    float: left;\n    padding: 0;\n    height: 20px;\n    width: 160px; }\n    .emojionearea .emojionearea-picker .emojionearea-search > input {\n      outline: none;\n      width: 160px;\n      min-width: 160px;\n      height: 20px; }\n  .emojionearea .emojionearea-picker .emojionearea-tones {\n    padding: 0;\n    width: 120px;\n    height: 20px; }\n    .emojionearea .emojionearea-picker .emojionearea-tones > .btn-tone {\n      display: inline-block;\n      padding: 0;\n      border: 0;\n      vertical-align: middle;\n      outline: none;\n      background: transparent;\n      cursor: pointer;\n      position: relative; }\n      .emojionearea .emojionearea-picker .emojionearea-tones > .btn-tone.btn-tone-0, .emojionearea .emojionearea-picker .emojionearea-tones > .btn-tone.btn-tone-0:after {\n        background-color: #ffcf3e; }\n      .emojionearea .emojionearea-picker .emojionearea-tones > .btn-tone.btn-tone-1, .emojionearea .emojionearea-picker .emojionearea-tones > .btn-tone.btn-tone-1:after {\n        background-color: #fae3c5; }\n      .emojionearea .emojionearea-picker .emojionearea-tones > .btn-tone.btn-tone-2, .emojionearea .emojionearea-picker .emojionearea-tones > .btn-tone.btn-tone-2:after {\n        background-color: #e2cfa5; }\n      .emojionearea .emojionearea-picker .emojionearea-tones > .btn-tone.btn-tone-3, .emojionearea .emojionearea-picker .emojionearea-tones > .btn-tone.btn-tone-3:after {\n        background-color: #daa478; }\n      .emojionearea .emojionearea-picker .emojionearea-tones > .btn-tone.btn-tone-4, .emojionearea .emojionearea-picker .emojionearea-tones > .btn-tone.btn-tone-4:after {\n        background-color: #a78058; }\n      .emojionearea .emojionearea-picker .emojionearea-tones > .btn-tone.btn-tone-5, .emojionearea .emojionearea-picker .emojionearea-tones > .btn-tone.btn-tone-5:after {\n        background-color: #5e4d43; }\n    .emojionearea .emojionearea-picker .emojionearea-tones.emojionearea-tones-bullet > .btn-tone, .emojionearea .emojionearea-picker .emojionearea-tones.emojionearea-tones-square > .btn-tone {\n      width: 20px;\n      height: 20px;\n      margin: 0;\n      background-color: transparent; }\n      .emojionearea .emojionearea-picker .emojionearea-tones.emojionearea-tones-bullet > .btn-tone:after, .emojionearea .emojionearea-picker .emojionearea-tones.emojionearea-tones-square > .btn-tone:after {\n        content: \"\";\n        position: absolute;\n        display: block;\n        top: 4px;\n        left: 4px;\n        width: 12px;\n        height: 12px; }\n      .emojionearea .emojionearea-picker .emojionearea-tones.emojionearea-tones-bullet > .btn-tone.active:after, .emojionearea .emojionearea-picker .emojionearea-tones.emojionearea-tones-square > .btn-tone.active:after {\n        top: 0;\n        left: 0;\n        width: 20px;\n        height: 20px; }\n    .emojionearea .emojionearea-picker .emojionearea-tones.emojionearea-tones-radio > .btn-tone, .emojionearea .emojionearea-picker .emojionearea-tones.emojionearea-tones-checkbox > .btn-tone {\n      width: 16px;\n      height: 16px;\n      margin: 0px 2px; }\n      .emojionearea .emojionearea-picker .emojionearea-tones.emojionearea-tones-radio > .btn-tone.active:after, .emojionearea .emojionearea-picker .emojionearea-tones.emojionearea-tones-checkbox > .btn-tone.active:after {\n        content: \"\";\n        position: absolute;\n        display: block;\n        background-color: transparent;\n        border: 2px solid #fff;\n        width: 8px;\n        height: 8px;\n        top: 2px;\n        left: 2px;\n        box-sizing: initial; }\n    .emojionearea .emojionearea-picker .emojionearea-tones.emojionearea-tones-bullet > .btn-tone, .emojionearea .emojionearea-picker .emojionearea-tones.emojionearea-tones-bullet > .btn-tone:after, .emojionearea .emojionearea-picker .emojionearea-tones.emojionearea-tones-radio > .btn-tone, .emojionearea .emojionearea-picker .emojionearea-tones.emojionearea-tones-radio > .btn-tone:after {\n      -moz-border-radius: 100%;\n      -webkit-border-radius: 100%;\n      border-radius: 100%; }\n    .emojionearea .emojionearea-picker .emojionearea-tones.emojionearea-tones-square > .btn-tone, .emojionearea .emojionearea-picker .emojionearea-tones.emojionearea-tones-square > .btn-tone:after, .emojionearea .emojionearea-picker .emojionearea-tones.emojionearea-tones-checkbox > .btn-tone, .emojionearea .emojionearea-picker .emojionearea-tones.emojionearea-tones-checkbox > .btn-tone:after {\n      -moz-border-radius: 1px;\n      -webkit-border-radius: 1px;\n      border-radius: 1px; }\n  .emojionearea .emojionearea-picker .emojionearea-scroll-area {\n    height: 236px; }\n  .emojionearea .emojionearea-picker .emojionearea-search-panel + .emojionearea-scroll-area {\n    height: 206px; }\n  .emojionearea .emojionearea-picker .emojionearea-scroll-area {\n    overflow: auto;\n    overflow-x: hidden;\n    width: 100%;\n    position: absolute;\n    padding: 0 0 5px; }\n    .emojionearea .emojionearea-picker .emojionearea-scroll-area .emojionearea-emojis-list {\n      z-index: 1; }\n    .emojionearea .emojionearea-picker .emojionearea-scroll-area .emojionearea-category-title {\n      display: block;\n      font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;\n      font-size: 13px;\n      font-weight: normal;\n      color: #b2b2b2;\n      background: #FFFFFF;\n      line-height: 20px;\n      margin: 0;\n      padding: 7px 0 5px 6px; }\n      .emojionearea .emojionearea-picker .emojionearea-scroll-area .emojionearea-category-title:after, .emojionearea .emojionearea-picker .emojionearea-scroll-area .emojionearea-category-title:before {\n        content: \" \";\n        display: block;\n        clear: both; }\n    .emojionearea .emojionearea-picker .emojionearea-scroll-area .emojionearea-category-block {\n      padding: 0 0 0 7px; }\n      .emojionearea .emojionearea-picker .emojionearea-scroll-area .emojionearea-category-block > .emojionearea-category {\n        padding: 0 !important; }\n        .emojionearea .emojionearea-picker .emojionearea-scroll-area .emojionearea-category-block > .emojionearea-category:after, .emojionearea .emojionearea-picker .emojionearea-scroll-area .emojionearea-category-block > .emojionearea-category:before {\n          content: \" \";\n          display: block;\n          clear: both; }\n      .emojionearea .emojionearea-picker .emojionearea-scroll-area .emojionearea-category-block:after, .emojionearea .emojionearea-picker .emojionearea-scroll-area .emojionearea-category-block:before {\n        content: \" \";\n        display: block;\n        clear: both; }\n    .emojionearea .emojionearea-picker .emojionearea-scroll-area [class*=emojione-] {\n      -moz-box-sizing: content-box;\n      -webkit-box-sizing: content-box;\n      box-sizing: content-box;\n      margin: 0;\n      width: 24px;\n      height: 24px;\n      top: 0; }\n    .emojionearea .emojionearea-picker .emojionearea-scroll-area .emojibtn {\n      -moz-box-sizing: content-box;\n      -webkit-box-sizing: content-box;\n      box-sizing: content-box;\n      width: 24px;\n      height: 24px;\n      float: left;\n      display: block;\n      margin: 1px;\n      padding: 3px; }\n      .emojionearea .emojionearea-picker .emojionearea-scroll-area .emojibtn:hover {\n        -moz-border-radius: 4px;\n        -webkit-border-radius: 4px;\n        border-radius: 4px;\n        background-color: #e4e4e4;\n        cursor: pointer; }\n      .emojionearea .emojionearea-picker .emojionearea-scroll-area .emojibtn i, .emojionearea .emojionearea-picker .emojionearea-scroll-area .emojibtn img {\n        float: left;\n        display: block;\n        width: 24px;\n        height: 24px; }\n      .emojionearea .emojionearea-picker .emojionearea-scroll-area .emojibtn img.lazy-emoji {\n        filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=0);\n        opacity: 0; }\n  .emojionearea .emojionearea-picker.emojionearea-filters-position-top .emojionearea-filters {\n    top: 0;\n    -moz-border-radius-topleft: 5px;\n    -webkit-border-top-left-radius: 5px;\n    border-top-left-radius: 5px;\n    -moz-border-radius-topright: 5px;\n    -webkit-border-top-right-radius: 5px;\n    border-top-right-radius: 5px; }\n  .emojionearea .emojionearea-picker.emojionearea-filters-position-top.emojionearea-search-position-top .emojionearea-scroll-area {\n    bottom: 0; }\n  .emojionearea .emojionearea-picker.emojionearea-filters-position-top.emojionearea-search-position-bottom .emojionearea-scroll-area {\n    top: 40px; }\n  .emojionearea .emojionearea-picker.emojionearea-filters-position-top.emojionearea-search-position-bottom .emojionearea-search-panel {\n    top: initial;\n    bottom: 0; }\n  .emojionearea .emojionearea-picker.emojionearea-filters-position-bottom .emojionearea-filters {\n    bottom: 0;\n    -moz-border-radius-bottomleft: 5px;\n    -webkit-border-bottom-left-radius: 5px;\n    border-bottom-left-radius: 5px;\n    -moz-border-radius-bottomright: 5px;\n    -webkit-border-bottom-right-radius: 5px;\n    border-bottom-right-radius: 5px; }\n  .emojionearea .emojionearea-picker.emojionearea-filters-position-bottom.emojionearea-search-position-bottom .emojionearea-scroll-area {\n    top: 0; }\n  .emojionearea .emojionearea-picker.emojionearea-filters-position-bottom.emojionearea-search-position-bottom .emojionearea-search-panel {\n    top: initial;\n    bottom: 40px; }\n  .emojionearea .emojionearea-picker.emojionearea-filters-position-bottom.emojionearea-search-position-top .emojionearea-scroll-area {\n    top: initial;\n    bottom: 40px; }\n  .emojionearea .emojionearea-picker.emojionearea-filters-position-bottom.emojionearea-search-position-top .emojionearea-search-panel {\n    top: 0; }\n  .emojionearea .emojionearea-picker.emojionearea-picker-position-top {\n    margin-top: -286px;\n    right: -14px; }\n    .emojionearea .emojionearea-picker.emojionearea-picker-position-top .emojionearea-wrapper:after {\n      width: 19px;\n      height: 10px;\n      background-position: -2px -49px;\n      bottom: -10px;\n      right: 20px; }\n    .emojionearea .emojionearea-picker.emojionearea-picker-position-top.emojionearea-filters-position-bottom .emojionearea-wrapper:after {\n      background-position: -2px -80px; }\n  .emojionearea .emojionearea-picker.emojionearea-picker-position-left, .emojionearea .emojionearea-picker.emojionearea-picker-position-right {\n    margin-right: -326px;\n    top: -8px; }\n    .emojionearea .emojionearea-picker.emojionearea-picker-position-left .emojionearea-wrapper:after, .emojionearea .emojionearea-picker.emojionearea-picker-position-right .emojionearea-wrapper:after {\n      width: 10px;\n      height: 19px;\n      background-position: 0px -60px;\n      top: 13px;\n      left: -10px; }\n    .emojionearea .emojionearea-picker.emojionearea-picker-position-left.emojionearea-filters-position-bottom .emojionearea-wrapper:after, .emojionearea .emojionearea-picker.emojionearea-picker-position-right.emojionearea-filters-position-bottom .emojionearea-wrapper:after {\n      background-position: right -60px; }\n  .emojionearea .emojionearea-picker.emojionearea-picker-position-bottom {\n    margin-top: 10px;\n    right: -14px;\n    top: 47px; }\n    .emojionearea .emojionearea-picker.emojionearea-picker-position-bottom .emojionearea-wrapper:after {\n      width: 19px;\n      height: 10px;\n      background-position: -2px -100px;\n      top: -10px;\n      right: 20px; }\n    .emojionearea .emojionearea-picker.emojionearea-picker-position-bottom.emojionearea-filters-position-bottom .emojionearea-wrapper:after {\n      background-position: -2px -90px; }\n.emojionearea .emojionearea-button.active + .emojionearea-picker {\n  filter: progid:DXImageTransform.Microsoft.Alpha(enabled=false);\n  opacity: 1; }\n.emojionearea .emojionearea-button.active + .emojionearea-picker-position-top {\n  margin-top: -269px; }\n.emojionearea .emojionearea-button.active + .emojionearea-picker-position-left,\n.emojionearea .emojionearea-button.active + .emojionearea-picker-position-right {\n  margin-right: -309px; }\n.emojionearea .emojionearea-button.active + .emojionearea-picker-position-bottom {\n  margin-top: -7px; }\n.emojionearea.emojionearea-standalone {\n  display: inline-block;\n  width: auto;\n  box-shadow: none; }\n  .emojionearea.emojionearea-standalone .emojionearea-editor {\n    min-height: 33px;\n    position: relative;\n    padding: 6px 42px 6px 6px; }\n    .emojionearea.emojionearea-standalone .emojionearea-editor::before {\n      content: \"\";\n      position: absolute;\n      top: 4px;\n      left: 50%;\n      bottom: 4px;\n      border-left: 1px solid #e6e6e6; }\n    .emojionearea.emojionearea-standalone .emojionearea-editor.has-placeholder {\n      background-repeat: no-repeat;\n      background-position: 20px 4px; }\n      .emojionearea.emojionearea-standalone .emojionearea-editor.has-placeholder .emojioneemoji {\n        opacity: 0.4; }\n  .emojionearea.emojionearea-standalone .emojionearea-button {\n    top: 0;\n    right: 0;\n    bottom: 0;\n    left: 0;\n    width: auto;\n    height: auto; }\n    .emojionearea.emojionearea-standalone .emojionearea-button > div {\n      right: 6px;\n      top: 5px; }\n  .emojionearea.emojionearea-standalone .emojionearea-picker.emojionearea-picker-position-bottom .emojionearea-wrapper:after, .emojionearea.emojionearea-standalone .emojionearea-picker.emojionearea-picker-position-top .emojionearea-wrapper:after {\n    right: 23px; }\n  .emojionearea.emojionearea-standalone .emojionearea-picker.emojionearea-picker-position-left .emojionearea-wrapper:after, .emojionearea.emojionearea-standalone .emojionearea-picker.emojionearea-picker-position-right .emojionearea-wrapper:after {\n    top: 15px; }\n\n.emojionearea .emojionearea-button > div, .emojionearea .emojionearea-picker .emojionearea-wrapper:after {\n  background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABcAAABuCAYAAADMB4ipAAAHfElEQVRo3u1XS1NT2Rb+9uOcQF4YlAJzLymFUHaLrdxKULvEUNpdTnRqD532f+AHMLMc94gqR1Zbt8rBnUh3YXipPGKwRDoWgXvrYiFUlEdIkPPYZ/dAkwox5yQCVt/bzRrBPnt9e+211/etFeDQDu3ArL+/X37OeqmRWoH7+vpItfWawStF1tfXR+zW9xW5ne0p8loOcAKuCdwpRft60C8a+X5zTvebCqcAvmidf1GGHtqhHdpf1qqKzsrKipyensbi4iKWl5cBAMFgEG1tbYhGo2hpadlbmxseHpaDg4MAgI6ODng8HgBAPp/H/Pw8AODatWvo7e2tvUHrui7v3r2L+fl5XL58GVeuXIHH49m1N5/Py0ePHmF0dBQdHR24desWVFXdtYdXAn/48CHm5+dx8+ZNRKPRigEUDpuenpb3799H4YaOnWh5eVmOj48jFoshGo0STdPkwMCAXF5elqV7BgYGpKZpMhqNklgshrGxMbx580Y6gicSCTDGEIvFAADpdBqpVArJZLK4J5lMIpVKIZ1OAwBisRgYY0gkEs6Rp1IphMNh+Hw+AgCGYQAANE0r7in8Xfjm8/lIOBzGq1evnMHX19fR1NRU/D8UCoFzjnA4XFwLh8PgnCMUChXXmpqakM1mUfVBS62xsZHk83lZWi1nz579ZA0AhBDO4A0NDchkMsWSJIRAURRiVy26rktVVUkmk0EgEHAGP3XqFKamppDP56Vpmrhz5w5u374t/X4/OP+w3TRNZLNZ6LoO0zSRz+dlf38/Ll686Jzz8+fPQwiBeDwOt9tNrl+/jkwmU6yaQpVkMhncuHEDbrebxONxCCEQiUScIw8Gg+TBgwdyZGQEyWRSdnV1kVQqJYeGhrC6ugrGGEKhEHp7e3Hy5EmSTCblvXv30NPTg2AwSA6M/vF4HCMjI7b0/yzh8vv9AIBsNrt34aokuQsLC7skt729varkHtqftUFf++FHsrq0QN3eBvp68Tfvf9Mv12oFCYU7G//e9nVuO7dpNbe2W4M//yQr0p8yRvyBo1Zr++lwLcCt7afD/sBRizJGavrB1dDYYh47Htrq+Kb7jBNwxzfdZ44dD201NLaYVUkU7ozQpuAJBkARwnRZpunN5zaa5hJjiXLH05GeiMd7JEM5zzHGNQBGZvk/Iv0yYVWMvK0zKk1Dl6ahW5RQobjqdjy+wEZn9PKF0n2d0csXPL7AhuKq26GECtPQLdPQZVtn1LlB69p7yRVVSEiDEGJwRd12e4+8PR3piRQidnuPvOWKuk0IMSSkwRVV6Np7WVVbSqvGsgSnlKkAFNPQXdrOtuKqcxtcUTUAhmUJnVJmlleJo3CVHmAaOlPUOmYJkxFKibQsSRkXhr4juKIKO2BHVSwcoLrqCVdUYho6K3YYRRWmoUtdey/tgKtK7rUffiQAsLq08MnbNLe2WwBgB/zHzueFyD8nwlIfbvdx8eU0WV1aKD1cVAMs9+F2j9gUPEEKemEJIe3AnXy4XfkBoNKSZHNthWfX31EA69VKttyHVyIOY1wRwmS6tqNsrr31vXo5k/bUu4gT2cp9lhbm0rzCJpeUUrE0vS63+c7/6uXMbDUWl/ssLczNFrVFddUT09AZpUy1LKvO0DVfPrfR9HxqfNbuEe185l9MFX3o6tIC5YpKFLWOfdQQ93Zu49j0+FDCDtjOp1yaOQCYhs4Y40wI05XfWj8yPT40Ua2ey33mEmMTtp2IUEq0nW3FKeJPGPjRp1Iz2QUuLUu66txG9NLVSK3gBZ+C1lcE54oqKOOCK6rm8QU2unu+u1ANuNynvFsBAG1ubbdMQ5eGviMAFDuP0w3sfMpvQEtb24fOQncU1bXl8R7JnOu+ZNv97XxKJwY6+PNPsrm13drObVqUMlMIU5OWpVHOc96Go5lTnV2fzC/VfAozD7HTCa6olBBa1Imlhbmq2lLuQ5xaW6nCPfnln0Yt7bDUhzhps8cfKH5//uTXmvS81OeLdqI/ZoROzSZrHqG/OvOPzxuhK5VgJTvV2bW3EdqJRABwrvvS/kfoSkoZvXT1YEbociHr7vnuYEfogpBFL109HKH/h0fomnXg3Lff79r7/MmvVbWG7gX4QObzc99+Tz7mHKah05KcW6ahQ9feS6cbMCdgt7eBWJagjCuUAC5tZzuouuo0Spm0hElc9R4cbf4bVl8v1p6WUmCuqEwIs34ruxaeeTy4uJVd67As08UVlVmWoG5vA7FLG3WMmHEupVTyW+vh2cn4DADMTsaTuc21LiGEhzHOnQ6gNtMrJSBMCKHkNt999WLi0S7hejEZH81n174WpukiIMw0dKq66p3Bw50RwhUVXFGJKUy28Xal48VkfKrSlWenhsc23q2cEB9SR7iiItwZIbbgHn8AlDFCCMW7laXjqZnHjkNpaubJzNuVpWZCKChjxOMPVH/QlaW0f/G3ZLqWWl6ce/bvlddp7yFD/w8Z+njoX1+GoZMjgzMAMDkyeLAMnRh+uKveJ0YGD4ahEyODFRk6OfrL/hj67GnckaHPng7vjaGzyYmaGDr77KktQ38H8tqx8Wja+WIAAAAASUVORK5CYII=') !important; }\n\n.emojionearea.emojionearea-standalone .emojionearea-editor.has-placeholder {\n  background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMAQMAAABsu86kAAAABlBMVEUAAAC/v79T5hyIAAAAAXRSTlMAQObYZgAAABNJREFUCNdjYGNgQEb/P4AQqiAASiUEG6Vit44AAAAASUVORK5CYII=') !important; }\n", ""]);
 
 // exports
 
 
 /***/ }),
-/* 35 */
+/* 36 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global) {/*!
- * EmojioneArea v3.2.6
+ * EmojioneArea v3.4.0
  * https://github.com/mervick/emojionearea
  * Copyright Andrey Izman and other contributors
  * Released under the MIT license
- * Date: 2017-11-11T03:58Z
+ * Date: 2018-02-09T22:42Z
  */
-window.$ = __webpack_require__( 36 )
+window.$ = __webpack_require__( 37 )
 window = ( typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {} );
 document = window.document || {};
 
@@ -879,7 +944,7 @@ document = window.document || {};
     if ( true ) {
 
         // CommonJS
-        factory( window.$ );
+        factory( $ );
     } else if ( typeof define === "function" && define.amd ) {
 
         // AMD
@@ -898,12 +963,12 @@ document = window.document || {};
     var emojione = window.emojione;
     var readyCallbacks = [];
     function emojioneReady (fn) {
-		if (emojione) {
-			fn();
-		} else {
-			readyCallbacks.push(fn);
-		}
-	};
+        if (emojione) {
+            fn();
+        } else {
+            readyCallbacks.push(fn);
+        }
+    };
     var blankImg = 'data:image/gif;base64,R0lGODlhAQABAJH/AP///wAAAMDAwAAAACH5BAEAAAIALAAAAAABAAEAAAICVAEAOw==';
     var slice = [].slice;
     var css_class = "emojionearea";
@@ -925,13 +990,13 @@ document = window.document || {};
         return result;
     }
     function attach(self, element, events, target) {
-		target = target || function (event, callerEvent) { return $(callerEvent.currentTarget) };
-		$.each(events, function(event, link) {
-			event = $.isArray(events) ? link : event;
-			(possibleEvents[self.id][link] || (possibleEvents[self.id][link] = []))
-				.push([element, event, target]);
-		});
-	}
+        target = target || function (event, callerEvent) { return $(callerEvent.currentTarget) };
+        $.each(events, function(event, link) {
+            event = $.isArray(events) ? link : event;
+            (possibleEvents[self.id][link] || (possibleEvents[self.id][link] = []))
+                .push([element, event, target]);
+        });
+    }
     function getTemplate(template, unicode, shortname) {
         var imageType = emojione.imageType, imagePath;
         if (imageType=='svg'){
@@ -973,35 +1038,37 @@ document = window.document || {};
         });
     };
     function pasteHtmlAtCaret(html) {
-		var sel, range;
-		if (window.getSelection) {
-			sel = window.getSelection();
-			if (sel.getRangeAt && sel.rangeCount) {
-				range = sel.getRangeAt(0);
-				range.deleteContents();
-				var el = document.createElement("div");
-				el.innerHTML = html;
-				var frag = document.createDocumentFragment(), node, lastNode;
-				while ( (node = el.firstChild) ) {
-					lastNode = frag.appendChild(node);
-				}
-				range.insertNode(frag);
-				if (lastNode) {
-					range = range.cloneRange();
-					range.setStartAfter(lastNode);
-					range.collapse(true);
-					sel.removeAllRanges();
-					sel.addRange(range);
-				}
-			}
-		} else if (document.selection && document.selection.type != "Control") {
-			document.selection.createRange().pasteHTML(html);
-		}
-	}
-    var emojioneVersion = window.emojioneVersion || '2.2.7';
+        var sel, range;
+        if (window.getSelection) {
+            sel = window.getSelection();
+            if (sel.getRangeAt && sel.rangeCount) {
+                range = sel.getRangeAt(0);
+                range.deleteContents();
+                var el = document.createElement("div");
+                el.innerHTML = html;
+                var frag = document.createDocumentFragment(), node, lastNode;
+                while ( (node = el.firstChild) ) {
+                    lastNode = frag.appendChild(node);
+                }
+                range.insertNode(frag);
+                if (lastNode) {
+                    range = range.cloneRange();
+                    range.setStartAfter(lastNode);
+                    range.collapse(true);
+                    sel.removeAllRanges();
+                    sel.addRange(range);
+                }
+            }
+        } else if (document.selection && document.selection.type != "Control") {
+            document.selection.createRange().pasteHTML(html);
+        }
+    }
+    function getEmojioneVersion() {
+        return window.emojioneVersion || '3.1.2';
+    };
     function isObject(variable) {
-		return typeof variable === 'object';
-	};
+        return typeof variable === 'object';
+    };
     function detectVersion(emojione) {
         var version;
         if (emojione.cacheBustParam) {
@@ -1040,7 +1107,7 @@ document = window.document || {};
             default: return 6;
         }
     };
-    var getDefaultOptions = function () {
+    function getDefaultOptions () {
         if ($.fn.emojioneArea && $.fn.emojioneArea.defaults) {
             return $.fn.emojioneArea.defaults;
         }
@@ -1063,6 +1130,7 @@ document = window.document || {};
             sprite            : true,
             pickerPosition    : "top", // top | bottom | right
             filtersPosition   : "top", // top | bottom
+            searchPosition    : "top", // top | bottom
             hidePickerOnBlur  : true,
             buttonTitle       : "Use the TAB key to insert emoji faster",
             tones             : true,
@@ -1082,7 +1150,7 @@ document = window.document || {};
             }
         };
 
-        var supportMode = !emojione ? getSupportMode(emojioneVersion) : getSupportMode(detectVersion(emojione));
+        var supportMode = !emojione ? getSupportMode(getEmojioneVersion()) : getSupportMode(detectVersion(emojione));
 
         if (supportMode > 4) {
             defaultOptions.filters = {
@@ -1488,22 +1556,22 @@ document = window.document || {};
         return defaultOptions;
     };
     function getOptions(options) {
-		var default_options = getDefaultOptions();
-		if (options && options['filters']) {
-			var filters = default_options.filters;
-			$.each(options['filters'], function(filter, data) {
-				if (!isObject(data) || $.isEmptyObject(data)) {
-					delete filters[filter];
-					return;
-				}
-				$.each(data, function(key, val) {
-					filters[filter][key] = val;
-				});
-			});
-			options['filters'] = filters;
-		}
-		return $.extend({}, default_options, options);
-	};
+        var default_options = getDefaultOptions();
+        if (options && options['filters']) {
+            var filters = default_options.filters;
+            $.each(options['filters'], function(filter, data) {
+                if (!isObject(data) || $.isEmptyObject(data)) {
+                    delete filters[filter];
+                    return;
+                }
+                $.each(data, function(key, val) {
+                    filters[filter][key] = val;
+                });
+            });
+            options['filters'] = filters;
+        }
+        return $.extend({}, default_options, options);
+    };
 
     var saveSelection, restoreSelection;
     if (window.getSelection && document.createRange) {
@@ -1540,33 +1608,33 @@ document = window.document || {};
 
     var uniRegexp;
     function unicodeTo(str, template) {
-		return str.replace(uniRegexp, function(unicodeChar) {
-			var map = emojione[(emojioneSupportMode === 0 ? 'jsecapeMap' : 'jsEscapeMap')];
-			if (typeof unicodeChar !== 'undefined' && unicodeChar in map) {
-				return getTemplate(template, map[unicodeChar]);
-			}
-			return unicodeChar;
-		});
-	}
+        return str.replace(uniRegexp, function(unicodeChar) {
+            var map = emojione[(emojioneSupportMode === 0 ? 'jsecapeMap' : 'jsEscapeMap')];
+            if (typeof unicodeChar !== 'undefined' && unicodeChar in map) {
+                return getTemplate(template, map[unicodeChar]);
+            }
+            return unicodeChar;
+        });
+    }
     function htmlFromText(str, self) {
-		str = str
-			.replace(/&/g, '&amp;')
-			.replace(/</g, '&lt;')
-			.replace(/>/g, '&gt;')
-			.replace(/"/g, '&quot;')
-			.replace(/'/g, '&#x27;')
-			.replace(/`/g, '&#x60;')
-			.replace(/(?:\r\n|\r|\n)/g, '\n')
-			.replace(/(\n+)/g, '<div>$1</div>')
-			.replace(/\n/g, '<br/>')
-			.replace(/<br\/><\/div>/g, '</div>');
-		if (self.shortnames) {
-			str = emojione.shortnameToUnicode(str);
-		}
-		return unicodeTo(str, self.emojiTemplate)
-			.replace(/\t/g, '&nbsp;&nbsp;&nbsp;&nbsp;')
-			.replace(/  /g, '&nbsp;&nbsp;');
-	}
+        str = str
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#x27;')
+            .replace(/`/g, '&#x60;')
+            .replace(/(?:\r\n|\r|\n)/g, '\n')
+            .replace(/(\n+)/g, '<div>$1</div>')
+            .replace(/\n/g, '<br/>')
+            .replace(/<br\/><\/div>/g, '</div>');
+        if (self.shortnames) {
+            str = emojione.shortnameToUnicode(str);
+        }
+        return unicodeTo(str, self.emojiTemplate)
+            .replace(/\t/g, '&nbsp;&nbsp;&nbsp;&nbsp;')
+            .replace(/  /g, '&nbsp;&nbsp;');
+    }
     function textFromHtml(str, self) {
         str = str
             .replace(/&#10;/g, '\n')
@@ -1608,48 +1676,54 @@ document = window.document || {};
         return str;
     }
     function calcButtonPosition() {
-		var self = this,
-			offset = self.editor[0].offsetWidth - self.editor[0].clientWidth,
-			current = parseInt(self.button.css('marginRight'));
-		if (current !== offset) {
-			self.button.css({marginRight: offset});
-			if (self.floatingPicker) {
-				self.picker.css({right: parseInt(self.picker.css('right')) - current + offset});
-			}
-		}
-	}
+        var self = this,
+            offset = self.editor[0].offsetWidth - self.editor[0].clientWidth,
+            current = parseInt(self.button.css('marginRight'));
+        if (current !== offset) {
+            self.button.css({marginRight: offset});
+            if (self.floatingPicker) {
+                self.picker.css({right: parseInt(self.picker.css('right')) - current + offset});
+            }
+        }
+    }
     function lazyLoading() {
-		var self = this;
-		if (!self.sprite && self.lasyEmoji[0]) {
-			var pickerTop = self.picker.offset().top,
-				pickerBottom = pickerTop + self.picker.height() + 20;
-			self.lasyEmoji.each(function() {
-				var e = $(this), top = e.offset().top;
-				if (top > pickerTop && top < pickerBottom) {
-					e.attr("src", e.data("src")).removeClass("lazy-emoji");
-				}
-			})
-			self.lasyEmoji = self.lasyEmoji.filter(".lazy-emoji");
-		}
-	}
+        var self = this;
+        if (!self.sprite && self.lasyEmoji[0] && self.lasyEmoji.eq(0).is(".lazy-emoji")) {
+            var pickerTop = self.picker.offset().top,
+                pickerBottom = pickerTop + self.picker.height() + 20;
+
+            self.lasyEmoji.each(function() {
+                var e = $(this), top = e.offset().top;
+
+                if (top > pickerTop && top < pickerBottom) {
+                    e.attr("src", e.data("src")).removeClass("lazy-emoji");
+                }
+
+                if (top > pickerBottom) {
+                    return false;
+                }
+            });
+            self.lasyEmoji = self.lasyEmoji.filter(".lazy-emoji");
+        }
+    };
     function selector (prefix, skip_dot) {
-		return (skip_dot ? '' : '.') + css_class + (prefix ? ("-" + prefix) : "");
-	}
+        return (skip_dot ? '' : '.') + css_class + (prefix ? ("-" + prefix) : "");
+    }
     function div(prefix) {
-		var parent = $('<div/>', isObject(prefix) ? prefix : {"class" : selector(prefix, true)});
-		$.each(slice.call(arguments).slice(1), function(i, child) {
-			if ($.isFunction(child)) {
-				child = child.call(parent);
-			}
-			if (child) {
-				$(child).appendTo(parent);
-			}
-		});
-		return parent;
-	}
+        var parent = $('<div/>', isObject(prefix) ? prefix : {"class" : selector(prefix, true)});
+        $.each(slice.call(arguments).slice(1), function(i, child) {
+            if ($.isFunction(child)) {
+                child = child.call(parent);
+            }
+            if (child) {
+                $(child).appendTo(parent);
+            }
+        });
+        return parent;
+    }
     function getRecent () {
-		return localStorage.getItem("recent_emojis") || "";
-	}
+        return localStorage.getItem("recent_emojis") || "";
+    }
     function updateRecent(self, show) {
         var emojis = getRecent();
         if (!self.recent || self.recent !== emojis || show) {
@@ -1696,37 +1770,37 @@ document = window.document || {};
         }
     };
     function setRecent(self, emoji) {
-		var recent = getRecent();
-		var emojis = recent.split("|");
+        var recent = getRecent();
+        var emojis = recent.split("|");
 
-		var index = emojis.indexOf(emoji);
-		if (index !== -1) {
-			emojis.splice(index, 1);
-		}
-		emojis.unshift(emoji);
+        var index = emojis.indexOf(emoji);
+        if (index !== -1) {
+            emojis.splice(index, 1);
+        }
+        emojis.unshift(emoji);
 
-		if (emojis.length > 9) {
-			emojis.pop();
-		}
+        if (emojis.length > 9) {
+            emojis.pop();
+        }
 
-		localStorage.setItem("recent_emojis", emojis.join("|"));
+        localStorage.setItem("recent_emojis", emojis.join("|"));
 
-		updateRecent(self);
-	};
+        updateRecent(self);
+    };
 // see https://github.com/Modernizr/Modernizr/blob/master/feature-detects/storage/localstorage.js
     function supportsLocalStorage () {
-		var test = 'test';
-		try {
-			localStorage.setItem(test, test);
-			localStorage.removeItem(test);
-			return true;
-		} catch(e) {
-			return false;
-		}
-	}
+        var test = 'test';
+        try {
+            localStorage.setItem(test, test);
+            localStorage.removeItem(test);
+            return true;
+        } catch(e) {
+            return false;
+        }
+    }
     function init(self, source, options) {
         //calcElapsedTime('init', function() {
-        options = getOptions(options);
+        self.options = options = getOptions(options);
         self.sprite = options.sprite && emojioneSupportMode < 3;
         self.inline = options.inline === null ? source.is("INPUT") : options.inline;
         self.shortnames = options.shortnames;
@@ -1746,7 +1820,20 @@ document = window.document || {};
         }
 
         var sourceValFunc = source.is("TEXTAREA") || source.is("INPUT") ? "val" : "text",
-            editor, button, picker, tones, filters, filtersBtns, search, emojisList, categories, scrollArea,
+            editor, button, picker, filters, filtersBtns, searchPanel, emojisList, categories, categoryBlocks, scrollArea,
+            tones = div('tones',
+                options.tones ?
+                    function() {
+                        this.addClass(selector('tones-' + options.tonesStyle, true));
+                        for (var i = 0; i <= 5; i++) {
+                            this.append($("<i/>", {
+                                "class": "btn-tone btn-tone-" + i + (!i ? " active" : ""),
+                                "data-skin": i,
+                                role: "button"
+                            }));
+                        }
+                    } : null
+            ),
             app = div({
                 "class" : css_class + ((self.standalone) ? " " + css_class + "-standalone " : " ") + (source.attr("class") || ""),
                 role: "application"
@@ -1763,39 +1850,38 @@ document = window.document || {};
             picker = self.picker = div('picker',
                 div('wrapper',
                     filters = div('filters'),
-                    search = div('search',
-                        options.search ?
-                        function() {
-                            self.search = $("<input/>", {
-                                "placeholder": "SEARCH",
-                                "type": "text",
-                                "class": "search"
-                            });
-                            this.append(self.search);
-                        } : null
-                    ),
-                    tones = div('tones',
-                        function() {
-                            if (options.tones) {
-                                this.addClass(selector('tones-' + options.tonesStyle, true));
-                                for (var i = 0; i <= 5; i++) {
-                                    this.append($("<i/>", {
-                                        "class": "btn-tone btn-tone-" + i + (!i ? " active" : ""),
-                                        "data-skin": i,
-                                        role: "button"
-                                    }));
-                                }
-                            }
-                        }
+                    (options.search ?
+                        searchPanel = div('search-panel',
+                            div('search',
+                                options.search ?
+                                function() {
+                                    self.search = $("<input/>", {
+                                        "placeholder": options.searchPlaceholder || "",
+                                        "type": "text",
+                                        "class": "search"
+                                    });
+                                    this.append(self.search);
+                                } : null
+                            ),
+                            tones
+                        ) : null
                     ),
                     scrollArea = div('scroll-area',
+                        options.tones && !options.search ? div('tones-panel',
+                            tones
+                        ) : null,
                         emojisList = div('emojis-list')
                     )
                 )
             ).addClass(selector('picker-position-' + options.pickerPosition, true))
              .addClass(selector('filters-position-' + options.filtersPosition, true))
+             .addClass(selector('search-position-' + options.searchPosition, true))
              .addClass('hidden')
         );
+
+        if (options.search) {
+            searchPanel.addClass(selector('with-search', true));
+        }
 
         self.searchSel = null;
 
@@ -1805,7 +1891,7 @@ document = window.document || {};
             editor.attr(attr, value);
         });
 
-        div('category').attr({"data-tone": 0}).appendTo(emojisList);
+        var mainBlock = div('category-block').attr({"data-tone": 0}).prependTo(emojisList);
 
         $.each(options.filters, function(filter, params) {
             var skin = 0;
@@ -1825,22 +1911,23 @@ document = window.document || {};
             } else {
                 return;
             }
+
             do {
-                var parentEl;
-                var categoryAttributes = {
-                    name: filter,
-                    "data-tone": skin
-                }
+                var category,
+                    items = params.emoji.replace(/[\s,;]+/g, '|');
 
                 if (skin === 0) {
-                    parentEl = emojisList.children('[data-tone="0"]');
-                    categoryAttributes["data-sub-category"] = true;
+                    category = div('category').attr({
+                        name: filter,
+                        "data-tone": skin
+                    }).appendTo(mainBlock);
                 } else {
-                    parentEl = emojisList;
+                    category = div('category-block').attr({
+                        name: filter,
+                        "data-tone": skin
+                    }).appendTo(emojisList);
                 }
 
-                var category = div('category').attr(categoryAttributes).appendTo(parentEl),
-                    items = params.emoji.replace(/[\s,;]+/g, '|');
                 if (skin > 0) {
                     category.hide();
                     items = items.split('|').join('_tone' + skin + '|') + '_tone' + skin;
@@ -1868,7 +1955,8 @@ document = window.document || {};
 
         filtersBtns = filters.find(selector("filter"));
         filtersBtns.eq(0).addClass("active");
-        categories = emojisList.find(selector("category"));
+        categoryBlocks = emojisList.find(selector("category-block"))
+        categories = emojisList.find(selector("category"))
 
         self.recentFilter = filtersBtns.filter('[data-filter="recent"]');
         self.recentCategory = categories.filter("[name=recent]");
@@ -1914,6 +2002,7 @@ document = window.document || {};
             keyup: "picker.keyup", keydown: "picker.keydown", keypress: "picker.keypress"});
         attach(self, editor, ["mousedown", "mouseup", "click", "keyup", "keydown", "keypress"]);
         attach(self, picker.find(".emojionearea-filter"), {click: "filter.click"});
+        attach(self, source, {change: "source.change"});
 
         if (options.search) {
             attach(self, self.search, {keyup: "search.keypress", focus: "search.focus", blur: "search.blur"});
@@ -1954,6 +2043,7 @@ document = window.document || {};
             var headerOffset = categories.filter('[name="' + filter.data('filter') + '"]').offset().top,
                 scroll = scrollArea.scrollTop(),
                 offsetTop = scrollArea.offset().top;
+
             scrollArea.stop().animate({
                 scrollTop: headerOffset + scroll - offsetTop - 2
             }, 200, 'swing', function () {
@@ -1974,13 +2064,11 @@ document = window.document || {};
             var skin = tone.addClass("active").data("skin");
             if (skin) {
                 scrollArea.addClass("skinnable");
-                categories.filter(":not([data-sub-category])").hide().filter("[data-tone=" + skin + "]").show();
-                if (filtersBtns.eq(0).is('.active[data-filter="recent"]')) {
-                    filtersBtns.eq(0).removeClass("active").next().addClass("active");
-                }
+                categoryBlocks.hide().filter("[data-tone=" + skin + "]").show();
+                filtersBtns.removeClass("active");//.not('[data-filter="recent"]').eq(0).addClass("active");
             } else {
                 scrollArea.removeClass("skinnable");
-                categories.filter(":not([data-sub-category])").hide().filter("[data-tone=0]").show();
+                categoryBlocks.hide().filter("[data-tone=0]").show();
                 filtersBtns.eq(0).click();
             }
             lazyLoading.call(self);
@@ -2089,7 +2177,7 @@ document = window.document || {};
                 }
             } else {
                 if (!app.is(".focused")) {
-                    editor.focus();
+                    editor.trigger("focus");
                 }
                 event.preventDefault();
             }
@@ -2103,6 +2191,11 @@ document = window.document || {};
                 self.editor.html(self.content = '');
             }
             source[sourceValFunc](self.getText());
+        })
+
+        .on("@source.change", function() {
+            self.setText(source[sourceValFunc]());
+            trigger('change');
         })
 
         .on("@focus", function() {
@@ -2120,9 +2213,9 @@ document = window.document || {};
             if (self.content !== content) {
                 self.content = content;
                 trigger(self, 'change', [self.editor]);
-                source.blur().trigger("change");
+                source.trigger("blur").trigger("change");
             } else {
-                source.blur();
+                source.trigger("blur");
             }
 
             if (options.search) {
@@ -2146,9 +2239,11 @@ document = window.document || {};
                     if (self.recentFilter.hasClass("active")) {
                         self.recentFilter.removeClass("active").next().addClass("active");
                     }
+
                     self.recentCategory.hide();
                     self.recentFilter.hide();
-                    categories.filter(':not([data-sub-category])').each(function() {
+
+                    categoryBlocks.each(function() {
                         var matchEmojis = function(category, activeTone) {
                             var $matched = category.find('.emojibtn[data-name*="' + term + '"]');
                             if ($matched.length === 0) {
@@ -2170,14 +2265,13 @@ document = window.document || {};
                             }
                         }
 
-                        var $category = $(this);
-                        matchEmojis($category, activeTone);
-
-                        // If tone 0 category, show/hide matches for tone 0 no matter the active tone
-                        if ($category.data('tone') === 0) {
-                            $category.children(selector("category") + ':not([name="recent"])').each(function() {
+                        var $block = $(this);
+                        if ($block.data('tone') === 0) {
+                            categories.filter(':not([name="recent"])').each(function() {
                                 matchEmojis($(this), 0);
                             })
+                        } else {
+                            matchEmojis($block, activeTone);
                         }
                     });
                     if (!noListenScroll) {
@@ -2187,12 +2281,10 @@ document = window.document || {};
                     }
                 } else {
                     updateRecent(self, true);
-                    categories.filter('[data-tone="' + tones.find("i.active").data("skin") + '"]:not([name="recent"])').show();
-                    $('.emojibtn', categories).show();
+                    categoryBlocks.filter('[data-tone="' + tones.find("i.active").data("skin") + '"]:not([name="recent"])').show();
+                    $('.emojibtn', categoryBlocks).show();
                     filterBtns.show();
-                    if (!hide) {
-                        lazyLoading.call(self);
-                    }
+                    lazyLoading.call(self);
                 }
             })
 
@@ -2323,7 +2415,9 @@ document = window.document || {};
         isLoading: false
     };
     function loadEmojione(options) {
+        var emojioneVersion = getEmojioneVersion()
         options = getOptions(options);
+
         if (!cdn.isLoading) {
             if (!emojione || getSupportMode(detectVersion(emojione)) < 2) {
                 cdn.isLoading = true;
@@ -2395,35 +2489,35 @@ document = window.document || {};
         });
     };
     var EmojioneArea = function(element, options) {
-		var self = this;
-		loadEmojione(options);
-		eventStorage[self.id = ++unique] = {};
-		possibleEvents[self.id] = {};
-		emojioneReady(function() {
-			init(self, element, options);
-		});
-	};
+        var self = this;
+        loadEmojione(options);
+        eventStorage[self.id = ++unique] = {};
+        possibleEvents[self.id] = {};
+        emojioneReady(function() {
+            init(self, element, options);
+        });
+    };
     function bindEvent(self, event) {
-		event = event.replace(/^@/, '');
-		var id = self.id;
-		if (possibleEvents[id][event]) {
-			$.each(possibleEvents[id][event], function(i, ev) {
-				// ev[0] = element
-				// ev[1] = event
-				// ev[2] = target
-				$.each($.isArray(ev[0]) ? ev[0] : [ev[0]], function(i, el) {
-					$(el).on(ev[1], function() {
-						var args = slice.call(arguments),
-							target = $.isFunction(ev[2]) ? ev[2].apply(self, [event].concat(args)) : ev[2];
-						if (target) {
-							trigger(self, event, [target].concat(args));
-						}
-					});
-				});
-			});
-			possibleEvents[id][event] = null;
-		}
-	}
+        event = event.replace(/^@/, '');
+        var id = self.id;
+        if (possibleEvents[id][event]) {
+            $.each(possibleEvents[id][event], function(i, ev) {
+                // ev[0] = element
+                // ev[1] = event
+                // ev[2] = target
+                $.each($.isArray(ev[0]) ? ev[0] : [ev[0]], function(i, el) {
+                    $(el).on(ev[1], function() {
+                        var args = slice.call(arguments),
+                            target = $.isFunction(ev[2]) ? ev[2].apply(self, [event].concat(args)) : ev[2];
+                        if (target) {
+                            trigger(self, event, [target].concat(args));
+                        }
+                    });
+                });
+            });
+            possibleEvents[id][event] = null;
+        }
+    }
 
     EmojioneArea.prototype.on = function(events, handler) {
         if (events && $.isFunction(handler)) {
@@ -2436,32 +2530,32 @@ document = window.document || {};
         return this;
     };
 
-	EmojioneArea.prototype.off = function(events, handler) {
-		if (events) {
-			var id = this.id;
-			$.each(events.toLowerCase().replace(/_/g, '.').split(' '), function(i, event) {
-				if (eventStorage[id][event] && !/^@/.test(event)) {
-					if (handler) {
-						$.each(eventStorage[id][event], function(j, fn) {
-							if (fn === handler) {
-								eventStorage[id][event] = eventStorage[id][event].splice(j, 1);
-							}
-						});
-					} else {
-						eventStorage[id][event] = [];
-					}
-				}
-			});
-		}
-		return this;
-	};
+    EmojioneArea.prototype.off = function(events, handler) {
+        if (events) {
+            var id = this.id;
+            $.each(events.toLowerCase().replace(/_/g, '.').split(' '), function(i, event) {
+                if (eventStorage[id][event] && !/^@/.test(event)) {
+                    if (handler) {
+                        $.each(eventStorage[id][event], function(j, fn) {
+                            if (fn === handler) {
+                                eventStorage[id][event] = eventStorage[id][event].splice(j, 1);
+                            }
+                        });
+                    } else {
+                        eventStorage[id][event] = [];
+                    }
+                }
+            });
+        }
+        return this;
+    };
 
-	EmojioneArea.prototype.trigger = function() {
-		var args = slice.call(arguments),
-			call_args = [this].concat(args.slice(0,1));
-		call_args.push(args.slice(1));
-		return trigger.apply(this, call_args);
-	};
+    EmojioneArea.prototype.trigger = function() {
+        var args = slice.call(arguments),
+            call_args = [this].concat(args.slice(0,1));
+        call_args.push(args.slice(1));
+        return trigger.apply(this, call_args);
+    };
 
     EmojioneArea.prototype.setFocus = function () {
         var self = this;
@@ -2471,46 +2565,46 @@ document = window.document || {};
         return self;
     };
 
-	EmojioneArea.prototype.setText = function (str) {
-		var self = this;
-		emojioneReady(function () {
-			self.editor.html(htmlFromText(str, self));
-			self.content = self.editor.html();
-			trigger(self, 'change', [self.editor]);
-			calcButtonPosition.apply(self);
-		});
-		return self;
-	}
+    EmojioneArea.prototype.setText = function (str) {
+        var self = this;
+        emojioneReady(function () {
+            self.editor.html(htmlFromText(str, self));
+            self.content = self.editor.html();
+            trigger(self, 'change', [self.editor]);
+            calcButtonPosition.apply(self);
+        });
+        return self;
+    }
 
-	EmojioneArea.prototype.getText = function() {
-		return textFromHtml(this.editor.html(), this);
-	}
+    EmojioneArea.prototype.getText = function() {
+        return textFromHtml(this.editor.html(), this);
+    }
 
-	EmojioneArea.prototype.showPicker = function () {
-		var self = this;
-		if (self._sh_timer) {
-			window.clearTimeout(self._sh_timer);
-		}
-		self.picker.removeClass("hidden");
-		self._sh_timer =  window.setTimeout(function() {
-			self.button.addClass("active");
-		}, 50);
-		trigger(self, "picker.show", [self.picker]);
-		return self;
-	}
+    EmojioneArea.prototype.showPicker = function () {
+        var self = this;
+        if (self._sh_timer) {
+            window.clearTimeout(self._sh_timer);
+        }
+        self.picker.removeClass("hidden");
+        self._sh_timer =  window.setTimeout(function() {
+            self.button.addClass("active");
+        }, 50);
+        trigger(self, "picker.show", [self.picker]);
+        return self;
+    }
 
-	EmojioneArea.prototype.hidePicker = function () {
-		var self = this;
-		if (self._sh_timer) {
-			window.clearTimeout(self._sh_timer);
-		}
-		self.button.removeClass("active");
-		self._sh_timer =  window.setTimeout(function() {
-			self.picker.addClass("hidden");
-		}, 500);
-		trigger(self, "picker.hide", [self.picker]);
-		return self;
-	}
+    EmojioneArea.prototype.hidePicker = function () {
+        var self = this;
+        if (self._sh_timer) {
+            window.clearTimeout(self._sh_timer);
+        }
+        self.button.removeClass("active");
+        self._sh_timer =  window.setTimeout(function() {
+            self.picker.addClass("hidden");
+        }, 500);
+        trigger(self, "picker.hide", [self.picker]);
+        return self;
+    }
 
     EmojioneArea.prototype.enable = function () {
         var self = this;
@@ -2552,6 +2646,8 @@ document = window.document || {};
     $.fn.emojioneArea.defaults = getDefaultOptions();
 
     $.fn.emojioneAreaText = function(options) {
+        options = getOptions(options);
+
         var self = this, pseudoSelf = {
             shortnames: (options && typeof options.shortnames !== 'undefined' ? options.shortnames : true),
             emojiTemplate: '<img alt="{alt}" class="emojione' + (options && options.sprite && emojioneSupportMode < 3 ? '-{uni}" src="' + blankImg : 'emoji" src="{img}') + '"/>'
@@ -2572,14 +2668,15 @@ document = window.document || {};
     };
 
 }, window ) );
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5)))
+
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2)))
 
 /***/ }),
-/* 36 */
+/* 37 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
- * jQuery JavaScript Library v3.2.1
+ * jQuery JavaScript Library v3.3.1
  * https://jquery.com/
  *
  * Includes Sizzle.js
@@ -2589,7 +2686,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
  * Released under the MIT license
  * https://jquery.org/license
  *
- * Date: 2017-03-20T18:59Z
+ * Date: 2018-01-20T17:24Z
  */
 ( function( global, factory ) {
 
@@ -2651,16 +2748,57 @@ var ObjectFunctionString = fnToString.call( Object );
 
 var support = {};
 
+var isFunction = function isFunction( obj ) {
+
+      // Support: Chrome <=57, Firefox <=52
+      // In some browsers, typeof returns "function" for HTML <object> elements
+      // (i.e., `typeof document.createElement( "object" ) === "function"`).
+      // We don't want to classify *any* DOM node as a function.
+      return typeof obj === "function" && typeof obj.nodeType !== "number";
+  };
 
 
-	function DOMEval( code, doc ) {
+var isWindow = function isWindow( obj ) {
+		return obj != null && obj === obj.window;
+	};
+
+
+
+
+	var preservedScriptAttributes = {
+		type: true,
+		src: true,
+		noModule: true
+	};
+
+	function DOMEval( code, doc, node ) {
 		doc = doc || document;
 
-		var script = doc.createElement( "script" );
+		var i,
+			script = doc.createElement( "script" );
 
 		script.text = code;
+		if ( node ) {
+			for ( i in preservedScriptAttributes ) {
+				if ( node[ i ] ) {
+					script[ i ] = node[ i ];
+				}
+			}
+		}
 		doc.head.appendChild( script ).parentNode.removeChild( script );
 	}
+
+
+function toType( obj ) {
+	if ( obj == null ) {
+		return obj + "";
+	}
+
+	// Support: Android <=2.3 only (functionish RegExp)
+	return typeof obj === "object" || typeof obj === "function" ?
+		class2type[ toString.call( obj ) ] || "object" :
+		typeof obj;
+}
 /* global Symbol */
 // Defining this global in .eslintrc.json would create a danger of using the global
 // unguarded in another place, it seems safer to define global only for this module
@@ -2668,7 +2806,7 @@ var support = {};
 
 
 var
-	version = "3.2.1",
+	version = "3.3.1",
 
 	// Define a local copy of jQuery
 	jQuery = function( selector, context ) {
@@ -2680,16 +2818,7 @@ var
 
 	// Support: Android <=4.0 only
 	// Make sure we trim BOM and NBSP
-	rtrim = /^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g,
-
-	// Matches dashed string for camelizing
-	rmsPrefix = /^-ms-/,
-	rdashAlpha = /-([a-z])/g,
-
-	// Used by jQuery.camelCase as callback to replace()
-	fcamelCase = function( all, letter ) {
-		return letter.toUpperCase();
-	};
+	rtrim = /^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g;
 
 jQuery.fn = jQuery.prototype = {
 
@@ -2789,7 +2918,7 @@ jQuery.extend = jQuery.fn.extend = function() {
 	}
 
 	// Handle case when target is a string or something (possible in deep copy)
-	if ( typeof target !== "object" && !jQuery.isFunction( target ) ) {
+	if ( typeof target !== "object" && !isFunction( target ) ) {
 		target = {};
 	}
 
@@ -2855,28 +2984,6 @@ jQuery.extend( {
 
 	noop: function() {},
 
-	isFunction: function( obj ) {
-		return jQuery.type( obj ) === "function";
-	},
-
-	isWindow: function( obj ) {
-		return obj != null && obj === obj.window;
-	},
-
-	isNumeric: function( obj ) {
-
-		// As of jQuery 3.0, isNumeric is limited to
-		// strings and numbers (primitives or objects)
-		// that can be coerced to finite numbers (gh-2662)
-		var type = jQuery.type( obj );
-		return ( type === "number" || type === "string" ) &&
-
-			// parseFloat NaNs numeric-cast false positives ("")
-			// ...but misinterprets leading-number strings, particularly hex literals ("0x...")
-			// subtraction forces infinities to NaN
-			!isNaN( obj - parseFloat( obj ) );
-	},
-
 	isPlainObject: function( obj ) {
 		var proto, Ctor;
 
@@ -2910,27 +3017,9 @@ jQuery.extend( {
 		return true;
 	},
 
-	type: function( obj ) {
-		if ( obj == null ) {
-			return obj + "";
-		}
-
-		// Support: Android <=2.3 only (functionish RegExp)
-		return typeof obj === "object" || typeof obj === "function" ?
-			class2type[ toString.call( obj ) ] || "object" :
-			typeof obj;
-	},
-
 	// Evaluates a script in a global context
 	globalEval: function( code ) {
 		DOMEval( code );
-	},
-
-	// Convert dashed to camelCase; used by the css and data modules
-	// Support: IE <=9 - 11, Edge 12 - 13
-	// Microsoft forgot to hump their vendor prefix (#9572)
-	camelCase: function( string ) {
-		return string.replace( rmsPrefix, "ms-" ).replace( rdashAlpha, fcamelCase );
 	},
 
 	each: function( obj, callback ) {
@@ -3053,37 +3142,6 @@ jQuery.extend( {
 	// A global GUID counter for objects
 	guid: 1,
 
-	// Bind a function to a context, optionally partially applying any
-	// arguments.
-	proxy: function( fn, context ) {
-		var tmp, args, proxy;
-
-		if ( typeof context === "string" ) {
-			tmp = fn[ context ];
-			context = fn;
-			fn = tmp;
-		}
-
-		// Quick check to determine if target is callable, in the spec
-		// this throws a TypeError, but we will just return undefined.
-		if ( !jQuery.isFunction( fn ) ) {
-			return undefined;
-		}
-
-		// Simulated bind
-		args = slice.call( arguments, 2 );
-		proxy = function() {
-			return fn.apply( context || this, args.concat( slice.call( arguments ) ) );
-		};
-
-		// Set the guid of unique handler to the same of original handler, so it can be removed
-		proxy.guid = fn.guid = fn.guid || jQuery.guid++;
-
-		return proxy;
-	},
-
-	now: Date.now,
-
 	// jQuery.support is not used in Core but other projects attach their
 	// properties to it so it needs to exist.
 	support: support
@@ -3106,9 +3164,9 @@ function isArrayLike( obj ) {
 	// hasOwn isn't used here due to false negatives
 	// regarding Nodelist length in IE
 	var length = !!obj && "length" in obj && obj.length,
-		type = jQuery.type( obj );
+		type = toType( obj );
 
-	if ( type === "function" || jQuery.isWindow( obj ) ) {
+	if ( isFunction( obj ) || isWindow( obj ) ) {
 		return false;
 	}
 
@@ -5428,11 +5486,9 @@ var rsingleTag = ( /^<([a-z][^\/\0>:\x20\t\r\n\f]*)[\x20\t\r\n\f]*\/?>(?:<\/\1>|
 
 
 
-var risSimple = /^.[^:#\[\.,]*$/;
-
 // Implement the identical functionality for filter and not
 function winnow( elements, qualifier, not ) {
-	if ( jQuery.isFunction( qualifier ) ) {
+	if ( isFunction( qualifier ) ) {
 		return jQuery.grep( elements, function( elem, i ) {
 			return !!qualifier.call( elem, i, elem ) !== not;
 		} );
@@ -5452,16 +5508,8 @@ function winnow( elements, qualifier, not ) {
 		} );
 	}
 
-	// Simple selector that can be filtered directly, removing non-Elements
-	if ( risSimple.test( qualifier ) ) {
-		return jQuery.filter( qualifier, elements, not );
-	}
-
-	// Complex selector, compare the two sets, removing non-Elements
-	qualifier = jQuery.filter( qualifier, elements );
-	return jQuery.grep( elements, function( elem ) {
-		return ( indexOf.call( qualifier, elem ) > -1 ) !== not && elem.nodeType === 1;
-	} );
+	// Filtered directly for both simple and complex selectors
+	return jQuery.filter( qualifier, elements, not );
 }
 
 jQuery.filter = function( expr, elems, not ) {
@@ -5582,7 +5630,7 @@ var rootjQuery,
 						for ( match in context ) {
 
 							// Properties of context are called as methods if possible
-							if ( jQuery.isFunction( this[ match ] ) ) {
+							if ( isFunction( this[ match ] ) ) {
 								this[ match ]( context[ match ] );
 
 							// ...and otherwise set as attributes
@@ -5625,7 +5673,7 @@ var rootjQuery,
 
 		// HANDLE: $(function)
 		// Shortcut for document ready
-		} else if ( jQuery.isFunction( selector ) ) {
+		} else if ( isFunction( selector ) ) {
 			return root.ready !== undefined ?
 				root.ready( selector ) :
 
@@ -5940,11 +5988,11 @@ jQuery.Callbacks = function( options ) {
 
 					( function add( args ) {
 						jQuery.each( args, function( _, arg ) {
-							if ( jQuery.isFunction( arg ) ) {
+							if ( isFunction( arg ) ) {
 								if ( !options.unique || !self.has( arg ) ) {
 									list.push( arg );
 								}
-							} else if ( arg && arg.length && jQuery.type( arg ) !== "string" ) {
+							} else if ( arg && arg.length && toType( arg ) !== "string" ) {
 
 								// Inspect recursively
 								add( arg );
@@ -6059,11 +6107,11 @@ function adoptValue( value, resolve, reject, noValue ) {
 	try {
 
 		// Check for promise aspect first to privilege synchronous behavior
-		if ( value && jQuery.isFunction( ( method = value.promise ) ) ) {
+		if ( value && isFunction( ( method = value.promise ) ) ) {
 			method.call( value ).done( resolve ).fail( reject );
 
 		// Other thenables
-		} else if ( value && jQuery.isFunction( ( method = value.then ) ) ) {
+		} else if ( value && isFunction( ( method = value.then ) ) ) {
 			method.call( value, resolve, reject );
 
 		// Other non-thenables
@@ -6121,14 +6169,14 @@ jQuery.extend( {
 						jQuery.each( tuples, function( i, tuple ) {
 
 							// Map tuples (progress, done, fail) to arguments (done, fail, progress)
-							var fn = jQuery.isFunction( fns[ tuple[ 4 ] ] ) && fns[ tuple[ 4 ] ];
+							var fn = isFunction( fns[ tuple[ 4 ] ] ) && fns[ tuple[ 4 ] ];
 
 							// deferred.progress(function() { bind to newDefer or newDefer.notify })
 							// deferred.done(function() { bind to newDefer or newDefer.resolve })
 							// deferred.fail(function() { bind to newDefer or newDefer.reject })
 							deferred[ tuple[ 1 ] ]( function() {
 								var returned = fn && fn.apply( this, arguments );
-								if ( returned && jQuery.isFunction( returned.promise ) ) {
+								if ( returned && isFunction( returned.promise ) ) {
 									returned.promise()
 										.progress( newDefer.notify )
 										.done( newDefer.resolve )
@@ -6182,7 +6230,7 @@ jQuery.extend( {
 										returned.then;
 
 									// Handle a returned thenable
-									if ( jQuery.isFunction( then ) ) {
+									if ( isFunction( then ) ) {
 
 										// Special processors (notify) just wait for resolution
 										if ( special ) {
@@ -6278,7 +6326,7 @@ jQuery.extend( {
 							resolve(
 								0,
 								newDefer,
-								jQuery.isFunction( onProgress ) ?
+								isFunction( onProgress ) ?
 									onProgress :
 									Identity,
 								newDefer.notifyWith
@@ -6290,7 +6338,7 @@ jQuery.extend( {
 							resolve(
 								0,
 								newDefer,
-								jQuery.isFunction( onFulfilled ) ?
+								isFunction( onFulfilled ) ?
 									onFulfilled :
 									Identity
 							)
@@ -6301,7 +6349,7 @@ jQuery.extend( {
 							resolve(
 								0,
 								newDefer,
-								jQuery.isFunction( onRejected ) ?
+								isFunction( onRejected ) ?
 									onRejected :
 									Thrower
 							)
@@ -6341,8 +6389,15 @@ jQuery.extend( {
 					// fulfilled_callbacks.disable
 					tuples[ 3 - i ][ 2 ].disable,
 
+					// rejected_handlers.disable
+					// fulfilled_handlers.disable
+					tuples[ 3 - i ][ 3 ].disable,
+
 					// progress_callbacks.lock
-					tuples[ 0 ][ 2 ].lock
+					tuples[ 0 ][ 2 ].lock,
+
+					// progress_handlers.lock
+					tuples[ 0 ][ 3 ].lock
 				);
 			}
 
@@ -6412,7 +6467,7 @@ jQuery.extend( {
 
 			// Use .then() to unwrap secondary thenables (cf. gh-3000)
 			if ( master.state() === "pending" ||
-				jQuery.isFunction( resolveValues[ i ] && resolveValues[ i ].then ) ) {
+				isFunction( resolveValues[ i ] && resolveValues[ i ].then ) ) {
 
 				return master.then();
 			}
@@ -6540,7 +6595,7 @@ var access = function( elems, fn, key, value, chainable, emptyGet, raw ) {
 		bulk = key == null;
 
 	// Sets many values
-	if ( jQuery.type( key ) === "object" ) {
+	if ( toType( key ) === "object" ) {
 		chainable = true;
 		for ( i in key ) {
 			access( elems, fn, i, key[ i ], true, emptyGet, raw );
@@ -6550,7 +6605,7 @@ var access = function( elems, fn, key, value, chainable, emptyGet, raw ) {
 	} else if ( value !== undefined ) {
 		chainable = true;
 
-		if ( !jQuery.isFunction( value ) ) {
+		if ( !isFunction( value ) ) {
 			raw = true;
 		}
 
@@ -6592,6 +6647,23 @@ var access = function( elems, fn, key, value, chainable, emptyGet, raw ) {
 
 	return len ? fn( elems[ 0 ], key ) : emptyGet;
 };
+
+
+// Matches dashed string for camelizing
+var rmsPrefix = /^-ms-/,
+	rdashAlpha = /-([a-z])/g;
+
+// Used by camelCase as callback to replace()
+function fcamelCase( all, letter ) {
+	return letter.toUpperCase();
+}
+
+// Convert dashed to camelCase; used by the css and data modules
+// Support: IE <=9 - 11, Edge 12 - 15
+// Microsoft forgot to hump their vendor prefix (#9572)
+function camelCase( string ) {
+	return string.replace( rmsPrefix, "ms-" ).replace( rdashAlpha, fcamelCase );
+}
 var acceptData = function( owner ) {
 
 	// Accepts only:
@@ -6654,14 +6726,14 @@ Data.prototype = {
 		// Handle: [ owner, key, value ] args
 		// Always use camelCase key (gh-2257)
 		if ( typeof data === "string" ) {
-			cache[ jQuery.camelCase( data ) ] = value;
+			cache[ camelCase( data ) ] = value;
 
 		// Handle: [ owner, { properties } ] args
 		} else {
 
 			// Copy the properties one-by-one to the cache object
 			for ( prop in data ) {
-				cache[ jQuery.camelCase( prop ) ] = data[ prop ];
+				cache[ camelCase( prop ) ] = data[ prop ];
 			}
 		}
 		return cache;
@@ -6671,7 +6743,7 @@ Data.prototype = {
 			this.cache( owner ) :
 
 			// Always use camelCase key (gh-2257)
-			owner[ this.expando ] && owner[ this.expando ][ jQuery.camelCase( key ) ];
+			owner[ this.expando ] && owner[ this.expando ][ camelCase( key ) ];
 	},
 	access: function( owner, key, value ) {
 
@@ -6719,9 +6791,9 @@ Data.prototype = {
 
 				// If key is an array of keys...
 				// We always set camelCase keys, so remove that.
-				key = key.map( jQuery.camelCase );
+				key = key.map( camelCase );
 			} else {
-				key = jQuery.camelCase( key );
+				key = camelCase( key );
 
 				// If a key with the spaces exists, use it.
 				// Otherwise, create an array by matching non-whitespace
@@ -6867,7 +6939,7 @@ jQuery.fn.extend( {
 						if ( attrs[ i ] ) {
 							name = attrs[ i ].name;
 							if ( name.indexOf( "data-" ) === 0 ) {
-								name = jQuery.camelCase( name.slice( 5 ) );
+								name = camelCase( name.slice( 5 ) );
 								dataAttr( elem, name, data[ name ] );
 							}
 						}
@@ -7114,8 +7186,7 @@ var swap = function( elem, options, callback, args ) {
 
 
 function adjustCSS( elem, prop, valueParts, tween ) {
-	var adjusted,
-		scale = 1,
+	var adjusted, scale,
 		maxIterations = 20,
 		currentValue = tween ?
 			function() {
@@ -7133,30 +7204,33 @@ function adjustCSS( elem, prop, valueParts, tween ) {
 
 	if ( initialInUnit && initialInUnit[ 3 ] !== unit ) {
 
+		// Support: Firefox <=54
+		// Halve the iteration target value to prevent interference from CSS upper bounds (gh-2144)
+		initial = initial / 2;
+
 		// Trust units reported by jQuery.css
 		unit = unit || initialInUnit[ 3 ];
-
-		// Make sure we update the tween properties later on
-		valueParts = valueParts || [];
 
 		// Iteratively approximate from a nonzero starting point
 		initialInUnit = +initial || 1;
 
-		do {
+		while ( maxIterations-- ) {
 
-			// If previous iteration zeroed out, double until we get *something*.
-			// Use string for doubling so we don't accidentally see scale as unchanged below
-			scale = scale || ".5";
-
-			// Adjust and apply
-			initialInUnit = initialInUnit / scale;
+			// Evaluate and update our best guess (doubling guesses that zero out).
+			// Finish if the scale equals or crosses 1 (making the old*new product non-positive).
 			jQuery.style( elem, prop, initialInUnit + unit );
+			if ( ( 1 - scale ) * ( 1 - ( scale = currentValue() / initial || 0.5 ) ) <= 0 ) {
+				maxIterations = 0;
+			}
+			initialInUnit = initialInUnit / scale;
 
-		// Update scale, tolerating zero or NaN from tween.cur()
-		// Break the loop if scale is unchanged or perfect, or if we've just had enough.
-		} while (
-			scale !== ( scale = currentValue() / initial ) && scale !== 1 && --maxIterations
-		);
+		}
+
+		initialInUnit = initialInUnit * 2;
+		jQuery.style( elem, prop, initialInUnit + unit );
+
+		// Make sure we update the tween properties later on
+		valueParts = valueParts || [];
 	}
 
 	if ( valueParts ) {
@@ -7274,7 +7348,7 @@ var rcheckableType = ( /^(?:checkbox|radio)$/i );
 
 var rtagName = ( /<([a-z][^\/\0>\x20\t\r\n\f]+)/i );
 
-var rscriptType = ( /^$|\/(?:java|ecma)script/i );
+var rscriptType = ( /^$|^module$|\/(?:java|ecma)script/i );
 
 
 
@@ -7356,7 +7430,7 @@ function buildFragment( elems, context, scripts, selection, ignored ) {
 		if ( elem || elem === 0 ) {
 
 			// Add nodes directly
-			if ( jQuery.type( elem ) === "object" ) {
+			if ( toType( elem ) === "object" ) {
 
 				// Support: Android <=4.0 only, PhantomJS 1 only
 				// push.apply(_, arraylike) throws on ancient WebKit
@@ -7866,7 +7940,7 @@ jQuery.event = {
 			enumerable: true,
 			configurable: true,
 
-			get: jQuery.isFunction( hook ) ?
+			get: isFunction( hook ) ?
 				function() {
 					if ( this.originalEvent ) {
 							return hook( this.originalEvent );
@@ -8001,7 +8075,7 @@ jQuery.Event = function( src, props ) {
 	}
 
 	// Create a timestamp if incoming event doesn't have one
-	this.timeStamp = src && src.timeStamp || jQuery.now();
+	this.timeStamp = src && src.timeStamp || Date.now();
 
 	// Mark it as fixed
 	this[ jQuery.expando ] = true;
@@ -8200,14 +8274,13 @@ var
 
 	/* eslint-enable */
 
-	// Support: IE <=10 - 11, Edge 12 - 13
+	// Support: IE <=10 - 11, Edge 12 - 13 only
 	// In IE/Edge using regex groups here causes severe slowdowns.
 	// See https://connect.microsoft.com/IE/feedback/details/1736512/
 	rnoInnerhtml = /<script|<style|<link/i,
 
 	// checked="checked" or checked
 	rchecked = /checked\s*(?:[^=]|=\s*.checked.)/i,
-	rscriptTypeMasked = /^true\/(.*)/,
 	rcleanScript = /^\s*<!(?:\[CDATA\[|--)|(?:\]\]|--)>\s*$/g;
 
 // Prefer a tbody over its parent table for containing new rows
@@ -8215,7 +8288,7 @@ function manipulationTarget( elem, content ) {
 	if ( nodeName( elem, "table" ) &&
 		nodeName( content.nodeType !== 11 ? content : content.firstChild, "tr" ) ) {
 
-		return jQuery( ">tbody", elem )[ 0 ] || elem;
+		return jQuery( elem ).children( "tbody" )[ 0 ] || elem;
 	}
 
 	return elem;
@@ -8227,10 +8300,8 @@ function disableScript( elem ) {
 	return elem;
 }
 function restoreScript( elem ) {
-	var match = rscriptTypeMasked.exec( elem.type );
-
-	if ( match ) {
-		elem.type = match[ 1 ];
+	if ( ( elem.type || "" ).slice( 0, 5 ) === "true/" ) {
+		elem.type = elem.type.slice( 5 );
 	} else {
 		elem.removeAttribute( "type" );
 	}
@@ -8296,15 +8367,15 @@ function domManip( collection, args, callback, ignored ) {
 		l = collection.length,
 		iNoClone = l - 1,
 		value = args[ 0 ],
-		isFunction = jQuery.isFunction( value );
+		valueIsFunction = isFunction( value );
 
 	// We can't cloneNode fragments that contain checked, in WebKit
-	if ( isFunction ||
+	if ( valueIsFunction ||
 			( l > 1 && typeof value === "string" &&
 				!support.checkClone && rchecked.test( value ) ) ) {
 		return collection.each( function( index ) {
 			var self = collection.eq( index );
-			if ( isFunction ) {
+			if ( valueIsFunction ) {
 				args[ 0 ] = value.call( this, index, self.html() );
 			}
 			domManip( self, args, callback, ignored );
@@ -8358,14 +8429,14 @@ function domManip( collection, args, callback, ignored ) {
 						!dataPriv.access( node, "globalEval" ) &&
 						jQuery.contains( doc, node ) ) {
 
-						if ( node.src ) {
+						if ( node.src && ( node.type || "" ).toLowerCase()  !== "module" ) {
 
 							// Optional AJAX dependency, but won't run scripts if not present
 							if ( jQuery._evalUrl ) {
 								jQuery._evalUrl( node.src );
 							}
 						} else {
-							DOMEval( node.textContent.replace( rcleanScript, "" ), doc );
+							DOMEval( node.textContent.replace( rcleanScript, "" ), doc, node );
 						}
 					}
 				}
@@ -8645,8 +8716,6 @@ jQuery.each( {
 		return this.pushStack( ret );
 	};
 } );
-var rmargin = ( /^margin/ );
-
 var rnumnonpx = new RegExp( "^(" + pnum + ")(?!px)[a-z%]+$", "i" );
 
 var getStyles = function( elem ) {
@@ -8663,6 +8732,8 @@ var getStyles = function( elem ) {
 		return view.getComputedStyle( elem );
 	};
 
+var rboxStyle = new RegExp( cssExpand.join( "|" ), "i" );
+
 
 
 ( function() {
@@ -8676,25 +8747,33 @@ var getStyles = function( elem ) {
 			return;
 		}
 
+		container.style.cssText = "position:absolute;left:-11111px;width:60px;" +
+			"margin-top:1px;padding:0;border:0";
 		div.style.cssText =
-			"box-sizing:border-box;" +
-			"position:relative;display:block;" +
+			"position:relative;display:block;box-sizing:border-box;overflow:scroll;" +
 			"margin:auto;border:1px;padding:1px;" +
-			"top:1%;width:50%";
-		div.innerHTML = "";
-		documentElement.appendChild( container );
+			"width:60%;top:1%";
+		documentElement.appendChild( container ).appendChild( div );
 
 		var divStyle = window.getComputedStyle( div );
 		pixelPositionVal = divStyle.top !== "1%";
 
 		// Support: Android 4.0 - 4.3 only, Firefox <=3 - 44
-		reliableMarginLeftVal = divStyle.marginLeft === "2px";
-		boxSizingReliableVal = divStyle.width === "4px";
+		reliableMarginLeftVal = roundPixelMeasures( divStyle.marginLeft ) === 12;
 
-		// Support: Android 4.0 - 4.3 only
+		// Support: Android 4.0 - 4.3 only, Safari <=9.1 - 10.1, iOS <=7.0 - 9.3
 		// Some styles come back with percentage values, even though they shouldn't
-		div.style.marginRight = "50%";
-		pixelMarginRightVal = divStyle.marginRight === "4px";
+		div.style.right = "60%";
+		pixelBoxStylesVal = roundPixelMeasures( divStyle.right ) === 36;
+
+		// Support: IE 9 - 11 only
+		// Detect misreporting of content dimensions for box-sizing:border-box elements
+		boxSizingReliableVal = roundPixelMeasures( divStyle.width ) === 36;
+
+		// Support: IE 9 only
+		// Detect overflow:scroll screwiness (gh-3699)
+		div.style.position = "absolute";
+		scrollboxSizeVal = div.offsetWidth === 36 || "absolute";
 
 		documentElement.removeChild( container );
 
@@ -8703,7 +8782,12 @@ var getStyles = function( elem ) {
 		div = null;
 	}
 
-	var pixelPositionVal, boxSizingReliableVal, pixelMarginRightVal, reliableMarginLeftVal,
+	function roundPixelMeasures( measure ) {
+		return Math.round( parseFloat( measure ) );
+	}
+
+	var pixelPositionVal, boxSizingReliableVal, scrollboxSizeVal, pixelBoxStylesVal,
+		reliableMarginLeftVal,
 		container = document.createElement( "div" ),
 		div = document.createElement( "div" );
 
@@ -8718,26 +8802,26 @@ var getStyles = function( elem ) {
 	div.cloneNode( true ).style.backgroundClip = "";
 	support.clearCloneStyle = div.style.backgroundClip === "content-box";
 
-	container.style.cssText = "border:0;width:8px;height:0;top:0;left:-9999px;" +
-		"padding:0;margin-top:1px;position:absolute";
-	container.appendChild( div );
-
 	jQuery.extend( support, {
-		pixelPosition: function() {
-			computeStyleTests();
-			return pixelPositionVal;
-		},
 		boxSizingReliable: function() {
 			computeStyleTests();
 			return boxSizingReliableVal;
 		},
-		pixelMarginRight: function() {
+		pixelBoxStyles: function() {
 			computeStyleTests();
-			return pixelMarginRightVal;
+			return pixelBoxStylesVal;
+		},
+		pixelPosition: function() {
+			computeStyleTests();
+			return pixelPositionVal;
 		},
 		reliableMarginLeft: function() {
 			computeStyleTests();
 			return reliableMarginLeftVal;
+		},
+		scrollboxSize: function() {
+			computeStyleTests();
+			return scrollboxSizeVal;
 		}
 	} );
 } )();
@@ -8769,7 +8853,7 @@ function curCSS( elem, name, computed ) {
 		// but width seems to be reliably pixels.
 		// This is against the CSSOM draft spec:
 		// https://drafts.csswg.org/cssom/#resolved-values
-		if ( !support.pixelMarginRight() && rnumnonpx.test( ret ) && rmargin.test( name ) ) {
+		if ( !support.pixelBoxStyles() && rnumnonpx.test( ret ) && rboxStyle.test( name ) ) {
 
 			// Remember the original values
 			width = style.width;
@@ -8874,87 +8958,120 @@ function setPositiveNumber( elem, value, subtract ) {
 		value;
 }
 
-function augmentWidthOrHeight( elem, name, extra, isBorderBox, styles ) {
-	var i,
-		val = 0;
+function boxModelAdjustment( elem, dimension, box, isBorderBox, styles, computedVal ) {
+	var i = dimension === "width" ? 1 : 0,
+		extra = 0,
+		delta = 0;
 
-	// If we already have the right measurement, avoid augmentation
-	if ( extra === ( isBorderBox ? "border" : "content" ) ) {
-		i = 4;
-
-	// Otherwise initialize for horizontal or vertical properties
-	} else {
-		i = name === "width" ? 1 : 0;
+	// Adjustment may not be necessary
+	if ( box === ( isBorderBox ? "border" : "content" ) ) {
+		return 0;
 	}
 
 	for ( ; i < 4; i += 2 ) {
 
-		// Both box models exclude margin, so add it if we want it
-		if ( extra === "margin" ) {
-			val += jQuery.css( elem, extra + cssExpand[ i ], true, styles );
+		// Both box models exclude margin
+		if ( box === "margin" ) {
+			delta += jQuery.css( elem, box + cssExpand[ i ], true, styles );
 		}
 
-		if ( isBorderBox ) {
+		// If we get here with a content-box, we're seeking "padding" or "border" or "margin"
+		if ( !isBorderBox ) {
 
-			// border-box includes padding, so remove it if we want content
-			if ( extra === "content" ) {
-				val -= jQuery.css( elem, "padding" + cssExpand[ i ], true, styles );
+			// Add padding
+			delta += jQuery.css( elem, "padding" + cssExpand[ i ], true, styles );
+
+			// For "border" or "margin", add border
+			if ( box !== "padding" ) {
+				delta += jQuery.css( elem, "border" + cssExpand[ i ] + "Width", true, styles );
+
+			// But still keep track of it otherwise
+			} else {
+				extra += jQuery.css( elem, "border" + cssExpand[ i ] + "Width", true, styles );
 			}
 
-			// At this point, extra isn't border nor margin, so remove border
-			if ( extra !== "margin" ) {
-				val -= jQuery.css( elem, "border" + cssExpand[ i ] + "Width", true, styles );
-			}
+		// If we get here with a border-box (content + padding + border), we're seeking "content" or
+		// "padding" or "margin"
 		} else {
 
-			// At this point, extra isn't content, so add padding
-			val += jQuery.css( elem, "padding" + cssExpand[ i ], true, styles );
+			// For "content", subtract padding
+			if ( box === "content" ) {
+				delta -= jQuery.css( elem, "padding" + cssExpand[ i ], true, styles );
+			}
 
-			// At this point, extra isn't content nor padding, so add border
-			if ( extra !== "padding" ) {
-				val += jQuery.css( elem, "border" + cssExpand[ i ] + "Width", true, styles );
+			// For "content" or "padding", subtract border
+			if ( box !== "margin" ) {
+				delta -= jQuery.css( elem, "border" + cssExpand[ i ] + "Width", true, styles );
 			}
 		}
 	}
 
-	return val;
+	// Account for positive content-box scroll gutter when requested by providing computedVal
+	if ( !isBorderBox && computedVal >= 0 ) {
+
+		// offsetWidth/offsetHeight is a rounded sum of content, padding, scroll gutter, and border
+		// Assuming integer scroll gutter, subtract the rest and round down
+		delta += Math.max( 0, Math.ceil(
+			elem[ "offset" + dimension[ 0 ].toUpperCase() + dimension.slice( 1 ) ] -
+			computedVal -
+			delta -
+			extra -
+			0.5
+		) );
+	}
+
+	return delta;
 }
 
-function getWidthOrHeight( elem, name, extra ) {
+function getWidthOrHeight( elem, dimension, extra ) {
 
 	// Start with computed style
-	var valueIsBorderBox,
-		styles = getStyles( elem ),
-		val = curCSS( elem, name, styles ),
-		isBorderBox = jQuery.css( elem, "boxSizing", false, styles ) === "border-box";
+	var styles = getStyles( elem ),
+		val = curCSS( elem, dimension, styles ),
+		isBorderBox = jQuery.css( elem, "boxSizing", false, styles ) === "border-box",
+		valueIsBorderBox = isBorderBox;
 
-	// Computed unit is not pixels. Stop here and return.
+	// Support: Firefox <=54
+	// Return a confounding non-pixel value or feign ignorance, as appropriate.
 	if ( rnumnonpx.test( val ) ) {
-		return val;
+		if ( !extra ) {
+			return val;
+		}
+		val = "auto";
 	}
 
 	// Check for style in case a browser which returns unreliable values
 	// for getComputedStyle silently falls back to the reliable elem.style
-	valueIsBorderBox = isBorderBox &&
-		( support.boxSizingReliable() || val === elem.style[ name ] );
+	valueIsBorderBox = valueIsBorderBox &&
+		( support.boxSizingReliable() || val === elem.style[ dimension ] );
 
-	// Fall back to offsetWidth/Height when value is "auto"
+	// Fall back to offsetWidth/offsetHeight when value is "auto"
 	// This happens for inline elements with no explicit setting (gh-3571)
-	if ( val === "auto" ) {
-		val = elem[ "offset" + name[ 0 ].toUpperCase() + name.slice( 1 ) ];
+	// Support: Android <=4.1 - 4.3 only
+	// Also use offsetWidth/offsetHeight for misreported inline dimensions (gh-3602)
+	if ( val === "auto" ||
+		!parseFloat( val ) && jQuery.css( elem, "display", false, styles ) === "inline" ) {
+
+		val = elem[ "offset" + dimension[ 0 ].toUpperCase() + dimension.slice( 1 ) ];
+
+		// offsetWidth/offsetHeight provide border-box values
+		valueIsBorderBox = true;
 	}
 
-	// Normalize "", auto, and prepare for extra
+	// Normalize "" and auto
 	val = parseFloat( val ) || 0;
 
-	// Use the active box-sizing model to add/subtract irrelevant styles
+	// Adjust for the element's box model
 	return ( val +
-		augmentWidthOrHeight(
+		boxModelAdjustment(
 			elem,
-			name,
+			dimension,
 			extra || ( isBorderBox ? "border" : "content" ),
 			valueIsBorderBox,
-			styles
+			styles,
+
+			// Provide the current computed size to request scroll gutter calculation (gh-3589)
+			val
 		)
 	) + "px";
 }
@@ -8995,9 +9112,7 @@ jQuery.extend( {
 
 	// Add in properties whose names you wish to fix before
 	// setting or getting the value
-	cssProps: {
-		"float": "cssFloat"
-	},
+	cssProps: {},
 
 	// Get and set the style property on a DOM Node
 	style: function( elem, name, value, extra ) {
@@ -9009,7 +9124,7 @@ jQuery.extend( {
 
 		// Make sure that we're working with the right name
 		var ret, type, hooks,
-			origName = jQuery.camelCase( name ),
+			origName = camelCase( name ),
 			isCustomProp = rcustomProp.test( name ),
 			style = elem.style;
 
@@ -9077,7 +9192,7 @@ jQuery.extend( {
 
 	css: function( elem, name, extra, styles ) {
 		var val, num, hooks,
-			origName = jQuery.camelCase( name ),
+			origName = camelCase( name ),
 			isCustomProp = rcustomProp.test( name );
 
 		// Make sure that we're working with the right name. We don't
@@ -9115,8 +9230,8 @@ jQuery.extend( {
 	}
 } );
 
-jQuery.each( [ "height", "width" ], function( i, name ) {
-	jQuery.cssHooks[ name ] = {
+jQuery.each( [ "height", "width" ], function( i, dimension ) {
+	jQuery.cssHooks[ dimension ] = {
 		get: function( elem, computed, extra ) {
 			if ( computed ) {
 
@@ -9132,29 +9247,41 @@ jQuery.each( [ "height", "width" ], function( i, name ) {
 					// in IE throws an error.
 					( !elem.getClientRects().length || !elem.getBoundingClientRect().width ) ?
 						swap( elem, cssShow, function() {
-							return getWidthOrHeight( elem, name, extra );
+							return getWidthOrHeight( elem, dimension, extra );
 						} ) :
-						getWidthOrHeight( elem, name, extra );
+						getWidthOrHeight( elem, dimension, extra );
 			}
 		},
 
 		set: function( elem, value, extra ) {
 			var matches,
-				styles = extra && getStyles( elem ),
-				subtract = extra && augmentWidthOrHeight(
+				styles = getStyles( elem ),
+				isBorderBox = jQuery.css( elem, "boxSizing", false, styles ) === "border-box",
+				subtract = extra && boxModelAdjustment(
 					elem,
-					name,
+					dimension,
 					extra,
-					jQuery.css( elem, "boxSizing", false, styles ) === "border-box",
+					isBorderBox,
 					styles
 				);
+
+			// Account for unreliable border-box dimensions by comparing offset* to computed and
+			// faking a content-box to get border and padding (gh-3699)
+			if ( isBorderBox && support.scrollboxSize() === styles.position ) {
+				subtract -= Math.ceil(
+					elem[ "offset" + dimension[ 0 ].toUpperCase() + dimension.slice( 1 ) ] -
+					parseFloat( styles[ dimension ] ) -
+					boxModelAdjustment( elem, dimension, "border", false, styles ) -
+					0.5
+				);
+			}
 
 			// Convert to pixels if value adjustment is needed
 			if ( subtract && ( matches = rcssNum.exec( value ) ) &&
 				( matches[ 3 ] || "px" ) !== "px" ) {
 
-				elem.style[ name ] = value;
-				value = jQuery.css( elem, name );
+				elem.style[ dimension ] = value;
+				value = jQuery.css( elem, dimension );
 			}
 
 			return setPositiveNumber( elem, value, subtract );
@@ -9198,7 +9325,7 @@ jQuery.each( {
 		}
 	};
 
-	if ( !rmargin.test( prefix ) ) {
+	if ( prefix !== "margin" ) {
 		jQuery.cssHooks[ prefix + suffix ].set = setPositiveNumber;
 	}
 } );
@@ -9369,7 +9496,7 @@ function createFxNow() {
 	window.setTimeout( function() {
 		fxNow = undefined;
 	} );
-	return ( fxNow = jQuery.now() );
+	return ( fxNow = Date.now() );
 }
 
 // Generate parameters to create a standard animation
@@ -9473,9 +9600,10 @@ function defaultPrefilter( elem, props, opts ) {
 	// Restrict "overflow" and "display" styles during box animations
 	if ( isBox && elem.nodeType === 1 ) {
 
-		// Support: IE <=9 - 11, Edge 12 - 13
+		// Support: IE <=9 - 11, Edge 12 - 15
 		// Record all 3 overflow attributes because IE does not infer the shorthand
-		// from identically-valued overflowX and overflowY
+		// from identically-valued overflowX and overflowY and Edge just mirrors
+		// the overflowX value there.
 		opts.overflow = [ style.overflow, style.overflowX, style.overflowY ];
 
 		// Identify a display type, preferring old show/hide data over the CSS cascade
@@ -9583,7 +9711,7 @@ function propFilter( props, specialEasing ) {
 
 	// camelCase, specialEasing and expand cssHook pass
 	for ( index in props ) {
-		name = jQuery.camelCase( index );
+		name = camelCase( index );
 		easing = specialEasing[ name ];
 		value = props[ index ];
 		if ( Array.isArray( value ) ) {
@@ -9708,9 +9836,9 @@ function Animation( elem, properties, options ) {
 	for ( ; index < length; index++ ) {
 		result = Animation.prefilters[ index ].call( animation, elem, props, animation.opts );
 		if ( result ) {
-			if ( jQuery.isFunction( result.stop ) ) {
+			if ( isFunction( result.stop ) ) {
 				jQuery._queueHooks( animation.elem, animation.opts.queue ).stop =
-					jQuery.proxy( result.stop, result );
+					result.stop.bind( result );
 			}
 			return result;
 		}
@@ -9718,7 +9846,7 @@ function Animation( elem, properties, options ) {
 
 	jQuery.map( props, createTween, animation );
 
-	if ( jQuery.isFunction( animation.opts.start ) ) {
+	if ( isFunction( animation.opts.start ) ) {
 		animation.opts.start.call( elem, animation );
 	}
 
@@ -9751,7 +9879,7 @@ jQuery.Animation = jQuery.extend( Animation, {
 	},
 
 	tweener: function( props, callback ) {
-		if ( jQuery.isFunction( props ) ) {
+		if ( isFunction( props ) ) {
 			callback = props;
 			props = [ "*" ];
 		} else {
@@ -9783,9 +9911,9 @@ jQuery.Animation = jQuery.extend( Animation, {
 jQuery.speed = function( speed, easing, fn ) {
 	var opt = speed && typeof speed === "object" ? jQuery.extend( {}, speed ) : {
 		complete: fn || !fn && easing ||
-			jQuery.isFunction( speed ) && speed,
+			isFunction( speed ) && speed,
 		duration: speed,
-		easing: fn && easing || easing && !jQuery.isFunction( easing ) && easing
+		easing: fn && easing || easing && !isFunction( easing ) && easing
 	};
 
 	// Go to the end state if fx are off
@@ -9812,7 +9940,7 @@ jQuery.speed = function( speed, easing, fn ) {
 	opt.old = opt.complete;
 
 	opt.complete = function() {
-		if ( jQuery.isFunction( opt.old ) ) {
+		if ( isFunction( opt.old ) ) {
 			opt.old.call( this );
 		}
 
@@ -9976,7 +10104,7 @@ jQuery.fx.tick = function() {
 		i = 0,
 		timers = jQuery.timers;
 
-	fxNow = jQuery.now();
+	fxNow = Date.now();
 
 	for ( ; i < timers.length; i++ ) {
 		timer = timers[ i ];
@@ -10329,7 +10457,7 @@ jQuery.each( [
 
 
 	// Strip and collapse whitespace according to HTML spec
-	// https://html.spec.whatwg.org/multipage/infrastructure.html#strip-and-collapse-whitespace
+	// https://infra.spec.whatwg.org/#strip-and-collapse-ascii-whitespace
 	function stripAndCollapse( value ) {
 		var tokens = value.match( rnothtmlwhite ) || [];
 		return tokens.join( " " );
@@ -10340,20 +10468,30 @@ function getClass( elem ) {
 	return elem.getAttribute && elem.getAttribute( "class" ) || "";
 }
 
+function classesToArray( value ) {
+	if ( Array.isArray( value ) ) {
+		return value;
+	}
+	if ( typeof value === "string" ) {
+		return value.match( rnothtmlwhite ) || [];
+	}
+	return [];
+}
+
 jQuery.fn.extend( {
 	addClass: function( value ) {
 		var classes, elem, cur, curValue, clazz, j, finalValue,
 			i = 0;
 
-		if ( jQuery.isFunction( value ) ) {
+		if ( isFunction( value ) ) {
 			return this.each( function( j ) {
 				jQuery( this ).addClass( value.call( this, j, getClass( this ) ) );
 			} );
 		}
 
-		if ( typeof value === "string" && value ) {
-			classes = value.match( rnothtmlwhite ) || [];
+		classes = classesToArray( value );
 
+		if ( classes.length ) {
 			while ( ( elem = this[ i++ ] ) ) {
 				curValue = getClass( elem );
 				cur = elem.nodeType === 1 && ( " " + stripAndCollapse( curValue ) + " " );
@@ -10382,7 +10520,7 @@ jQuery.fn.extend( {
 		var classes, elem, cur, curValue, clazz, j, finalValue,
 			i = 0;
 
-		if ( jQuery.isFunction( value ) ) {
+		if ( isFunction( value ) ) {
 			return this.each( function( j ) {
 				jQuery( this ).removeClass( value.call( this, j, getClass( this ) ) );
 			} );
@@ -10392,9 +10530,9 @@ jQuery.fn.extend( {
 			return this.attr( "class", "" );
 		}
 
-		if ( typeof value === "string" && value ) {
-			classes = value.match( rnothtmlwhite ) || [];
+		classes = classesToArray( value );
 
+		if ( classes.length ) {
 			while ( ( elem = this[ i++ ] ) ) {
 				curValue = getClass( elem );
 
@@ -10424,13 +10562,14 @@ jQuery.fn.extend( {
 	},
 
 	toggleClass: function( value, stateVal ) {
-		var type = typeof value;
+		var type = typeof value,
+			isValidValue = type === "string" || Array.isArray( value );
 
-		if ( typeof stateVal === "boolean" && type === "string" ) {
+		if ( typeof stateVal === "boolean" && isValidValue ) {
 			return stateVal ? this.addClass( value ) : this.removeClass( value );
 		}
 
-		if ( jQuery.isFunction( value ) ) {
+		if ( isFunction( value ) ) {
 			return this.each( function( i ) {
 				jQuery( this ).toggleClass(
 					value.call( this, i, getClass( this ), stateVal ),
@@ -10442,12 +10581,12 @@ jQuery.fn.extend( {
 		return this.each( function() {
 			var className, i, self, classNames;
 
-			if ( type === "string" ) {
+			if ( isValidValue ) {
 
 				// Toggle individual class names
 				i = 0;
 				self = jQuery( this );
-				classNames = value.match( rnothtmlwhite ) || [];
+				classNames = classesToArray( value );
 
 				while ( ( className = classNames[ i++ ] ) ) {
 
@@ -10506,7 +10645,7 @@ var rreturn = /\r/g;
 
 jQuery.fn.extend( {
 	val: function( value ) {
-		var hooks, ret, isFunction,
+		var hooks, ret, valueIsFunction,
 			elem = this[ 0 ];
 
 		if ( !arguments.length ) {
@@ -10535,7 +10674,7 @@ jQuery.fn.extend( {
 			return;
 		}
 
-		isFunction = jQuery.isFunction( value );
+		valueIsFunction = isFunction( value );
 
 		return this.each( function( i ) {
 			var val;
@@ -10544,7 +10683,7 @@ jQuery.fn.extend( {
 				return;
 			}
 
-			if ( isFunction ) {
+			if ( valueIsFunction ) {
 				val = value.call( this, i, jQuery( this ).val() );
 			} else {
 				val = value;
@@ -10686,18 +10825,24 @@ jQuery.each( [ "radio", "checkbox" ], function() {
 // Return jQuery for attributes-only inclusion
 
 
-var rfocusMorph = /^(?:focusinfocus|focusoutblur)$/;
+support.focusin = "onfocusin" in window;
+
+
+var rfocusMorph = /^(?:focusinfocus|focusoutblur)$/,
+	stopPropagationCallback = function( e ) {
+		e.stopPropagation();
+	};
 
 jQuery.extend( jQuery.event, {
 
 	trigger: function( event, data, elem, onlyHandlers ) {
 
-		var i, cur, tmp, bubbleType, ontype, handle, special,
+		var i, cur, tmp, bubbleType, ontype, handle, special, lastElement,
 			eventPath = [ elem || document ],
 			type = hasOwn.call( event, "type" ) ? event.type : event,
 			namespaces = hasOwn.call( event, "namespace" ) ? event.namespace.split( "." ) : [];
 
-		cur = tmp = elem = elem || document;
+		cur = lastElement = tmp = elem = elem || document;
 
 		// Don't do events on text and comment nodes
 		if ( elem.nodeType === 3 || elem.nodeType === 8 ) {
@@ -10749,7 +10894,7 @@ jQuery.extend( jQuery.event, {
 
 		// Determine event propagation path in advance, per W3C events spec (#9951)
 		// Bubble up to document, then to window; watch for a global ownerDocument var (#9724)
-		if ( !onlyHandlers && !special.noBubble && !jQuery.isWindow( elem ) ) {
+		if ( !onlyHandlers && !special.noBubble && !isWindow( elem ) ) {
 
 			bubbleType = special.delegateType || type;
 			if ( !rfocusMorph.test( bubbleType + type ) ) {
@@ -10769,7 +10914,7 @@ jQuery.extend( jQuery.event, {
 		// Fire handlers on the event path
 		i = 0;
 		while ( ( cur = eventPath[ i++ ] ) && !event.isPropagationStopped() ) {
-
+			lastElement = cur;
 			event.type = i > 1 ?
 				bubbleType :
 				special.bindType || type;
@@ -10801,7 +10946,7 @@ jQuery.extend( jQuery.event, {
 
 				// Call a native DOM method on the target with the same name as the event.
 				// Don't do default actions on window, that's where global variables be (#6170)
-				if ( ontype && jQuery.isFunction( elem[ type ] ) && !jQuery.isWindow( elem ) ) {
+				if ( ontype && isFunction( elem[ type ] ) && !isWindow( elem ) ) {
 
 					// Don't re-trigger an onFOO event when we call its FOO() method
 					tmp = elem[ ontype ];
@@ -10812,7 +10957,17 @@ jQuery.extend( jQuery.event, {
 
 					// Prevent re-triggering of the same event, since we already bubbled it above
 					jQuery.event.triggered = type;
+
+					if ( event.isPropagationStopped() ) {
+						lastElement.addEventListener( type, stopPropagationCallback );
+					}
+
 					elem[ type ]();
+
+					if ( event.isPropagationStopped() ) {
+						lastElement.removeEventListener( type, stopPropagationCallback );
+					}
+
 					jQuery.event.triggered = undefined;
 
 					if ( tmp ) {
@@ -10858,31 +11013,6 @@ jQuery.fn.extend( {
 } );
 
 
-jQuery.each( ( "blur focus focusin focusout resize scroll click dblclick " +
-	"mousedown mouseup mousemove mouseover mouseout mouseenter mouseleave " +
-	"change select submit keydown keypress keyup contextmenu" ).split( " " ),
-	function( i, name ) {
-
-	// Handle event binding
-	jQuery.fn[ name ] = function( data, fn ) {
-		return arguments.length > 0 ?
-			this.on( name, null, data, fn ) :
-			this.trigger( name );
-	};
-} );
-
-jQuery.fn.extend( {
-	hover: function( fnOver, fnOut ) {
-		return this.mouseenter( fnOver ).mouseleave( fnOut || fnOver );
-	}
-} );
-
-
-
-
-support.focusin = "onfocusin" in window;
-
-
 // Support: Firefox <=44
 // Firefox doesn't have focus(in | out) events
 // Related ticket - https://bugzilla.mozilla.org/show_bug.cgi?id=687787
@@ -10926,7 +11056,7 @@ if ( !support.focusin ) {
 }
 var location = window.location;
 
-var nonce = jQuery.now();
+var nonce = Date.now();
 
 var rquery = ( /\?/ );
 
@@ -10984,7 +11114,7 @@ function buildParams( prefix, obj, traditional, add ) {
 			}
 		} );
 
-	} else if ( !traditional && jQuery.type( obj ) === "object" ) {
+	} else if ( !traditional && toType( obj ) === "object" ) {
 
 		// Serialize object item.
 		for ( name in obj ) {
@@ -11006,7 +11136,7 @@ jQuery.param = function( a, traditional ) {
 		add = function( key, valueOrFunction ) {
 
 			// If value is a function, invoke it and use its return value
-			var value = jQuery.isFunction( valueOrFunction ) ?
+			var value = isFunction( valueOrFunction ) ?
 				valueOrFunction() :
 				valueOrFunction;
 
@@ -11124,7 +11254,7 @@ function addToPrefiltersOrTransports( structure ) {
 			i = 0,
 			dataTypes = dataTypeExpression.toLowerCase().match( rnothtmlwhite ) || [];
 
-		if ( jQuery.isFunction( func ) ) {
+		if ( isFunction( func ) ) {
 
 			// For each dataType in the dataTypeExpression
 			while ( ( dataType = dataTypes[ i++ ] ) ) {
@@ -11596,7 +11726,7 @@ jQuery.extend( {
 		if ( s.crossDomain == null ) {
 			urlAnchor = document.createElement( "a" );
 
-			// Support: IE <=8 - 11, Edge 12 - 13
+			// Support: IE <=8 - 11, Edge 12 - 15
 			// IE throws exception on accessing the href property if url is malformed,
 			// e.g. http://example.com:80x/
 			try {
@@ -11654,8 +11784,8 @@ jQuery.extend( {
 			// Remember the hash so we can put it back
 			uncached = s.url.slice( cacheURL.length );
 
-			// If data is available, append data to url
-			if ( s.data ) {
+			// If data is available and should be processed, append data to url
+			if ( s.data && ( s.processData || typeof s.data === "string" ) ) {
 				cacheURL += ( rquery.test( cacheURL ) ? "&" : "?" ) + s.data;
 
 				// #9682: remove data so that it's not used in an eventual retry
@@ -11892,7 +12022,7 @@ jQuery.each( [ "get", "post" ], function( i, method ) {
 	jQuery[ method ] = function( url, data, callback, type ) {
 
 		// Shift arguments if data argument was omitted
-		if ( jQuery.isFunction( data ) ) {
+		if ( isFunction( data ) ) {
 			type = type || callback;
 			callback = data;
 			data = undefined;
@@ -11930,7 +12060,7 @@ jQuery.fn.extend( {
 		var wrap;
 
 		if ( this[ 0 ] ) {
-			if ( jQuery.isFunction( html ) ) {
+			if ( isFunction( html ) ) {
 				html = html.call( this[ 0 ] );
 			}
 
@@ -11956,7 +12086,7 @@ jQuery.fn.extend( {
 	},
 
 	wrapInner: function( html ) {
-		if ( jQuery.isFunction( html ) ) {
+		if ( isFunction( html ) ) {
 			return this.each( function( i ) {
 				jQuery( this ).wrapInner( html.call( this, i ) );
 			} );
@@ -11976,10 +12106,10 @@ jQuery.fn.extend( {
 	},
 
 	wrap: function( html ) {
-		var isFunction = jQuery.isFunction( html );
+		var htmlIsFunction = isFunction( html );
 
 		return this.each( function( i ) {
-			jQuery( this ).wrapAll( isFunction ? html.call( this, i ) : html );
+			jQuery( this ).wrapAll( htmlIsFunction ? html.call( this, i ) : html );
 		} );
 	},
 
@@ -12071,7 +12201,8 @@ jQuery.ajaxTransport( function( options ) {
 					return function() {
 						if ( callback ) {
 							callback = errorCallback = xhr.onload =
-								xhr.onerror = xhr.onabort = xhr.onreadystatechange = null;
+								xhr.onerror = xhr.onabort = xhr.ontimeout =
+									xhr.onreadystatechange = null;
 
 							if ( type === "abort" ) {
 								xhr.abort();
@@ -12111,7 +12242,7 @@ jQuery.ajaxTransport( function( options ) {
 
 				// Listen to events
 				xhr.onload = callback();
-				errorCallback = xhr.onerror = callback( "error" );
+				errorCallback = xhr.onerror = xhr.ontimeout = callback( "error" );
 
 				// Support: IE 9 only
 				// Use onreadystatechange to replace onabort
@@ -12265,7 +12396,7 @@ jQuery.ajaxPrefilter( "json jsonp", function( s, originalSettings, jqXHR ) {
 	if ( jsonProp || s.dataTypes[ 0 ] === "jsonp" ) {
 
 		// Get callback name, remembering preexisting value associated with it
-		callbackName = s.jsonpCallback = jQuery.isFunction( s.jsonpCallback ) ?
+		callbackName = s.jsonpCallback = isFunction( s.jsonpCallback ) ?
 			s.jsonpCallback() :
 			s.jsonpCallback;
 
@@ -12316,7 +12447,7 @@ jQuery.ajaxPrefilter( "json jsonp", function( s, originalSettings, jqXHR ) {
 			}
 
 			// Call if it was a function and we have a response
-			if ( responseContainer && jQuery.isFunction( overwritten ) ) {
+			if ( responseContainer && isFunction( overwritten ) ) {
 				overwritten( responseContainer[ 0 ] );
 			}
 
@@ -12408,7 +12539,7 @@ jQuery.fn.load = function( url, params, callback ) {
 	}
 
 	// If it's a function
-	if ( jQuery.isFunction( params ) ) {
+	if ( isFunction( params ) ) {
 
 		// We assume that it's the callback
 		callback = params;
@@ -12516,7 +12647,7 @@ jQuery.offset = {
 			curLeft = parseFloat( curCSSLeft ) || 0;
 		}
 
-		if ( jQuery.isFunction( options ) ) {
+		if ( isFunction( options ) ) {
 
 			// Use jQuery.extend here to allow modification of coordinates argument (gh-1848)
 			options = options.call( elem, i, jQuery.extend( {}, curOffset ) );
@@ -12539,6 +12670,8 @@ jQuery.offset = {
 };
 
 jQuery.fn.extend( {
+
+	// offset() relates an element's border box to the document origin
 	offset: function( options ) {
 
 		// Preserve chaining for setter
@@ -12550,7 +12683,7 @@ jQuery.fn.extend( {
 				} );
 		}
 
-		var doc, docElem, rect, win,
+		var rect, win,
 			elem = this[ 0 ];
 
 		if ( !elem ) {
@@ -12565,50 +12698,52 @@ jQuery.fn.extend( {
 			return { top: 0, left: 0 };
 		}
 
+		// Get document-relative position by adding viewport scroll to viewport-relative gBCR
 		rect = elem.getBoundingClientRect();
-
-		doc = elem.ownerDocument;
-		docElem = doc.documentElement;
-		win = doc.defaultView;
-
+		win = elem.ownerDocument.defaultView;
 		return {
-			top: rect.top + win.pageYOffset - docElem.clientTop,
-			left: rect.left + win.pageXOffset - docElem.clientLeft
+			top: rect.top + win.pageYOffset,
+			left: rect.left + win.pageXOffset
 		};
 	},
 
+	// position() relates an element's margin box to its offset parent's padding box
+	// This corresponds to the behavior of CSS absolute positioning
 	position: function() {
 		if ( !this[ 0 ] ) {
 			return;
 		}
 
-		var offsetParent, offset,
+		var offsetParent, offset, doc,
 			elem = this[ 0 ],
 			parentOffset = { top: 0, left: 0 };
 
-		// Fixed elements are offset from window (parentOffset = {top:0, left: 0},
-		// because it is its only offset parent
+		// position:fixed elements are offset from the viewport, which itself always has zero offset
 		if ( jQuery.css( elem, "position" ) === "fixed" ) {
 
-			// Assume getBoundingClientRect is there when computed position is fixed
+			// Assume position:fixed implies availability of getBoundingClientRect
 			offset = elem.getBoundingClientRect();
 
 		} else {
-
-			// Get *real* offsetParent
-			offsetParent = this.offsetParent();
-
-			// Get correct offsets
 			offset = this.offset();
-			if ( !nodeName( offsetParent[ 0 ], "html" ) ) {
-				parentOffset = offsetParent.offset();
-			}
 
-			// Add offsetParent borders
-			parentOffset = {
-				top: parentOffset.top + jQuery.css( offsetParent[ 0 ], "borderTopWidth", true ),
-				left: parentOffset.left + jQuery.css( offsetParent[ 0 ], "borderLeftWidth", true )
-			};
+			// Account for the *real* offset parent, which can be the document or its root element
+			// when a statically positioned element is identified
+			doc = elem.ownerDocument;
+			offsetParent = elem.offsetParent || doc.documentElement;
+			while ( offsetParent &&
+				( offsetParent === doc.body || offsetParent === doc.documentElement ) &&
+				jQuery.css( offsetParent, "position" ) === "static" ) {
+
+				offsetParent = offsetParent.parentNode;
+			}
+			if ( offsetParent && offsetParent !== elem && offsetParent.nodeType === 1 ) {
+
+				// Incorporate borders into its offset, since they are outside its content origin
+				parentOffset = jQuery( offsetParent ).offset();
+				parentOffset.top += jQuery.css( offsetParent, "borderTopWidth", true );
+				parentOffset.left += jQuery.css( offsetParent, "borderLeftWidth", true );
+			}
 		}
 
 		// Subtract parent offsets and element margins
@@ -12650,7 +12785,7 @@ jQuery.each( { scrollLeft: "pageXOffset", scrollTop: "pageYOffset" }, function( 
 
 			// Coalesce documents and windows
 			var win;
-			if ( jQuery.isWindow( elem ) ) {
+			if ( isWindow( elem ) ) {
 				win = elem;
 			} else if ( elem.nodeType === 9 ) {
 				win = elem.defaultView;
@@ -12708,7 +12843,7 @@ jQuery.each( { Height: "height", Width: "width" }, function( name, type ) {
 			return access( this, function( elem, type, value ) {
 				var doc;
 
-				if ( jQuery.isWindow( elem ) ) {
+				if ( isWindow( elem ) ) {
 
 					// $( window ).outerWidth/Height return w/h including scrollbars (gh-1729)
 					return funcName.indexOf( "outer" ) === 0 ?
@@ -12742,6 +12877,28 @@ jQuery.each( { Height: "height", Width: "width" }, function( name, type ) {
 } );
 
 
+jQuery.each( ( "blur focus focusin focusout resize scroll click dblclick " +
+	"mousedown mouseup mousemove mouseover mouseout mouseenter mouseleave " +
+	"change select submit keydown keypress keyup contextmenu" ).split( " " ),
+	function( i, name ) {
+
+	// Handle event binding
+	jQuery.fn[ name ] = function( data, fn ) {
+		return arguments.length > 0 ?
+			this.on( name, null, data, fn ) :
+			this.trigger( name );
+	};
+} );
+
+jQuery.fn.extend( {
+	hover: function( fnOver, fnOut ) {
+		return this.mouseenter( fnOver ).mouseleave( fnOut || fnOver );
+	}
+} );
+
+
+
+
 jQuery.fn.extend( {
 
 	bind: function( types, data, fn ) {
@@ -12763,6 +12920,37 @@ jQuery.fn.extend( {
 	}
 } );
 
+// Bind a function to a context, optionally partially applying any
+// arguments.
+// jQuery.proxy is deprecated to promote standards (specifically Function#bind)
+// However, it is not slated for removal any time soon
+jQuery.proxy = function( fn, context ) {
+	var tmp, args, proxy;
+
+	if ( typeof context === "string" ) {
+		tmp = fn[ context ];
+		context = fn;
+		fn = tmp;
+	}
+
+	// Quick check to determine if target is callable, in the spec
+	// this throws a TypeError, but we will just return undefined.
+	if ( !isFunction( fn ) ) {
+		return undefined;
+	}
+
+	// Simulated bind
+	args = slice.call( arguments, 2 );
+	proxy = function() {
+		return fn.apply( context || this, args.concat( slice.call( arguments ) ) );
+	};
+
+	// Set the guid of unique handler to the same of original handler, so it can be removed
+	proxy.guid = fn.guid = fn.guid || jQuery.guid++;
+
+	return proxy;
+};
+
 jQuery.holdReady = function( hold ) {
 	if ( hold ) {
 		jQuery.readyWait++;
@@ -12773,6 +12961,26 @@ jQuery.holdReady = function( hold ) {
 jQuery.isArray = Array.isArray;
 jQuery.parseJSON = JSON.parse;
 jQuery.nodeName = nodeName;
+jQuery.isFunction = isFunction;
+jQuery.isWindow = isWindow;
+jQuery.camelCase = camelCase;
+jQuery.type = toType;
+
+jQuery.now = Date.now;
+
+jQuery.isNumeric = function( obj ) {
+
+	// As of jQuery 3.0, isNumeric is limited to
+	// strings and numbers (primitives or objects)
+	// that can be coerced to finite numbers (gh-2662)
+	var type = jQuery.type( obj );
+	return ( type === "number" || type === "string" ) &&
+
+		// parseFloat NaNs numeric-cast false positives ("")
+		// ...but misinterprets leading-number strings, particularly hex literals ("0x...")
+		// subtraction forces infinities to NaN
+		!isNaN( obj - parseFloat( obj ) );
+};
 
 
 
@@ -12835,14 +13043,14 @@ return jQuery;
 
 
 /***/ }),
-/* 37 */
+/* 38 */
 /***/ (function(module, exports) {
 
 NodeList.prototype.map = new Array().map;
 window.requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
 
 /***/ }),
-/* 38 */
+/* 39 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -12853,18 +13061,24 @@ window.requestAnimationFrame = window.requestAnimationFrame || window.mozRequest
         },
         urlArticle: function urlArticle(id, user_id) {
             return window.location.origin + '/#/profile/' + user_id + '/article/' + id;
+        },
+        urlTopic: function urlTopic(id) {
+            return window.location.origin + '/#/forum/topic/' + id;
+        },
+        urlTopicResponse: function urlTopicResponse(id, response_id) {
+            return window.location.origin + '/#/forum/topic/' + id + '/response/' + response_id;
         }
     }
 });
 
 /***/ }),
-/* 39 */
+/* 40 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(40);
+var content = __webpack_require__(41);
 if(typeof content === 'string') content = [[module.i, content, '']];
 // Prepare cssTransformation
 var transform;
@@ -12872,7 +13086,7 @@ var transform;
 var options = {}
 options.transform = transform
 // add the styles to the DOM
-var update = __webpack_require__(9)(content, options);
+var update = __webpack_require__(10)(content, options);
 if(content.locals) module.exports = content.locals;
 // Hot Module Replacement
 if(false) {
@@ -12889,7 +13103,7 @@ if(false) {
 }
 
 /***/ }),
-/* 40 */
+/* 41 */
 /***/ (function(module, exports, __webpack_require__) {
 
 exports = module.exports = __webpack_require__(0)(undefined);
@@ -12903,7 +13117,7 @@ exports.push([module.i, ".faceMocion { display: none;padding-bottom:8px;padding-
 
 
 /***/ }),
-/* 41 */
+/* 42 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -12947,7 +13161,7 @@ var actions = {
 /* harmony default export */ __webpack_exports__["a"] = ({ namespaced: true, state: state, mutations: mutations, actions: actions });
 
 /***/ }),
-/* 42 */
+/* 43 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -13048,7 +13262,7 @@ var actions = {
 /* harmony default export */ __webpack_exports__["a"] = ({ namespaced: true, state: state, mutations: mutations, actions: actions });
 
 /***/ }),
-/* 43 */
+/* 44 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -13119,7 +13333,7 @@ var actions = {
 /* harmony default export */ __webpack_exports__["a"] = ({ namespaced: true, state: state, mutations: mutations, actions: actions });
 
 /***/ }),
-/* 44 */
+/* 45 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -13239,7 +13453,7 @@ var actions = {
 /* harmony default export */ __webpack_exports__["a"] = ({ namespaced: true, state: state, mutations: mutations, actions: actions });
 
 /***/ }),
-/* 45 */
+/* 46 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -13360,7 +13574,7 @@ var actions = {
 /* harmony default export */ __webpack_exports__["a"] = ({ namespaced: true, state: state, mutations: mutations, actions: actions });
 
 /***/ }),
-/* 46 */
+/* 47 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -13480,7 +13694,7 @@ var actions = {
 /* harmony default export */ __webpack_exports__["a"] = ({ namespaced: true, state: state, mutations: mutations, actions: actions });
 
 /***/ }),
-/* 47 */
+/* 48 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -13541,7 +13755,7 @@ var actions = {
 /* harmony default export */ __webpack_exports__["a"] = ({ namespaced: true, state: state, mutations: mutations, actions: actions });
 
 /***/ }),
-/* 48 */
+/* 49 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -13575,7 +13789,7 @@ var actions = {
 /* harmony default export */ __webpack_exports__["a"] = ({ namespaced: true, state: state, mutations: mutations, actions: actions });
 
 /***/ }),
-/* 49 */
+/* 50 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -13625,7 +13839,7 @@ function webSocketPlugin() {
                         store.dispatch('users/save', replyedUser);
                         store.dispatch('article/addComment', { id: event.comment.article_id });
                     });
-                    Echo.join('user.online.' + store.state.user.user.id).here(function (users) {
+                    Echo.join('user.online.21').here(function (users) {
                         console.log('here', users);
                         users.map(function (user) {
                             return user.online = true;
@@ -13648,26 +13862,25 @@ function webSocketPlugin() {
 }
 
 /***/ }),
-/* 50 */
+/* 51 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-
 var state = {
     likes: []
 };
 
 var mutations = {
     SAVE: function SAVE(state, data) {
-        data.map(function (dataUser) {
-            var user = state.likes.find(function (user) {
-                return user && user.id === dataUser.id;
+        data.map(function (dataLike) {
+            var user = state.likes.find(function (like) {
+                return like && like.id === dataLike.id;
             });
             if (user) {
                 var index = state.likes.indexOf(user);
-                if (index > -1) state.likes.splice(index, 1, dataUser);
+                if (index > -1) state.likes.splice(index, 1, dataLike);
             } else {
-                state.likes.push(dataUser);
+                state.likes.push(dataLike);
             }
         });
     },
@@ -13699,7 +13912,7 @@ var actions = {
 /* harmony default export */ __webpack_exports__["a"] = ({ namespaced: true, state: state, mutations: mutations, actions: actions });
 
 /***/ }),
-/* 51 */
+/* 52 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -13788,10 +14001,275 @@ var actions = {
 /* harmony default export */ __webpack_exports__["a"] = ({ namespaced: true, state: state, mutations: mutations, actions: actions });
 
 /***/ }),
-/* 52 */
+/* 53 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+var state = {
+    topics: []
+};
+
+var mutations = {
+    SAVE: function SAVE(state, data) {
+        data.map(function (datatopic) {
+            var topic = state.topics.find(function (topic) {
+                return topic && topic.id === datatopic.id;
+            });
+            if (topic) {
+                var index = state.topics.indexOf(topic);
+                if (index > -1) state.topics[index] = datatopic;
+            } else {
+                state.topics.push(datatopic);
+            }
+        });
+        //state.topics.sort((topic1,topic2)=>topic2.topicresponses_count-topic1.topicresponses_count)
+    },
+    UPDATE: function UPDATE(state, data) {
+        var topic = state.topics.find(function (topic) {
+            return topic.id === data.id;
+        });
+        var index = state.topics.indexOf(topic);
+        if (index > -1) state.topics.splice(index, 1, data);
+    },
+    DELETE: function DELETE(state, data) {
+        var topic = state.topics.find(function (topic) {
+            return topic.id === data.id;
+        });
+        var key = state.topics.indexOf(topic);
+        state.topics.splice(key, 1);
+    },
+    ADDLIKE: function ADDLIKE(state, _ref) {
+        var topic = _ref.topic,
+            like = _ref.like;
+
+        topic = state.topics.find(function (e) {
+            return e.id === topic.id;
+        });
+        var key = state.topics.indexOf(topic);
+        if (!state.topics[key].liked) state.topics[key].likes_count++;
+        state.topics[key].liked = like;
+    },
+    DELETELIKE: function DELETELIKE(state, _ref2) {
+        var topic = _ref2.topic;
+
+        topic = state.topics.find(function (e) {
+            return e.id === topic.id;
+        });
+        var key = state.topics.indexOf(topic);
+        if (state.topics[key].liked) state.topics[key].likes_count--;
+        state.topics[key].liked = null;
+    },
+    c: function c(state, topic) {
+        topic = state.topics.find(function (e) {
+            return e.id === topic.id;
+        });
+        var index = state.topics.indexOf(topic);
+        if (index > -1) state.topics[index].comments_count++;
+    },
+    DELETERESPONSE: function DELETERESPONSE(state, topic) {
+        topic = state.topics.find(function (e) {
+            return e.id === topic.id;
+        });
+        var index = state.topics.indexOf(topic);
+        if (index > -1) state.topics[index].comments_count--;
+    }
+};
+
+var actions = {
+    save: function save(_ref3, data) {
+        var commit = _ref3.commit;
+
+        if (!Array.isArray(data)) {
+            data = [data];
+        }
+        commit("SAVE", data);
+    },
+    update: function update(_ref4, data) {
+        var commit = _ref4.commit;
+
+        commit("UPDATE", data);
+    },
+    delete: function _delete(_ref5, data) {
+        var commit = _ref5.commit;
+
+        commit("DELETE", data);
+    },
+    addLike: function addLike(_ref6, data) {
+        var commit = _ref6.commit;
+
+        commit("ADDLIKE", data);
+    },
+    deleteLike: function deleteLike(_ref7, data) {
+        var commit = _ref7.commit;
+
+        commit("DELETELIKE", data);
+    },
+    addResponse: function addResponse(_ref8, data) {
+        var commit = _ref8.commit;
+
+        commit("DELETERESPONSE", data);
+    },
+    deleteResponse: function deleteResponse(_ref9, data) {
+        var commit = _ref9.commit;
+
+        commit("DELETERESPONSE", data);
+    }
+};
+
+/* harmony default export */ __webpack_exports__["a"] = ({ namespaced: true, state: state, mutations: mutations, actions: actions });
+
+/***/ }),
+/* 54 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+var state = {
+    categories: []
+};
+
+var mutations = {
+    SAVE: function SAVE(state, data) {
+        console.log(data);
+        data.map(function (dataCategory) {
+            var user = state.categories.find(function (category) {
+                return category && category.id === dataCategory.id;
+            });
+            if (user) {
+                var index = state.categories.indexOf(user);
+                if (index > -1) state.categories.splice(index, 1, dataCategory);
+            } else {
+                state.categories.push(dataCategory);
+            }
+        });
+    },
+    DELETE: function DELETE(state, data) {
+        var category = state.categories.find(function (category) {
+            return category.id === data.id;
+        });
+        var index = state.categories.indexOf(category);
+        if (index > -1) state.categories.splice(index, 1);
+    }
+};
+
+var actions = {
+    save: function save(_ref, data) {
+        var commit = _ref.commit;
+
+        if (!Array.isArray(data)) {
+            data = [data];
+        }
+        commit("SAVE", data);
+    },
+    delete: function _delete(_ref2, data) {
+        var commit = _ref2.commit;
+
+        commit("DELETE", data);
+    }
+};
+
+/* harmony default export */ __webpack_exports__["a"] = ({ namespaced: true, state: state, mutations: mutations, actions: actions });
+
+/***/ }),
+/* 55 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+var state = {
+    topicresponses: []
+};
+
+var mutations = {
+    SAVE: function SAVE(state, data) {
+        data.map(function (datatopic) {
+            var topicresponse = state.topicresponses.find(function (topicresponse) {
+                return topicresponse && topicresponse.id === datatopic.id;
+            });
+            if (topicresponse) {
+                var index = state.topicresponses.indexOf(topicresponse);
+                if (index > -1) state.topicresponses[index] = datatopic;
+            } else {
+                state.topicresponses.push(datatopic);
+            }
+        });
+        state.topicresponses.sort(function (topic1, topic2) {
+            return topic1.id - topic2.id;
+        });
+    },
+    UPDATE: function UPDATE(state, data) {
+        var topicresponse = state.topicresponses.find(function (topicresponse) {
+            return topicresponse.id === data.id;
+        });
+        var index = state.topicresponses.indexOf(topicresponse);
+        if (index > -1) state.topicresponses.splice(index, 1, data);
+    },
+    DELETE: function DELETE(state, data) {
+        var topicresponse = state.topicresponses.find(function (topicresponse) {
+            return topicresponse.id === data.id;
+        });
+        var key = state.topicresponses.indexOf(topicresponse);
+        state.topicresponses.splice(key, 1);
+    },
+    ADDLIKE: function ADDLIKE(state, _ref) {
+        var topicresponse = _ref.topicresponse,
+            like = _ref.like;
+
+        topicresponse = state.topicresponses.find(function (e) {
+            return e.id === topicresponse.id;
+        });
+        var key = state.topicresponses.indexOf(topicresponse);
+        if (!state.topicresponses[key].liked) state.topicresponses[key].likes_count++;
+        state.topicresponses[key].liked = like;
+    },
+    DELETELIKE: function DELETELIKE(state, _ref2) {
+        var topicresponse = _ref2.topicresponse;
+
+        topicresponse = state.topicresponses.find(function (e) {
+            return e.id === topicresponse.id;
+        });
+        var key = state.topicresponses.indexOf(topicresponse);
+        if (state.topicresponses[key].liked) state.topicresponses[key].likes_count--;
+        state.topicresponses[key].liked = null;
+    }
+};
+
+var actions = {
+    save: function save(_ref3, data) {
+        var commit = _ref3.commit;
+
+        if (!Array.isArray(data)) {
+            data = [data];
+        }
+        commit("SAVE", data);
+    },
+    update: function update(_ref4, data) {
+        var commit = _ref4.commit;
+
+        commit("UPDATE", data);
+    },
+    delete: function _delete(_ref5, data) {
+        var commit = _ref5.commit;
+
+        commit("DELETE", data);
+    },
+    addLike: function addLike(_ref6, data) {
+        var commit = _ref6.commit;
+
+        commit("ADDLIKE", data);
+    },
+    deleteLike: function deleteLike(_ref7, data) {
+        var commit = _ref7.commit;
+
+        commit("DELETELIKE", data);
+    }
+};
+
+/* harmony default export */ __webpack_exports__["a"] = ({ namespaced: true, state: state, mutations: mutations, actions: actions });
+
+/***/ }),
+/* 56 */
 /***/ (function(module, exports) {
 
 module.exports = ["just now",["%s second ago","%s seconds ago"],["%s minute ago","%s minutes ago"],["%s hour ago","%s hours ago"],["%s day ago","%s days ago"],["%s week ago","%s weeks ago"],["%s month ago","%s months ago"],["%s year ago","%s years ago"]]
 
 /***/ })
-],[30]);
+],[31]);

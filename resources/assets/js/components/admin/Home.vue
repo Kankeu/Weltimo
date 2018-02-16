@@ -11,10 +11,10 @@
                     </v-flex>
                     <v-flex>
                         <v-progress-circular
-                                v-bind:size="100"
-                                v-bind:width="15"
-                                v-bind:rotate="360"
-                                v-bind:value="this.jobs.length*100"
+                                :size="100"
+                                :width="15"
+                                :rotate="360"
+                                :value="this.jobs.length*100"
                                 color="primary"
                         >
                             {{ this.jobs.length }}

@@ -1,7088 +1,43 @@
-webpackJsonp([36],{
-
-/***/ 148:
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* unused harmony export install */
-/* unused harmony export use */
-/* unused harmony export directive */
-/* unused harmony export mixin */
-/* unused harmony export mapFields */
-/* unused harmony export Validator */
-/* unused harmony export ErrorBag */
-/* unused harmony export Rules */
-/* unused harmony export version */
-/**
-  * vee-validate v2.0.0-rc.27
-  * (c) 2017 Abdelrahman Awad
-  * @license MIT
-  */
-// 
-
-/**
- * Gets the data attribute. the name must be kebab-case.
- */
-var getDataAttribute = function (el, name) { return el.getAttribute(("data-vv-" + name)); };
-
-/**
- * Checks if the value is either null or undefined.
- */
-var isNullOrUndefined = function (value) {
-  return value === null || value === undefined;
-};
-
-/**
- * Sets the data attribute.
- */
-var setDataAttribute = function (el, name, value) { return el.setAttribute(("data-vv-" + name), value); };
-
-/**
- * Creates a proxy object if available in the environment.
- */
-var createProxy = function (target, handler) {
-  if (typeof Proxy === 'undefined') {
-    return target;
-  }
-
-  return new Proxy(target, handler);
-};
-
-/**
- * Creates the default flags object.
- */
-var createFlags = function () { return ({
-  untouched: true,
-  touched: false,
-  dirty: false,
-  pristine: true,
-  valid: null,
-  invalid: null,
-  validated: false,
-  pending: false,
-  required: false
-}); };
-
-/**
- * Shallow object comparison.
- */
-var isEqual = function (lhs, rhs) {
-  if (lhs instanceof RegExp && rhs instanceof RegExp) {
-    return isEqual(lhs.source, rhs.source) && isEqual(lhs.flags, rhs.flags);
-  }
-
-  if (Array.isArray(lhs) && Array.isArray(rhs)) {
-    if (lhs.length !== rhs.length) { return false; }
-
-    for (var i = 0; i < lhs.length; i++) {
-      if (!isEqual(lhs[i], rhs[i])) {
-        return false;
-      }
-    }
-
-    return true;
-  }
-
-  // if both are objects, compare each key recursively.
-  if (isObject(lhs) && isObject(rhs)) {
-    return Object.keys(lhs).every(function (key) {
-      return isEqual(lhs[key], rhs[key]);
-    }) && Object.keys(rhs).every(function (key) {
-      return isEqual(lhs[key], rhs[key]);
-    });
-  }
-
-  return lhs === rhs;
-};
-
-/**
- * Determines the input field scope.
- */
-var getScope = function (el) {
-  var scope = getDataAttribute(el, 'scope');
-  if (isNullOrUndefined(scope) && el.form) {
-    scope = getDataAttribute(el.form, 'scope');
-  }
-
-  return !isNullOrUndefined(scope) ? scope : null;
-};
-
-/**
- * Gets the value in an object safely.
- */
-var getPath = function (path, target, def) {
-  if ( def === void 0 ) def = undefined;
-
-  if (!path || !target) { return def; }
-
-  var value = target;
-  path.split('.').every(function (prop) {
-    if (! Object.prototype.hasOwnProperty.call(value, prop) && value[prop] === undefined) {
-      value = def;
-
-      return false;
-    }
-
-    value = value[prop];
-
-    return true;
-  });
-
-  return value;
-};
-
-/**
- * Checks if path exists within an object.
- */
-var hasPath = function (path, target) {
-  var obj = target;
-  return path.split('.').every(function (prop) {
-    if (! Object.prototype.hasOwnProperty.call(obj, prop)) {
-      return false;
-    }
-
-    obj = obj[prop];
-
-    return true;
-  });
-};
-
-/**
- * Parses a rule string expression.
- */
-var parseRule = function (rule) {
-  var params = [];
-  var name = rule.split(':')[0];
-
-  if (~rule.indexOf(':')) {
-    params = rule.split(':').slice(1).join(':').split(',');
-  }
-
-  return { name: name, params: params };
-};
-
-/**
- * Debounces a function.
- */
-var debounce = function (fn, wait, immediate) {
-  if ( wait === void 0 ) wait = 0;
-  if ( immediate === void 0 ) immediate = false;
-
-  if (wait === 0) {
-    return fn;
-  }
-
-  var timeout;
-
-  return function () {
-    var args = [], len = arguments.length;
-    while ( len-- ) args[ len ] = arguments[ len ];
-
-    var later = function () {
-      timeout = null;
-      if (!immediate) { fn.apply(void 0, args); }
-    };
-    /* istanbul ignore next */
-    var callNow = immediate && !timeout;
-    clearTimeout(timeout);
-    timeout = setTimeout(later, wait);
-    /* istanbul ignore next */
-    if (callNow) { fn.apply(void 0, args); }
-  };
-};
-
-/**
- * Normalizes the given rules expression.
- */
-var normalizeRules = function (rules) {
-  // if falsy value return an empty object.
-  if (!rules) {
-    return {};
-  }
-
-  if (isObject(rules)) {
-    // $FlowFixMe
-    return Object.keys(rules).reduce(function (prev, curr) {
-      var params = [];
-      // $FlowFixMe
-      if (rules[curr] === true) {
-        params = [];
-      } else if (Array.isArray(rules[curr])) {
-        params = rules[curr];
-      } else {
-        params = [rules[curr]];
-      }
-
-      // $FlowFixMe
-      if (rules[curr] !== false) {
-        prev[curr] = params;
-      }
-
-      return prev;
-    }, {});
-  }
-
-  if (typeof rules !== 'string') {
-    warn('rules must be either a string or an object.');
-    return {};
-  }
-
-  return rules.split('|').reduce(function (prev, rule) {
-    var parsedRule = parseRule(rule);
-    if (!parsedRule.name) {
-      return prev;
-    }
-
-    prev[parsedRule.name] = parsedRule.params;
-    return prev;
-  }, {});
-};
-
-/**
- * Emits a warning to the console.
- */
-var warn = function (message) {
-  console.warn(("[vee-validate] " + message)); // eslint-disable-line
-};
-
-/**
- * Creates a branded error object.
- */
-var createError = function (message) { return new Error(("[vee-validate] " + message)); };
-
-/**
- * Checks if the value is an object.
- */
-var isObject = function (obj) { return obj !== null && obj && typeof obj === 'object' && ! Array.isArray(obj); };
-
-/**
- * Checks if a function is callable.
- */
-var isCallable = function (func) { return typeof func === 'function'; };
-
-/**
- * Check if element has the css class on it.
- */
-var hasClass = function (el, className) {
-  if (el.classList) {
-    return el.classList.contains(className);
-  }
-
-  return !!el.className.match(new RegExp(("(\\s|^)" + className + "(\\s|$)")));
-};
-
-/**
- * Adds the provided css className to the element.
- */
-var addClass = function (el, className) {
-  if (el.classList) {
-    el.classList.add(className);
-    return;
-  }
-
-  if (!hasClass(el, className)) {
-    el.className += " " + className;
-  }
-};
-
-/**
- * Remove the provided css className from the element.
- */
-var removeClass = function (el, className) {
-  if (el.classList) {
-    el.classList.remove(className);
-    return;
-  }
-
-  if (hasClass(el, className)) {
-    var reg = new RegExp(("(\\s|^)" + className + "(\\s|$)"));
-    el.className = el.className.replace(reg, ' ');
-  }
-};
-
-/**
- * Adds or removes a class name on the input depending on the status flag.
- */
-var toggleClass = function (el, className, status) {
-  if (!el || !className) { return; }
-
-  if (status) {
-    return addClass(el, className);
-  }
-
-  removeClass(el, className);
-};
-
-/**
- * Converts an array-like object to array, provides a simple polyfill for Array.from
- */
-var toArray = function (arrayLike) {
-  if (isCallable(Array.from)) {
-    return Array.from(arrayLike);
-  }
-
-  var array = [];
-  var length = arrayLike.length;
-  for (var i = 0; i < length; i++) {
-    array.push(arrayLike[i]);
-  }
-
-  return array;
-};
-
-/**
- * Assign polyfill from the mdn.
- */
-var assign = function (target) {
-  var others = [], len = arguments.length - 1;
-  while ( len-- > 0 ) others[ len ] = arguments[ len + 1 ];
-
-  /* istanbul ignore else */
-  if (isCallable(Object.assign)) {
-    return Object.assign.apply(Object, [ target ].concat( others ));
-  }
-
-  /* istanbul ignore next */
-  if (target == null) {
-    throw new TypeError('Cannot convert undefined or null to object');
-  }
-
-  /* istanbul ignore next */
-  var to = Object(target);
-  /* istanbul ignore next */
-  others.forEach(function (arg) {
-    // Skip over if undefined or null
-    if (arg != null) {
-      Object.keys(arg).forEach(function (key) {
-        to[key] = arg[key];
-      });
-    }
-  });
-  /* istanbul ignore next */
-  return to;
-};
-
-var id = 0;
-var idTemplate = '{id}';
-
-/**
- * Generates a unique id.
- */
-var uniqId = function () {
-  // handle too many uses of uniqId, although unlikely.
-  if (id >= 9999) {
-    id = 0;
-    // shift the template.
-    idTemplate = idTemplate.replace('{id}', '_{id}');
-  }
-
-  id++;
-  var newId = idTemplate.replace('{id}', String(id));
-
-  return newId;
-};
-
-/**
- * finds the first element that satisfies the predicate callback, polyfills array.find
- */
-var find = function (arrayLike, predicate) {
-  var array = toArray(arrayLike);
-
-  if (isCallable(array.find)) {
-    return array.find(predicate);
-  }
-
-  var result;
-  array.some(function (item) {
-    if (predicate(item)) {
-      result = item;
-      return true;
-    }
-
-    return false;
-  });
-
-  return result;
-};
-
-/**
- * Returns a suitable event name for the input element.
- */
-var getInputEventName = function (el) {
-  if (el && (el.tagName === 'SELECT' || ~['radio', 'checkbox', 'file'].indexOf(el.type))) {
-    return 'change';
-  }
-
-  return 'input';
-};
-
-var isBuiltInComponent = function (vnode) {
-  if (!vnode) {
-    return false;
-  }
-
-  var tag = vnode.componentOptions.tag;
-
-  return /keep-alive|transition|transition-group/.test(tag);
-};
-
-var makeEventsArray = function (events) {
-  return (typeof events === 'string' && events.length) ? events.split('|') : [];
-};
-
-var makeDelayObject = function (events, delay, delayConfig) {
-  if (typeof delay === 'number') {
-    return events.reduce(function (prev, e) {
-      prev[e] = delay;
-      return prev;
-    }, {});
-  }
-
-  return events.reduce(function (prev, e) {
-    if (typeof delay === 'object' && e in delay) {
-      prev[e] = delay[e];
-      return prev;
-    }
-
-    if (typeof delayConfig === 'number') {
-      prev[e] = delayConfig;
-      return prev;
-    }
-
-    prev[e] = (delayConfig && delayConfig[e]) || 0;
-
-    return prev;
-  }, {});
-};
-
-var deepParseInt = function (input) {
-  if (typeof input === 'number') { return input; }
-
-  if (typeof input === 'string') { return parseInt(input); }
-
-  var map = {};
-  for (var element in input) {
-    map[element] = parseInt(input[element]);
-  }
-
-  return map;
-};
-
-var merge = function (target, source) {
-  if (! (isObject(target) && isObject(source))) {
-    return target;
-  }
-
-  Object.keys(source).forEach(function (key) {
-    if (isObject(source[key])) {
-      if (! target[key]) {
-        assign(target, ( obj = {}, obj[key] = {}, obj ));
-        var obj;
-      }
-
-      merge(target[key], source[key]);
-      return;
-    }
-
-    assign(target, ( obj$1 = {}, obj$1[key] = source[key], obj$1 ));
-    var obj$1;
-  });
-
-  return target;
-};
-
-// 
-
-var ErrorBag = function ErrorBag () {
-  this.items = [];
-};
-
-/**
- * Adds an error to the internal array.
- */
-ErrorBag.prototype.add = function add (error) {
-  // handle old signature.
-  if (arguments.length > 1) {
-    error = {
-      field: arguments[0],
-      msg: arguments[1],
-      rule: arguments[2],
-      scope: !isNullOrUndefined(arguments[3]) ? arguments[3] : null,
-      regenerate: null
-    };
-  }
-
-  error.scope = !isNullOrUndefined(error.scope) ? error.scope : null;
-  this.items.push(error);
-};
-
-/**
- * Regenrates error messages if they have a generator function.
- */
-ErrorBag.prototype.regenerate = function regenerate () {
-  this.items.forEach(function (i) {
-    i.msg = isCallable(i.regenerate) ? i.regenerate() : i.msg;
-  });
-};
-
-/**
- * Updates a field error with the new field scope.
- */
-ErrorBag.prototype.update = function update (id, error) {
-  var item = find(this.items, function (i) { return i.id === id; });
-  if (!item) {
-    return;
-  }
-
-  var idx = this.items.indexOf(item);
-  this.items.splice(idx, 1);
-  item.scope = error.scope;
-  this.items.push(item);
-};
-
-/**
- * Gets all error messages from the internal array.
- */
-ErrorBag.prototype.all = function all (scope) {
-  if (isNullOrUndefined(scope)) {
-    return this.items.map(function (e) { return e.msg; });
-  }
-
-  return this.items.filter(function (e) { return e.scope === scope; }).map(function (e) { return e.msg; });
-};
-
-/**
- * Checks if there are any errors in the internal array.
- */
-ErrorBag.prototype.any = function any (scope) {
-  if (isNullOrUndefined(scope)) {
-    return !!this.items.length;
-  }
-
-  return !!this.items.filter(function (e) { return e.scope === scope; }).length;
-};
-
-/**
- * Removes all items from the internal array.
- */
-ErrorBag.prototype.clear = function clear (scope) {
-    var this$1 = this;
-
-  if (isNullOrUndefined(scope)) {
-    scope = null;
-  }
-
-  for (var i = 0; i < this.items.length; ++i) {
-    if (this$1.items[i].scope === scope) {
-      this$1.items.splice(i, 1);
-      --i;
-    }
-  }
-};
-
-/**
- * Collects errors into groups or for a specific field.
- */
-ErrorBag.prototype.collect = function collect (field, scope, map) {
-    if ( map === void 0 ) map = true;
-
-  if (!field) {
-    var collection = {};
-    this.items.forEach(function (e) {
-      if (! collection[e.field]) {
-        collection[e.field] = [];
-      }
-
-      collection[e.field].push(map ? e.msg : e);
-    });
-
-    return collection;
-  }
-
-  field = !isNullOrUndefined(field) ? String(field) : field;
-  if (isNullOrUndefined(scope)) {
-    return this.items.filter(function (e) { return e.field === field; }).map(function (e) { return (map ? e.msg : e); });
-  }
-
-  return this.items.filter(function (e) { return e.field === field && e.scope === scope; })
-    .map(function (e) { return (map ? e.msg : e); });
-};
-/**
- * Gets the internal array length.
- */
-ErrorBag.prototype.count = function count () {
-  return this.items.length;
-};
-
-/**
- * Finds and fetches the first error message for the specified field id.
- */
-ErrorBag.prototype.firstById = function firstById (id) {
-  var error = find(this.items, function (i) { return i.id === id; });
-
-  return error ? error.msg : null;
-};
-
-/**
- * Gets the first error message for a specific field.
- */
-ErrorBag.prototype.first = function first (field, scope) {
-    var this$1 = this;
-    if ( scope === void 0 ) scope = null;
-
-  field = !isNullOrUndefined(field) ? String(field) : field;
-  var selector = this._selector(field);
-  var scoped = this._scope(field);
-
-  if (scoped) {
-    var result = this.first(scoped.name, scoped.scope);
-    // if such result exist, return it. otherwise it could be a field.
-    // with dot in its name.
-    if (result) {
-      return result;
-    }
-  }
-
-  if (selector) {
-    return this.firstByRule(selector.name, selector.rule, scope);
-  }
-
-  for (var i = 0; i < this.items.length; ++i) {
-    if (this$1.items[i].field === field && (this$1.items[i].scope === scope)) {
-      return this$1.items[i].msg;
-    }
-  }
-
-  return null;
-};
-
-/**
- * Returns the first error rule for the specified field
- */
-ErrorBag.prototype.firstRule = function firstRule (field, scope) {
-  var errors = this.collect(field, scope, false);
-
-  return (errors.length && errors[0].rule) || null;
-};
-
-/**
- * Checks if the internal array has at least one error for the specified field.
- */
-ErrorBag.prototype.has = function has (field, scope) {
-    if ( scope === void 0 ) scope = null;
-
-  return !!this.first(field, scope);
-};
-
-/**
- * Gets the first error message for a specific field and a rule.
- */
-ErrorBag.prototype.firstByRule = function firstByRule (name, rule, scope) {
-    if ( scope === void 0 ) scope = null;
-
-  var error = this.collect(name, scope, false).filter(function (e) { return e.rule === rule; })[0];
-
-  return (error && error.msg) || null;
-};
-
-/**
- * Gets the first error message for a specific field that not match the rule.
- */
-ErrorBag.prototype.firstNot = function firstNot (name, rule, scope) {
-    if ( rule === void 0 ) rule = 'required';
-    if ( scope === void 0 ) scope = null;
-
-  var error = this.collect(name, scope, false).filter(function (e) { return e.rule !== rule; })[0];
-
-  return (error && error.msg) || null;
-};
-
-/**
- * Removes errors by matching against the id.
- */
-ErrorBag.prototype.removeById = function removeById (id) {
-    var this$1 = this;
-
-  for (var i = 0; i < this.items.length; ++i) {
-    if (this$1.items[i].id === id) {
-      this$1.items.splice(i, 1);
-      --i;
-    }
-  }
-};
-
-/**
- * Removes all error messages associated with a specific field.
- */
-ErrorBag.prototype.remove = function remove (field, scope, id) {
-    var this$1 = this;
-
-  field = !isNullOrUndefined(field) ? String(field) : field;
-  var removeCondition = function (e) {
-    if (e.id && id) {
-      return e.id === id;
-    }
-
-    if (!isNullOrUndefined(scope)) {
-      return e.field === field && e.scope === scope;
-    }
-
-    return e.field === field && e.scope === null;
-  };
-
-  for (var i = 0; i < this.items.length; ++i) {
-    if (removeCondition(this$1.items[i])) {
-      this$1.items.splice(i, 1);
-      --i;
-    }
-  }
-};
-
-/**
- * Get the field attributes if there's a rule selector.
- */
-ErrorBag.prototype._selector = function _selector (field) {
-  if (field.indexOf(':') > -1) {
-    var ref = field.split(':');
-      var name = ref[0];
-      var rule = ref[1];
-
-    return { name: name, rule: rule };
-  }
-
-  return null;
-};
-
-/**
- * Get the field scope if specified using dot notation.
- */
-ErrorBag.prototype._scope = function _scope (field) {
-  if (field.indexOf('.') > -1) {
-    var ref = field.split('.');
-      var scope = ref[0];
-      var name = ref.slice(1);
-
-    return { name: name.join('.'), scope: scope };
-  }
-
-  return null;
-};
-
-// 
-
-var LOCALE = 'en';
-
-var Dictionary = function Dictionary (dictionary) {
-  if ( dictionary === void 0 ) dictionary = {};
-
-  this.container = {};
-  this.merge(dictionary);
-};
-
-var prototypeAccessors$2 = { locale: {} };
-
-prototypeAccessors$2.locale.get = function () {
-  return LOCALE;
-};
-
-prototypeAccessors$2.locale.set = function (value) {
-  LOCALE = value || 'en';
-};
-
-Dictionary.prototype.hasLocale = function hasLocale (locale) {
-  return !!this.container[locale];
-};
-
-Dictionary.prototype.setDateFormat = function setDateFormat (locale, format) {
-  if (!this.container[locale]) {
-    this.container[locale] = {};
-  }
-
-  this.container[locale].dateFormat = format;
-};
-
-Dictionary.prototype.getDateFormat = function getDateFormat (locale) {
-  if (!this.container[locale] || !this.container[locale].dateFormat) {
-    return null;
-  }
-
-  return this.container[locale].dateFormat;
-};
-
-Dictionary.prototype.getMessage = function getMessage (locale, key, data) {
-  var message = null;
-  if (!this.hasMessage(locale, key)) {
-    message = this._getDefaultMessage(locale);
-  } else {
-    message = this.container[locale].messages[key];
-  }
-
-  return isCallable(message) ? message.apply(void 0, data) : message;
-};
-
-/**
- * Gets a specific message for field. falls back to the rule message.
- */
-Dictionary.prototype.getFieldMessage = function getFieldMessage (locale, field, key, data) {
-  if (!this.hasLocale(locale)) {
-    return this.getMessage(locale, key, data);
-  }
-
-  var dict = this.container[locale].custom && this.container[locale].custom[field];
-  if (!dict || !dict[key]) {
-    return this.getMessage(locale, key, data);
-  }
-
-  var message = dict[key];
-  return isCallable(message) ? message.apply(void 0, data) : message;
-};
-
-Dictionary.prototype._getDefaultMessage = function _getDefaultMessage (locale) {
-  if (this.hasMessage(locale, '_default')) {
-    return this.container[locale].messages._default;
-  }
-
-  return this.container.en.messages._default;
-};
-
-Dictionary.prototype.getAttribute = function getAttribute (locale, key, fallback) {
-    if ( fallback === void 0 ) fallback = '';
-
-  if (!this.hasAttribute(locale, key)) {
-    return fallback;
-  }
-
-  return this.container[locale].attributes[key];
-};
-
-Dictionary.prototype.hasMessage = function hasMessage (locale, key) {
-  return !! (
-    this.hasLocale(locale) &&
-          this.container[locale].messages &&
-          this.container[locale].messages[key]
-  );
-};
-
-Dictionary.prototype.hasAttribute = function hasAttribute (locale, key) {
-  return !! (
-    this.hasLocale(locale) &&
-          this.container[locale].attributes &&
-          this.container[locale].attributes[key]
-  );
-};
-
-Dictionary.prototype.merge = function merge$1 (dictionary) {
-  merge(this.container, dictionary);
-};
-
-Dictionary.prototype.setMessage = function setMessage (locale, key, message) {
-  if (! this.hasLocale(locale)) {
-    this.container[locale] = {
-      messages: {},
-      attributes: {}
-    };
-  }
-
-  this.container[locale].messages[key] = message;
-};
-
-Dictionary.prototype.setAttribute = function setAttribute (locale, key, attribute) {
-  if (! this.hasLocale(locale)) {
-    this.container[locale] = {
-      messages: {},
-      attributes: {}
-    };
-  }
-
-  this.container[locale].attributes[key] = attribute;
-};
-
-Object.defineProperties( Dictionary.prototype, prototypeAccessors$2 );
-
-// 
-
-var normalizeValue = function (value) {
-  if (isObject(value)) {
-    return Object.keys(value).reduce(function (prev, key) {
-      prev[key] = normalizeValue(value[key]);
-
-      return prev;
-    }, {});
-  }
-
-  if (isCallable(value)) {
-    return value('{0}', ['{1}', '{2}', '{3}']);
-  }
-
-  return value;
-};
-
-var normalizeFormat = function (locale) {
-  // normalize messages
-  var messages = normalizeValue(locale.messages);
-  var custom = normalizeValue(locale.custom);
-
-  return {
-    messages: messages,
-    custom: custom,
-    attributes: locale.attributes,
-    dateFormat: locale.dateFormat
-  };
-};
-
-var I18nDictionary = function I18nDictionary (i18n, rootKey) {
-  this.i18n = i18n;
-  this.rootKey = rootKey;
-};
-
-var prototypeAccessors$3 = { locale: {} };
-
-prototypeAccessors$3.locale.get = function () {
-  return this.i18n.locale;
-};
-
-prototypeAccessors$3.locale.set = function (value) {
-  warn('Cannot set locale from the validator when using vue-i18n, use i18n.locale setter instead');
-};
-
-I18nDictionary.prototype.getDateFormat = function getDateFormat (locale) {
-  return this.i18n.getDateTimeFormat(locale || this.locale);
-};
-
-I18nDictionary.prototype.setDateFormat = function setDateFormat (locale, value) {
-  this.i18n.setDateTimeFormat(locale || this.locale, value);
-};
-
-I18nDictionary.prototype.getMessage = function getMessage (locale, key, data) {
-  var path = (this.rootKey) + ".messages." + key;
-  if (!this.i18n.te(path)) {
-    return this.i18n.t(((this.rootKey) + ".messages._default"), locale, data);
-  }
-
-  return this.i18n.t(path, locale, data);
-};
-
-I18nDictionary.prototype.getAttribute = function getAttribute (locale, key, fallback) {
-    if ( fallback === void 0 ) fallback = '';
-
-  var path = (this.rootKey) + ".attributes." + key;
-  if (!this.i18n.te(path)) {
-    return fallback;
-  }
-
-  return this.i18n.t(path, locale);
-};
-
-I18nDictionary.prototype.getFieldMessage = function getFieldMessage (locale, field, key, data) {
-  var path = (this.rootKey) + ".custom." + field + "." + key;
-  if (this.i18n.te(path)) {
-    return this.i18n.t(path);
-  }
-
-  return this.getMessage(locale, key, data);
-};
-
-I18nDictionary.prototype.merge = function merge$1 (dictionary) {
-    var this$1 = this;
-
-  Object.keys(dictionary).forEach(function (localeKey) {
-    // i18n doesn't deep merge
-    // first clone the existing locale (avoid mutations to locale)
-    var clone = merge({}, getPath((localeKey + "." + (this$1.rootKey)), this$1.i18n.messages, {}));
-    // Merge cloned locale with new one
-    var locale = merge(clone, normalizeFormat(dictionary[localeKey]));
-    this$1.i18n.mergeLocaleMessage(localeKey, ( obj = {}, obj[this$1.rootKey] = locale, obj ));
-      var obj;
-    if (locale.dateFormat) {
-      this$1.i18n.setDateTimeFormat(localeKey, locale.dateFormat);
-    }
-  });
-};
-
-I18nDictionary.prototype.setMessage = function setMessage (locale, key, value) {
-  this.merge(( obj$1 = {}, obj$1[locale] = {
-      messages: ( obj = {}, obj[key] = value, obj )
-    }, obj$1 ));
-    var obj;
-    var obj$1;
-};
-
-I18nDictionary.prototype.setAttribute = function setAttribute (locale, key, value) {
-  this.merge(( obj$1 = {}, obj$1[locale] = {
-      attributes: ( obj = {}, obj[key] = value, obj )
-    }, obj$1 ));
-    var obj;
-    var obj$1;
-};
-
-Object.defineProperties( I18nDictionary.prototype, prototypeAccessors$3 );
-
-// 
-
-var defaultConfig = {
-  locale: 'en',
-  delay: 0,
-  errorBagName: 'errors',
-  dictionary: null,
-  strict: true,
-  fieldsBagName: 'fields',
-  classes: false,
-  classNames: null,
-  events: 'input|blur',
-  inject: true,
-  fastExit: true,
-  aria: true,
-  validity: false,
-  i18n: null,
-  i18nRootKey: 'validation'
-};
-
-var currentConfig = assign({}, defaultConfig);
-var dependencies = {
-  dictionary: new Dictionary({
-    en: {
-      messages: {},
-      attributes: {},
-      custom: {}
-    }
-  })
-};
-
-var Config = function Config () {};
-
-var staticAccessors$1 = { default: {},current: {} };
-
-staticAccessors$1.default.get = function () {
-  return defaultConfig;
-};
-
-staticAccessors$1.current.get = function () {
-  return currentConfig;
-};
-
-Config.dependency = function dependency (key) {
-  return dependencies[key];
-};
-
-/**
- * Merges the config with a new one.
- */
-Config.merge = function merge$$1 (config) {
-  currentConfig = assign({}, currentConfig, config);
-  if (currentConfig.i18n) {
-    Config.register('dictionary', new I18nDictionary(currentConfig.i18n, currentConfig.i18nRootKey));
-  }
-};
-
-/**
- * Registers a dependency.
- */
-Config.register = function register (key, value) {
-  dependencies[key] = value;
-};
-
-/**
- * Resolves the working config from a Vue instance.
- */
-Config.resolve = function resolve (context) {
-  var selfConfig = getPath('$options.$_veeValidate', context, {});
-
-  return assign({}, Config.current, selfConfig);
-};
-
-Object.defineProperties( Config, staticAccessors$1 );
-
-/**
- * Generates the options required to construct a field.
- */
-var Generator = function Generator () {};
-
-Generator.generate = function generate (el, binding, vnode) {
-  var model = Generator.resolveModel(binding, vnode);
-  var options = Config.resolve(vnode.context);
-
-  return {
-    name: Generator.resolveName(el, vnode),
-    el: el,
-    listen: !binding.modifiers.disable,
-    scope: Generator.resolveScope(el, binding, vnode),
-    vm: Generator.makeVM(vnode.context),
-    expression: binding.value,
-    component: vnode.child,
-    classes: options.classes,
-    classNames: options.classNames,
-    getter: Generator.resolveGetter(el, vnode, model),
-    events: Generator.resolveEvents(el, vnode) || options.events,
-    model: model,
-    delay: Generator.resolveDelay(el, vnode, options),
-    rules: Generator.resolveRules(el, binding),
-    initial: !!binding.modifiers.initial,
-    validity: options.validity,
-    aria: options.aria,
-    initialValue: Generator.resolveInitialValue(vnode)
-  };
-};
-
-Generator.getCtorConfig = function getCtorConfig (vnode) {
-  if (!vnode.child) { return null; }
-
-  var config = getPath('child.$options.$_veeValidate', vnode);
-
-  return config;
-};
-
-/**
- * Resolves the rules defined on an element.
- */
-Generator.resolveRules = function resolveRules (el, binding) {
-  if (!binding.value && (!binding || !binding.expression)) {
-    return getDataAttribute(el, 'rules');
-  }
-
-  if (typeof binding.value === 'string') {
-    return binding.value;
-  }
-
-  if (~['string', 'object'].indexOf(typeof binding.value.rules)) {
-    return binding.value.rules;
-  }
-
-  return binding.value;
-};
-
-/**
- * @param {*} vnode
- */
-Generator.resolveInitialValue = function resolveInitialValue (vnode) {
-  var model = vnode.data.model || find(vnode.data.directives, function (d) { return d.name === 'model'; });
-
-  return model && model.value;
-};
-
-/**
- * Creates a non-circular partial VM instance from a Vue instance.
- * @param {*} vm
- */
-Generator.makeVM = function makeVM (vm) {
-  return {
-    get $el () {
-      return vm.$el;
-    },
-    get $refs () {
-      return vm.$refs;
-    },
-    $watch: vm.$watch ? vm.$watch.bind(vm) : function () {},
-    $validator: vm.$validator ? {
-      errors: vm.$validator.errors,
-      validate: vm.$validator.validate.bind(vm.$validator),
-      update: vm.$validator.update.bind(vm.$validator)
-    } : null
-  };
-};
-
-/**
- * Resolves the delay value.
- * @param {*} el
- * @param {*} vnode
- * @param {Object} options
- */
-Generator.resolveDelay = function resolveDelay (el, vnode, options) {
-  var delay = getDataAttribute(el, 'delay');
-  var globalDelay = (options && 'delay' in options) ? options.delay : 0;
-
-  if (!delay && vnode.child && vnode.child.$attrs) {
-    delay = vnode.child.$attrs['data-vv-delay'];
-  }
-
-  if (!isObject(globalDelay)) {
-    return deepParseInt(delay || globalDelay);
-  }
-
-  globalDelay.input = delay || 0;
-
-  return deepParseInt(globalDelay);
-};
-
-/**
- * Resolves the events to validate in response to.
- * @param {*} el
- * @param {*} vnode
- */
-Generator.resolveEvents = function resolveEvents (el, vnode) {
-  var events = getDataAttribute(el, 'validate-on');
-
-  if (!events && vnode.child && vnode.child.$attrs) {
-    events = vnode.child.$attrs['data-vv-validate-on'];
-  }
-
-  if (!events && vnode.child) {
-    var config = Generator.getCtorConfig(vnode);
-    events = config && config.events;
-  }
-
-  return events;
-};
-
-/**
- * Resolves the scope for the field.
- * @param {*} el
- * @param {*} binding
- */
-Generator.resolveScope = function resolveScope (el, binding, vnode) {
-    if ( vnode === void 0 ) vnode = {};
-
-  var scope = null;
-  if (isObject(binding.value)) {
-    scope = binding.value.scope;
-  }
-
-  if (vnode.child && isNullOrUndefined(scope)) {
-    scope = vnode.child.$attrs && vnode.child.$attrs['data-vv-scope'];
-  }
-
-  return !isNullOrUndefined(scope) ? scope : getScope(el);
-};
-
-/**
- * Checks if the node directives contains a v-model or a specified arg.
- * Args take priority over models.
- *
- * @return {Object}
- */
-Generator.resolveModel = function resolveModel (binding, vnode) {
-  if (binding.arg) {
-    return binding.arg;
-  }
-
-  if (isObject(binding.value) && binding.value.arg) {
-    return binding.value.arg;
-  }
-
-  var model = vnode.data.model || find(vnode.data.directives, function (d) { return d.name === 'model'; });
-  if (!model) {
-    return null;
-  }
-
-  var watchable = /^[a-z_]+[0-9]*(\w*\.[a-z_]\w*)*$/i.test(model.expression) && hasPath(model.expression, vnode.context);
-
-  if (!watchable) {
-    return null;
-  }
-
-  return model.expression;
-};
-
-/**
-   * Resolves the field name to trigger validations.
-   * @return {String} The field name.
-   */
-Generator.resolveName = function resolveName (el, vnode) {
-  var name = getDataAttribute(el, 'name');
-
-  if (!name && !vnode.child) {
-    return el.name;
-  }
-
-  if (!name && vnode.child && vnode.child.$attrs) {
-    name = vnode.child.$attrs['data-vv-name'] || vnode.child.$attrs['name'];
-  }
-
-  if (!name && vnode.child) {
-    var config = Generator.getCtorConfig(vnode);
-    if (config && isCallable(config.name)) {
-      var boundGetter = config.name.bind(vnode.child);
-
-      return boundGetter();
-    }
-
-    return vnode.child.name;
-  }
-
-  return name;
-};
-
-/**
- * Returns a value getter input type.
- */
-Generator.resolveGetter = function resolveGetter (el, vnode, model) {
-  if (model) {
-    return function () {
-      return getPath(model, vnode.context);
-    };
-  }
-
-  if (vnode.child) {
-    var path = getDataAttribute(el, 'value-path') || (vnode.child.$attrs && vnode.child.$attrs['data-vv-value-path']);
-    if (path) {
-      return function () {
-        return getPath(path, vnode.child);
-      };
-    }
-
-    var config = Generator.getCtorConfig(vnode);
-    if (config && isCallable(config.value)) {
-      var boundGetter = config.value.bind(vnode.child);
-
-      return function () {
-        return boundGetter();
-      };
-    }
-
-    return function () {
-      return vnode.child.value;
-    };
-  }
-
-  switch (el.type) {
-  case 'checkbox': return function () {
-    var els = document.querySelectorAll(("input[name=\"" + (el.name) + "\"]"));
-
-    els = toArray(els).filter(function (el) { return el.checked; });
-    if (!els.length) { return undefined; }
-
-    return els.map(function (checkbox) { return checkbox.value; });
-  };
-  case 'radio': return function () {
-    var els = document.querySelectorAll(("input[name=\"" + (el.name) + "\"]"));
-    var elm = find(els, function (el) { return el.checked; });
-
-    return elm && elm.value;
-  };
-  case 'file': return function (context) {
-    return toArray(el.files);
-  };
-  case 'select-multiple': return function () {
-    return toArray(el.options).filter(function (opt) { return opt.selected; }).map(function (opt) { return opt.value; });
-  };
-  default: return function () {
-    return el && el.value;
-  };
-  }
-};
-
-// 
-
-var DEFAULT_OPTIONS = {
-  targetOf: null,
-  initial: false,
-  scope: null,
-  listen: true,
-  name: null,
-  rules: {},
-  vm: null,
-  classes: false,
-  validity: true,
-  aria: true,
-  events: 'input|blur',
-  delay: 0,
-  classNames: {
-    touched: 'touched', // the control has been blurred
-    untouched: 'untouched', // the control hasn't been blurred
-    valid: 'valid', // model is valid
-    invalid: 'invalid', // model is invalid
-    pristine: 'pristine', // control has not been interacted with
-    dirty: 'dirty' // control has been interacted with
-  }
-};
-
-var Field = function Field (el, options) {
-  if ( options === void 0 ) options = {};
-
-  this.id = uniqId();
-  this.el = el;
-  this.updated = false;
-  this.dependencies = [];
-  this.watchers = [];
-  this.events = [];
-  this.delay = 0;
-  this.rules = {};
-  this._cacheId(options);
-  options = assign({}, DEFAULT_OPTIONS, options);
-  this._delay = !isNullOrUndefined(options.delay) ? options.delay : 0; // cache initial delay
-  this.validity = options.validity;
-  this.aria = options.aria;
-  this.flags = createFlags();
-  this.vm = options.vm;
-  this.component = options.component;
-  this.ctorConfig = this.component ? getPath('$options.$_veeValidate', this.component) : undefined;
-  this.update(options);
-  this.updated = false;
-};
-
-var prototypeAccessors$1 = { validator: {},isRequired: {},isDisabled: {},alias: {},value: {},rejectsFalse: {} };
-
-prototypeAccessors$1.validator.get = function () {
-  if (!this.vm || !this.vm.$validator) {
-    warn('No validator instance detected.');
-    return { validate: function () {} };
-  }
-
-  return this.vm.$validator;
-};
-
-prototypeAccessors$1.isRequired.get = function () {
-  return !!this.rules.required;
-};
-
-prototypeAccessors$1.isDisabled.get = function () {
-  return !!(this.component && this.component.disabled) || !!(this.el && this.el.disabled);
-};
-
-/**
- * Gets the display name (user-friendly name).
- */
-prototypeAccessors$1.alias.get = function () {
-  if (this._alias) {
-    return this._alias;
-  }
-
-  var alias = null;
-  if (this.el) {
-    alias = getDataAttribute(this.el, 'as');
-  }
-
-  if (!alias && this.component) {
-    return this.component.$attrs && this.component.$attrs['data-vv-as'];
-  }
-
-  return alias;
-};
-
-/**
- * Gets the input value.
- */
-
-prototypeAccessors$1.value.get = function () {
-  if (!isCallable(this.getter)) {
-    return undefined;
-  }
-
-  return this.getter();
-};
-
-/**
- * If the field rejects false as a valid value for the required rule.
- */
-
-prototypeAccessors$1.rejectsFalse.get = function () {
-  if (this.component && this.ctorConfig) {
-    return !!this.ctorConfig.rejectsFalse;
-  }
-
-  if (!this.el) {
-    return false;
-  }
-
-  return this.el.type === 'checkbox';
-};
-
-/**
- * Determines if the instance matches the options provided.
- */
-Field.prototype.matches = function matches (options) {
-  if (options.id) {
-    return this.id === options.id;
-  }
-
-  if (options.name === undefined && options.scope === undefined) {
-    return true;
-  }
-
-  if (options.scope === undefined) {
-    return this.name === options.name;
-  }
-
-  if (options.name === undefined) {
-    return this.scope === options.scope;
-  }
-
-  return options.name === this.name && options.scope === this.scope;
-};
-
-/**
- * Caches the field id.
- */
-Field.prototype._cacheId = function _cacheId (options) {
-  if (this.el && !options.targetOf) {
-    setDataAttribute(this.el, 'id', this.id); // cache field id if it is independent and has a root element.
-  }
-};
-
-/**
- * Updates the field with changed data.
- */
-Field.prototype.update = function update (options) {
-  this.targetOf = options.targetOf || null;
-  this.initial = options.initial || this.initial || false;
-
-  // update errors scope if the field scope was changed.
-  if (!isNullOrUndefined(options.scope) && options.scope !== this.scope && isCallable(this.validator.update)) {
-    this.validator.update(this.id, { scope: options.scope });
-  }
-  this.scope = !isNullOrUndefined(options.scope) ? options.scope
-    : !isNullOrUndefined(this.scope) ? this.scope : null;
-  this.name = (!isNullOrUndefined(options.name) ? String(options.name) : options.name) || this.name || null;
-  this.rules = options.rules !== undefined ? normalizeRules(options.rules) : this.rules;
-  this.model = options.model || this.model;
-  this.listen = options.listen !== undefined ? options.listen : this.listen;
-  this.classes = (options.classes || this.classes || false) && !this.component;
-  this.classNames = options.classNames || this.classNames || DEFAULT_OPTIONS.classNames;
-  this.getter = isCallable(options.getter) ? options.getter : this.getter;
-  this._alias = options.alias || this._alias;
-  this.events = (options.events) ? makeEventsArray(options.events) : this.events;
-  this.delay = (options.delay) ? makeDelayObject(this.events, options.delay, this._delay) : makeDelayObject(this.events, this.delay, this._delay);
-  this.updateDependencies();
-  this.addActionListeners();
-
-  // update required flag flags
-  if (options.rules !== undefined) {
-    this.flags.required = this.isRequired;
-  }
-
-  // validate if it was validated before and field was updated and there was a rules mutation.
-  if (this.flags.validated && options.rules !== undefined && this.updated) {
-    this.validator.validate(("#" + (this.id)));
-  }
-
-  this.updated = true;
-
-  // no need to continue.
-  if (!this.el) {
-    return;
-  }
-
-  this.updateClasses();
-  this.addValueListeners();
-  this.updateAriaAttrs();
-};
-
-/**
- * Resets field flags and errors.
- */
-Field.prototype.reset = function reset () {
-    var this$1 = this;
-
-  var defaults = createFlags();
-  Object.keys(this.flags).forEach(function (flag) {
-    this$1.flags[flag] = defaults[flag];
-  });
-
-  this.addActionListeners();
-  this.updateClasses();
-  this.updateAriaAttrs();
-  this.updateCustomValidity();
-};
-
-/**
- * Sets the flags and their negated counterparts, and updates the classes and re-adds action listeners.
- */
-Field.prototype.setFlags = function setFlags (flags) {
-    var this$1 = this;
-
-  var negated = {
-    pristine: 'dirty',
-    dirty: 'pristine',
-    valid: 'invalid',
-    invalid: 'valid',
-    touched: 'untouched',
-    untouched: 'touched'
-  };
-
-  Object.keys(flags).forEach(function (flag) {
-    this$1.flags[flag] = flags[flag];
-    // if it has a negation and was not specified, set it as well.
-    if (negated[flag] && flags[negated[flag]] === undefined) {
-      this$1.flags[negated[flag]] = !flags[flag];
-    }
-  });
-
-  if (
-    flags.untouched !== undefined ||
-    flags.touched !== undefined ||
-    flags.dirty !== undefined ||
-    flags.pristine !== undefined
-  ) {
-    this.addActionListeners();
-  }
-  this.updateClasses();
-  this.updateAriaAttrs();
-  this.updateCustomValidity();
-};
-
-/**
- * Determines if the field requires references to target fields.
-*/
-Field.prototype.updateDependencies = function updateDependencies () {
-    var this$1 = this;
-
-  // reset dependencies.
-  this.dependencies.forEach(function (d) { return d.field.destroy(); });
-  this.dependencies = [];
-
-  // we get the selectors for each field.
-  var fields = Object.keys(this.rules).reduce(function (prev, r) {
-    if (r === 'confirmed') {
-      prev.push({ selector: this$1.rules[r][0] || ((this$1.name) + "_confirmation"), name: r });
-    } else if (Validator.isTargetRule(r)) {
-      prev.push({ selector: this$1.rules[r][0], name: r });
-    }
-
-    return prev;
-  }, []);
-
-  if (!fields.length || !this.vm || !this.vm.$el) { return; }
-
-  // must be contained within the same component, so we use the vm root element constrain our dom search.
-  fields.forEach(function (ref) {
-      var selector = ref.selector;
-      var name = ref.name;
-
-    var el = null;
-    // vue ref selector.
-    if (selector[0] === '$') {
-      el = this$1.vm.$refs[selector.slice(1)];
-    } else {
-      try {
-        // try query selector
-        el = this$1.vm.$el.querySelector(selector);
-      } catch (err) {
-        el = null;
-      }
-    }
-
-    if (!el) {
-      try {
-        el = this$1.vm.$el.querySelector(("input[name=\"" + selector + "\"]"));
-      } catch (err) {
-        el = null;
-      }
-    }
-
-    if (!el) {
-      return;
-    }
-
-    var options = {
-      vm: this$1.vm,
-      classes: this$1.classes,
-      classNames: this$1.classNames,
-      delay: this$1.delay,
-      scope: this$1.scope,
-      events: this$1.events.join('|'),
-      initial: this$1.initial,
-      targetOf: this$1.id
-    };
-
-    // probably a component.
-    if (isCallable(el.$watch)) {
-      options.component = el;
-      options.el = el.$el;
-      options.getter = Generator.resolveGetter(el.$el, { child: el });
-    } else {
-      options.el = el;
-      options.getter = Generator.resolveGetter(el, {});
-    }
-
-    this$1.dependencies.push({ name: name, field: new Field(options.el, options) });
-  });
-};
-
-/**
- * Removes listeners.
- */
-Field.prototype.unwatch = function unwatch (tag) {
-    if ( tag === void 0 ) tag = null;
-
-  if (!tag) {
-    this.watchers.forEach(function (w) { return w.unwatch(); });
-    this.watchers = [];
-    return;
-  }
-
-  this.watchers.filter(function (w) { return tag.test(w.tag); }).forEach(function (w) { return w.unwatch(); });
-  this.watchers = this.watchers.filter(function (w) { return !tag.test(w.tag); });
-};
-
-/**
- * Updates the element classes depending on each field flag status.
- */
-Field.prototype.updateClasses = function updateClasses () {
-  if (!this.classes) { return; }
-
-  toggleClass(this.el, this.classNames.dirty, this.flags.dirty);
-  toggleClass(this.el, this.classNames.pristine, this.flags.pristine);
-  toggleClass(this.el, this.classNames.valid, !!this.flags.valid);
-  toggleClass(this.el, this.classNames.invalid, !!this.flags.invalid);
-  toggleClass(this.el, this.classNames.touched, this.flags.touched);
-  toggleClass(this.el, this.classNames.untouched, this.flags.untouched);
-};
-
-/**
- * Adds the listeners required for automatic classes and some flags.
- */
-Field.prototype.addActionListeners = function addActionListeners () {
-    var this$1 = this;
-
-  // remove previous listeners.
-  this.unwatch(/class/);
-
-  var onBlur = function () {
-    this$1.flags.touched = true;
-    this$1.flags.untouched = false;
-    if (this$1.classes) {
-      toggleClass(this$1.el, this$1.classNames.touched, true);
-      toggleClass(this$1.el, this$1.classNames.untouched, false);
-    }
-
-    // only needed once.
-    this$1.unwatch(/^class_blur$/);
-  };
-
-  var inputEvent = getInputEventName(this.el);
-  var onInput = function () {
-    this$1.flags.dirty = true;
-    this$1.flags.pristine = false;
-    if (this$1.classes) {
-      toggleClass(this$1.el, this$1.classNames.pristine, false);
-      toggleClass(this$1.el, this$1.classNames.dirty, true);
-    }
-
-    // only needed once.
-    this$1.unwatch(/^class_input$/);
-  };
-
-  if (this.component && isCallable(this.component.$once)) {
-    this.component.$once('input', onInput);
-    this.component.$once('blur', onBlur);
-    this.watchers.push({
-      tag: 'class_input',
-      unwatch: function () {
-        this$1.component.$off('input', onInput);
-      }
-    });
-    this.watchers.push({
-      tag: 'class_blur',
-      unwatch: function () {
-        this$1.component.$off('blur', onBlur);
-      }
-    });
-    return;
-  }
-
-  if (!this.el) { return; }
-
-  this.el.addEventListener(inputEvent, onInput);
-  // Checkboxes and radio buttons on Mac don't emit blur naturally, so we listen on click instead.
-  var blurEvent = ['radio', 'checkbox'].indexOf(this.el.type) === -1 ? 'blur' : 'click';
-  this.el.addEventListener(blurEvent, onBlur);
-  this.watchers.push({
-    tag: 'class_input',
-    unwatch: function () {
-      this$1.el.removeEventListener(inputEvent, onInput);
-    }
-  });
-
-  this.watchers.push({
-    tag: 'class_blur',
-    unwatch: function () {
-      this$1.el.removeEventListener(blurEvent, onBlur);
-    }
-  });
-};
-
-/**
- * Adds the listeners required for validation.
- */
-Field.prototype.addValueListeners = function addValueListeners () {
-    var this$1 = this;
-
-  this.unwatch(/^input_.+/);
-  if (!this.listen) { return; }
-
-  var fn = this.targetOf ? function () {
-    this$1.validator.validate(("#" + (this$1.targetOf)));
-  } : function () {
-      var args = [], len = arguments.length;
-      while ( len-- ) args[ len ] = arguments[ len ];
-
-    // if its a DOM event, resolve the value, otherwise use the first parameter as the value.
-    if (args.length === 0 || (isCallable(Event) && args[0] instanceof Event) || (args[0] && args[0].srcElement)) {
-      args[0] = this$1.value;
-    }
-    this$1.validator.validate(("#" + (this$1.id)), args[0]);
-  };
-
-  var inputEvent = getInputEventName(this.el);
-  // replace input event with suitable one.
-  var events = this.events.map(function (e) {
-    return e === 'input' ? inputEvent : e;
-  });
-
-  // if there is a watchable model and an on input validation is requested.
-  if (this.model && events.indexOf(inputEvent) !== -1) {
-    var debouncedFn = debounce(fn, this.delay[inputEvent]);
-    var unwatch = this.vm.$watch(this.model, function () {
-        var args = [], len = arguments.length;
-        while ( len-- ) args[ len ] = arguments[ len ];
-
-      this$1.flags.pending = true;
-      debouncedFn.apply(void 0, args);
-    });
-    this.watchers.push({
-      tag: 'input_model',
-      unwatch: unwatch
-    });
-    // filter out input event as it is already handled by the watcher API.
-    events = events.filter(function (e) { return e !== inputEvent; });
-  }
-
-  // Add events.
-  events.forEach(function (e) {
-    var debouncedFn = debounce(fn, this$1.delay[e]);
-    var validate = function () {
-        var args = [], len = arguments.length;
-        while ( len-- ) args[ len ] = arguments[ len ];
-
-      this$1.flags.pending = true;
-      debouncedFn.apply(void 0, args);
-    };
-
-    if (this$1.component) {
-      this$1.component.$on(e, validate);
-      this$1.watchers.push({
-        tag: 'input_vue',
-        unwatch: function () {
-          this$1.component.$off(e, validate);
-        }
-      });
-      return;
-    }
-
-    if (~['radio', 'checkbox'].indexOf(this$1.el.type)) {
-      var els = document.querySelectorAll(("input[name=\"" + (this$1.el.name) + "\"]"));
-      toArray(els).forEach(function (el) {
-        el.addEventListener(e, validate);
-        this$1.watchers.push({
-          tag: 'input_native',
-          unwatch: function () {
-            el.removeEventListener(e, validate);
-          }
-        });
-      });
-
-      return;
-    }
-
-    this$1.el.addEventListener(e, validate);
-    this$1.watchers.push({
-      tag: 'input_native',
-      unwatch: function () {
-        this$1.el.removeEventListener(e, validate);
-      }
-    });
-  });
-};
-
-/**
- * Updates aria attributes on the element.
- */
-Field.prototype.updateAriaAttrs = function updateAriaAttrs () {
-  if (!this.aria || !this.el || !isCallable(this.el.setAttribute)) { return; }
-
-  this.el.setAttribute('aria-required', this.isRequired ? 'true' : 'false');
-  this.el.setAttribute('aria-invalid', this.flags.invalid ? 'true' : 'false');
-};
-
-/**
- * Updates the custom validity for the field.
- */
-Field.prototype.updateCustomValidity = function updateCustomValidity () {
-  if (!this.validity || !this.el || !isCallable(this.el.setCustomValidity)) { return; }
-
-  this.el.setCustomValidity(this.flags.valid ? '' : (this.validator.errors.firstById(this.id) || ''));
-};
-
-/**
- * Removes all listeners.
- */
-Field.prototype.destroy = function destroy () {
-  this.watchers.forEach(function (w) { return w.unwatch(); });
-  this.watchers = [];
-  this.dependencies.forEach(function (d) { return d.field.destroy(); });
-  this.dependencies = [];
-};
-
-Object.defineProperties( Field.prototype, prototypeAccessors$1 );
-
-// 
-
-var FieldBag = function FieldBag () {
-  this.items = [];
-};
-
-var prototypeAccessors$4 = { length: {} };
-
-/**
- * Gets the current items length.
- */
-
-prototypeAccessors$4.length.get = function () {
-  return this.items.length;
-};
-
-/**
- * Finds the first field that matches the provided matcher object.
- */
-FieldBag.prototype.find = function find$1 (matcher) {
-  return find(this.items, function (item) { return item.matches(matcher); });
-};
-
-/**
- * Filters the items down to the matched fields.
- */
-FieldBag.prototype.filter = function filter (matcher) {
-  // multiple matchers to be tried.
-  if (Array.isArray(matcher)) {
-    return this.items.filter(function (item) { return matcher.some(function (m) { return item.matches(m); }); });
-  }
-
-  return this.items.filter(function (item) { return item.matches(matcher); });
-};
-
-/**
- * Maps the field items using the mapping function.
- */
-FieldBag.prototype.map = function map (mapper) {
-  return this.items.map(mapper);
-};
-
-/**
- * Finds and removes the first field that matches the provided matcher object, returns the removed item.
- */
-FieldBag.prototype.remove = function remove (matcher) {
-  var item = null;
-  if (matcher instanceof Field) {
-    item = matcher;
-  } else {
-    item = this.find(matcher);
-  }
-
-  if (!item) { return null; }
-
-  var index = this.items.indexOf(item);
-  this.items.splice(index, 1);
-
-  return item;
-};
-
-/**
- * Adds a field item to the list.
- */
-FieldBag.prototype.push = function push (item) {
-  if (! (item instanceof Field)) {
-    throw createError('FieldBag only accepts instances of Field that has an id defined.');
-  }
-
-  if (!item.id) {
-    throw createError('Field id must be defined.');
-  }
-
-  if (this.find({ id: item.id })) {
-    throw createError(("Field with id " + (item.id) + " is already added."));
-  }
-
-  this.items.push(item);
-};
-
-Object.defineProperties( FieldBag.prototype, prototypeAccessors$4 );
-
-// 
-
-var RULES = {};
-var STRICT_MODE = true;
-var TARGET_RULES = ['confirmed', 'after', 'before'];
-var ERRORS = []; // HOLD errors references to trigger regeneration.
-
-var Validator = function Validator (validations, options) {
-  var this$1 = this;
-  if ( options === void 0 ) options = { vm: null, fastExit: true };
-
-  this.strict = STRICT_MODE;
-  this.errors = new ErrorBag();
-  ERRORS.push(this.errors);
-  this.fields = new FieldBag();
-  this.flags = {};
-  this._createFields(validations);
-  this.paused = false;
-  this.fastExit = options.fastExit || false;
-  this.ownerId = options.vm && options.vm._uid;
-  // create it statically since we don't need constant access to the vm.
-  this.reset = options.vm && isCallable(options.vm.$nextTick) ? function (matcher) {
-    return new Promise(function (resolve) {
-      options.vm.$nextTick(function () {
-        resolve(this$1._reset(matcher));
-      });
-    });
-  } : this._reset;
-};
-
-var prototypeAccessors = { dictionary: {},locale: {},rules: {} };
-var staticAccessors = { dictionary: {},locale: {},rules: {} };
-
-/**
- * Getter for the dictionary.
- */
-prototypeAccessors.dictionary.get = function () {
-  return Config.dependency('dictionary');
-};
-
-/**
- * Static Getter for the dictionary.
- */
-staticAccessors.dictionary.get = function () {
-  return Config.dependency('dictionary');
-};
-
-/**
- * Getter for the current locale.
- */
-prototypeAccessors.locale.get = function () {
-  return this.dictionary.locale;
-};
-
-/**
- * Setter for the validator locale.
- */
-prototypeAccessors.locale.set = function (value) {
-  Validator.locale = value;
-};
-
-/**
-* Static getter for the validator locale.
-*/
-staticAccessors.locale.get = function () {
-  return Validator.dictionary.locale;
-};
-
-/**
- * Static setter for the validator locale.
- */
-staticAccessors.locale.set = function (value) {
-  var hasChanged = value !== Validator.dictionary.locale;
-  Validator.dictionary.locale = value;
-  if (hasChanged) {
-    Validator.regenerate();
-  }
-};
-
-/**
- * Getter for the rules object.
- */
-prototypeAccessors.rules.get = function () {
-  return RULES;
-};
-
-/**
- * Static Getter for the rules object.
- */
-staticAccessors.rules.get = function () {
-  return RULES;
-};
-
-/**
- * Static constructor.
- */
-Validator.create = function create (validations, options) {
-  return new Validator(validations, options);
-};
-
-/**
- * Adds a custom validator to the list of validation rules.
- */
-Validator.extend = function extend (name, validator, options) {
-    if ( options === void 0 ) options = {};
-
-  Validator._guardExtend(name, validator);
-  Validator._merge(name, validator);
-  if (options && options.hasTarget) {
-    TARGET_RULES.push(name);
-  }
-};
-
-/**
- * Regenerates error messages across all validators.
- */
-Validator.regenerate = function regenerate () {
-  ERRORS.forEach(function (errorBag) { return errorBag.regenerate(); });
-};
-
-/**
- * Removes a rule from the list of validators.
- */
-Validator.remove = function remove (name) {
-  delete RULES[name];
-  var idx = TARGET_RULES.indexOf(name);
-  if (idx === -1) { return; }
-
-  TARGET_RULES.splice(idx, 1);
-};
-
-/**
- * Checks if the given rule name is a rule that targets other fields.
- */
-Validator.isTargetRule = function isTargetRule (name) {
-  return TARGET_RULES.indexOf(name) !== -1;
-};
-
-/**
- * Sets the operating mode for all newly created validators.
- * strictMode = true: Values without a rule are invalid and cause failure.
- * strictMode = false: Values without a rule are valid and are skipped.
- */
-Validator.setStrictMode = function setStrictMode (strictMode) {
-    if ( strictMode === void 0 ) strictMode = true;
-
-  STRICT_MODE = strictMode;
-};
-
-/**
- * Adds and sets the current locale for the validator.
- */
-Validator.prototype.localize = function localize (lang, dictionary) {
-  Validator.localize(lang, dictionary);
-};
-
-/**
- * Adds and sets the current locale for the validator.
- */
-Validator.localize = function localize (lang, dictionary) {
-  if (isObject(lang)) {
-    Validator.dictionary.merge(lang);
-    return;
-  }
-
-  // merge the dictionary.
-  if (dictionary) {
-    var locale = lang || dictionary.name;
-    dictionary = assign({}, dictionary);
-    Validator.dictionary.merge(( obj = {}, obj[locale] = dictionary, obj ));
-      var obj;
-  }
-
-  if (lang) {
-    // set the locale.
-    Validator.locale = lang;
-  }
-};
-
-/**
- * Registers a field to be validated.
- */
-Validator.prototype.attach = function attach (field) {
-  // deprecate: handle old signature.
-  if (arguments.length > 1) {
-    field = assign({}, {
-      name: arguments[0],
-      rules: arguments[1]
-    }, arguments[2] || { vm: { $validator: this } });
-  }
-
-  // fixes initial value detection with v-model and select elements.
-  var value = field.initialValue;
-  if (!(field instanceof Field)) {
-    field = new Field(field.el || null, field);
-  }
-
-  this.fields.push(field);
-
-  // validate the field initially
-  if (field.initial) {
-    this.validate(("#" + (field.id)), value || field.value);
-  } else {
-    this._validate(field, value || field.value, true).then(function (result) {
-      field.flags.valid = result.valid;
-      field.flags.invalid = !result.valid;
-    });
-  }
-
-  this._addFlag(field, field.scope);
-  return field;
-};
-
-/**
- * Sets the flags on a field.
- */
-Validator.prototype.flag = function flag (name, flags) {
-  var field = this._resolveField(name);
-  if (! field || !flags) {
-    return;
-  }
-
-  field.setFlags(flags);
-};
-
-/**
- * Removes a field from the validator.
- */
-Validator.prototype.detach = function detach (name, scope) {
-  var field = name instanceof Field ? name : this._resolveField(name, scope);
-  if (!field) { return; }
-
-  field.destroy();
-  this.errors.remove(field.name, field.scope, field.id);
-  this.fields.remove(field);
-  var flags = this.flags;
-  if (!isNullOrUndefined(field.scope) && flags[("$" + (field.scope))]) {
-    delete flags[("$" + (field.scope))][field.name];
-  } else if (isNullOrUndefined(field.scope)) {
-    delete flags[field.name];
-  }
-
-  this.flags = assign({}, flags);
-};
-
-/**
- * Adds a custom validator to the list of validation rules.
- */
-Validator.prototype.extend = function extend (name, validator, options) {
-    if ( options === void 0 ) options = {};
-
-  Validator.extend(name, validator, options);
-};
-
-/**
- * Updates a field, updating both errors and flags.
- */
-Validator.prototype.update = function update (id, ref) {
-    var scope = ref.scope;
-
-  var field = this._resolveField(("#" + id));
-  if (!field) { return; }
-
-  // remove old scope.
-  this.errors.update(id, { scope: scope });
-  if (!isNullOrUndefined(field.scope) && this.flags[("$" + (field.scope))]) {
-    delete this.flags[("$" + (field.scope))][field.name];
-  } else if (isNullOrUndefined(field.scope)) {
-    delete this.flags[field.name];
-  }
-
-  this._addFlag(field, scope);
-};
-
-/**
- * Removes a rule from the list of validators.
- */
-Validator.prototype.remove = function remove (name) {
-  Validator.remove(name);
-};
-
-/**
- * Validates a value against a registered field validations.
- */
-Validator.prototype.validate = function validate (name, value, scope) {
-    var this$1 = this;
-    if ( scope === void 0 ) scope = null;
-
-  if (this.paused) { return Promise.resolve(true); }
-
-  // overload to validate all.
-  if (arguments.length === 0) {
-    return this.validateScopes();
-  }
-
-  // overload to validate scope-less fields.
-  if (arguments.length === 1 && arguments[0] === '*') {
-    return this.validateAll();
-  }
-
-  // overload to validate a scope.
-  if (arguments.length === 1 && typeof arguments[0] === 'string' && /^(.+)\.\*$/.test(arguments[0])) {
-    var matched = arguments[0].match(/^(.+)\.\*$/)[1];
-    return this.validateAll(matched);
-  }
-
-  var field = this._resolveField(name, scope);
-  if (!field) {
-    return this._handleFieldNotFound(name, scope);
-  }
-
-  field.flags.pending = true;
-  if (arguments.length === 1) {
-    value = field.value;
-  }
-
-  var silentRun = field.isDisabled;
-
-  return this._validate(field, value, silentRun).then(function (result) {
-    field.setFlags({
-      pending: false,
-      valid: result.valid,
-      validated: true
-    });
-
-    this$1.errors.remove(field.name, field.scope, field.id);
-    if (silentRun) {
-      return Promise.resolve(true);
-    } else if (result.errors) {
-      result.errors.forEach(function (e) { return this$1.errors.add(e); });
-    }
-
-    return result.valid;
-  });
-};
-
-/**
- * Pauses the validator.
- */
-Validator.prototype.pause = function pause () {
-  this.paused = true;
-
-  return this;
-};
-
-/**
- * Resumes the validator.
- */
-Validator.prototype.resume = function resume () {
-  this.paused = false;
-
-  return this;
-};
-
-/**
- * Validates each value against the corresponding field validations.
- */
-Validator.prototype.validateAll = function validateAll (values) {
-    var arguments$1 = arguments;
-    var this$1 = this;
-
-  if (this.paused) { return Promise.resolve(true); }
-
-  var matcher = null;
-  var providedValues = false;
-
-  if (typeof values === 'string') {
-    matcher = { scope: values };
-  } else if (isObject(values)) {
-    matcher = Object.keys(values).map(function (key) {
-      return { name: key, scope: arguments$1[1] || null };
-    });
-    providedValues = true;
-  } else if (arguments.length === 0) {
-    matcher = { scope: null }; // global scope.
-  } else if (Array.isArray(values)) {
-    matcher = values.map(function (key) {
-      return { name: key, scope: arguments$1[1] || null };
-    });
-  }
-
-  var promises = this.fields.filter(matcher).map(function (field) { return this$1.validate(
-    ("#" + (field.id)),
-    providedValues ? values[field.name] : field.value
-  ); });
-
-  return Promise.all(promises).then(function (results) { return results.every(function (t) { return t; }); });
-};
-
-/**
- * Validates all scopes.
- */
-Validator.prototype.validateScopes = function validateScopes () {
-    var this$1 = this;
-
-  if (this.paused) { return Promise.resolve(true); }
-
-  var promises = this.fields.map(function (field) { return this$1.validate(
-    ("#" + (field.id)),
-    field.value
-  ); });
-
-  return Promise.all(promises).then(function (results) { return results.every(function (t) { return t; }); });
-};
-
-/**
- * Perform cleanup.
- */
-Validator.prototype.destroy = function destroy () {
-  // Remove ErrorBag instance.
-  var idx = ERRORS.indexOf(this.errors);
-  if (idx === -1) { return; }
-
-  ERRORS.splice(idx, 1);
-};
-
-/**
- * Creates the fields to be validated.
- */
-Validator.prototype._createFields = function _createFields (validations) {
-    var this$1 = this;
-
-  if (!validations) { return; }
-
-  Object.keys(validations).forEach(function (field) {
-    var options = assign({}, { name: field, rules: validations[field] });
-    this$1.attach(options);
-  });
-};
-
-/**
- * Date rules need the existence of a format, so date_format must be supplied.
- */
-Validator.prototype._getDateFormat = function _getDateFormat (validations) {
-  var format = null;
-  if (validations.date_format && Array.isArray(validations.date_format)) {
-    format = validations.date_format[0];
-  }
-
-  return format || this.dictionary.getDateFormat(this.locale);
-};
-
-/**
- * Checks if the passed rule is a date rule.
- */
-Validator.prototype._isADateRule = function _isADateRule (rule) {
-  return !! ~['after', 'before', 'date_between', 'date_format'].indexOf(rule);
-};
-
-/**
- * Formats an error message for field and a rule.
- */
-Validator.prototype._formatErrorMessage = function _formatErrorMessage (field, rule, data, targetName) {
-    if ( data === void 0 ) data = {};
-    if ( targetName === void 0 ) targetName = null;
-
-  var name = this._getFieldDisplayName(field);
-  var params = this._getLocalizedParams(rule, targetName);
-
-  return this.dictionary.getFieldMessage(this.locale, field.name, rule.name, [name, params, data]);
-};
-
-/**
- * Translates the parameters passed to the rule (mainly for target fields).
- */
-Validator.prototype._getLocalizedParams = function _getLocalizedParams (rule, targetName) {
-    if ( targetName === void 0 ) targetName = null;
-
-  if (~TARGET_RULES.indexOf(rule.name) && rule.params && rule.params[0]) {
-    var localizedName = targetName || this.dictionary.getAttribute(this.locale, rule.params[0], rule.params[0]);
-    return [localizedName].concat(rule.params.slice(1));
-  }
-
-  return rule.params;
-};
-
-/**
- * Resolves an appropriate display name, first checking 'data-as' or the registered 'prettyName'
- */
-Validator.prototype._getFieldDisplayName = function _getFieldDisplayName (field) {
-  return field.alias || this.dictionary.getAttribute(this.locale, field.name, field.name);
-};
-
-/**
- * Adds a field flags to the flags collection.
- */
-Validator.prototype._addFlag = function _addFlag (field, scope) {
-    if ( scope === void 0 ) scope = null;
-
-  if (isNullOrUndefined(scope)) {
-    this.flags = assign({}, this.flags, ( obj = {}, obj[("" + (field.name))] = field.flags, obj ));
-      var obj;
-    return;
-  }
-
-  var scopeObj = assign({}, this.flags[("$" + scope)] || {}, ( obj$1 = {}, obj$1[("" + (field.name))] = field.flags, obj$1 ));
-    var obj$1;
-  this.flags = assign({}, this.flags, ( obj$2 = {}, obj$2[("$" + scope)] = scopeObj, obj$2 ));
-    var obj$2;
-};
-
-/**
- * Resets fields that matches the matcher options or all fields if not specified.
- */
-Validator.prototype._reset = function _reset (matcher) {
-    var this$1 = this;
-
-  return new Promise(function (resolve) {
-    if (matcher) {
-      this$1.fields.filter(matcher).forEach(function (field) {
-        field.reset(); // reset field flags.
-        this$1.errors.remove(field.name, field.scope, field.id);
-      });
-
-      return resolve();
-    }
-
-    this$1.fields.items.forEach(function (i) { return i.reset(); });
-    this$1.errors.clear();
-    resolve();
-  });
-};
-
-/**
- * Tests a single input value against a rule.
- */
-Validator.prototype._test = function _test (field, value, rule) {
-    var this$1 = this;
-
-  var validator = RULES[rule.name];
-  var params = Array.isArray(rule.params) ? toArray(rule.params) : [];
-  var targetName = null;
-  if (!validator || typeof validator !== 'function') {
-    throw createError(("No such validator '" + (rule.name) + "' exists."));
-  }
-
-  // has field dependencies.
-  if (TARGET_RULES.indexOf(rule.name) !== -1) {
-    var target = find(field.dependencies, function (d) { return d.name === rule.name; });
-    if (target) {
-      targetName = target.field.alias;
-      params = [target.field.value].concat(params.slice(1));
-    }
-  } else if (rule.name === 'required' && field.rejectsFalse) {
-    // invalidate false if no args were specified and the field rejects false by default.
-    params = params.length ? params : [true];
-  }
-
-  if (this._isADateRule(rule.name)) {
-    var dateFormat = this._getDateFormat(field.rules);
-    if (rule.name !== 'date_format') {
-      params.push(dateFormat);
-    }
-  }
-
-  var result = validator(value, params);
-
-  // If it is a promise.
-  if (isCallable(result.then)) {
-    return result.then(function (values) {
-      var allValid = true;
-      var data = {};
-      if (Array.isArray(values)) {
-        allValid = values.every(function (t) { return (isObject(t) ? t.valid : t); });
-      } else { // Is a single object/boolean.
-        allValid = isObject(values) ? values.valid : values;
-        data = values.data;
-      }
-
-      return {
-        valid: allValid,
-        error: allValid ? undefined : this$1._createFieldError(field, rule, data, targetName)
-      };
-    });
-  }
-
-  if (!isObject(result)) {
-    result = { valid: result, data: {} };
-  }
-
-  return {
-    valid: result.valid,
-    error: result.valid ? undefined : this._createFieldError(field, rule, result.data, targetName)
-  };
-};
-
-/**
- * Merges a validator object into the RULES and Messages.
- */
-Validator._merge = function _merge (name, validator) {
-  if (isCallable(validator)) {
-    RULES[name] = validator;
-    return;
-  }
-
-  RULES[name] = validator.validate;
-  if (validator.getMessage) {
-    Validator.dictionary.setMessage(this.locale, name, validator.getMessage);
-  }
-};
-
-/**
- * Guards from extension violations.
- */
-Validator._guardExtend = function _guardExtend (name, validator) {
-  if (isCallable(validator)) {
-    return;
-  }
-
-  if (!isCallable(validator.validate)) {
-    throw createError(
-      ("Extension Error: The validator '" + name + "' must be a function or have a 'validate' method.")
-    );
-  }
-
-  if (!isCallable(validator.getMessage) && typeof validator.getMessage !== 'string') {
-    throw createError(
-      ("Extension Error: The validator '" + name + "' object must have a 'getMessage' method or string.")
-    );
-  }
-};
-
-/**
- * Creates a Field Error Object.
- */
-Validator.prototype._createFieldError = function _createFieldError (field, rule, data, targetName) {
-    var this$1 = this;
-
-  return {
-    id: field.id,
-    field: field.name,
-    msg: this._formatErrorMessage(field, rule, data, targetName),
-    rule: rule.name,
-    scope: field.scope,
-    regenerate: function () {
-      return this$1._formatErrorMessage(field, rule, data, targetName);
-    }
-  };
-};
-
-/**
- * Tries different strategies to find a field.
- */
-Validator.prototype._resolveField = function _resolveField (name, scope) {
-  if (!isNullOrUndefined(scope)) {
-    return this.fields.find({ name: name, scope: scope });
-  }
-
-  if (name[0] === '#') {
-    return this.fields.find({ id: name.slice(1) });
-  }
-
-  if (name.indexOf('.') > -1) {
-    var ref = name.split('.');
-      var fieldScope = ref[0];
-      var fieldName = ref.slice(1);
-    var field = this.fields.find({ name: fieldName.join('.'), scope: fieldScope });
-    if (field) {
-      return field;
-    }
-  }
-
-  return this.fields.find({ name: name, scope: null });
-};
-
-/**
- * Handles when a field is not found depending on the strict flag.
- */
-Validator.prototype._handleFieldNotFound = function _handleFieldNotFound (name, scope) {
-  if (!this.strict) { return Promise.resolve(true); }
-
-  var fullName = isNullOrUndefined(scope) ? name : ("" + (!isNullOrUndefined(scope) ? scope + '.' : '') + name);
-  throw createError(
-    ("Validating a non-existent field: \"" + fullName + "\". Use \"attach()\" first.")
-  );
-};
-
-/**
- * Starts the validation process.
- */
-Validator.prototype._validate = function _validate (field, value, silent) {
-    var this$1 = this;
-    if ( silent === void 0 ) silent = false;
-
-  if (!field.isRequired && (isNullOrUndefined(value) || value === '')) {
-    return Promise.resolve({ valid: true });
-  }
-
-  var promises = [];
-  var errors = [];
-  var isExitEarly = false;
-  // use of '.some()' is to break iteration in middle by returning true
-  Object.keys(field.rules).some(function (rule) {
-    var result = this$1._test(field, value, { name: rule, params: field.rules[rule] });
-    if (isCallable(result.then)) {
-      promises.push(result);
-    } else if (this$1.fastExit && !result.valid) {
-      errors.push(result.error);
-      isExitEarly = true;
-    } else {
-      // promisify the result.
-      promises.push(new Promise(function (resolve) {
-        resolve(result);
-      }));
-    }
-
-    return isExitEarly;
-  });
-
-  if (isExitEarly) {
-    return Promise.resolve({
-      valid: false,
-      errors: errors
-    });
-  }
-
-  return Promise.all(promises).then(function (values) { return values.map(function (v) {
-    if (!v.valid) {
-      errors.push(v.error);
-    }
-
-    return v.valid;
-  }).every(function (t) { return t; }); }
-  ).then(function (result) {
-    return {
-      valid: result,
-      errors: errors
-    };
-  });
-};
-
-Object.defineProperties( Validator.prototype, prototypeAccessors );
-Object.defineProperties( Validator, staticAccessors );
-
-// 
-
-/* istanbul ignore next */
-var fakeFlags = createProxy({}, {
-  get: function get (target, key) {
-    // is a scope
-    if (String(key).indexOf('$') === 0) {
-      return fakeFlags;
-    }
-
-    return createFlags();
-  }
-});
-
-/**
- * Checks if a parent validator instance was requested.
- */
-var requestsValidator = function (injections) {
-  if (! injections) {
-    return false;
-  }
-
-  /* istanbul ignore next */
-  if (Array.isArray(injections) && ~injections.indexOf('$validator')) {
-    return true;
-  }
-
-  if (isObject(injections) && injections.$validator) {
-    return true;
-  }
-
-  return false;
-};
-
-/**
- * Creates a validator instance.
- */
-var createValidator = function (vm, options) { return new Validator(null, { vm: vm, fastExit: options.fastExit }); };
-
-var mixin = {
-  provide: function provide () {
-    if (this.$validator && !isBuiltInComponent(this.$vnode)) {
-      return {
-        $validator: this.$validator
-      };
-    }
-
-    return {};
-  },
-  beforeCreate: function beforeCreate () {
-    // if built in do nothing.
-    if (isBuiltInComponent(this.$vnode)) {
-      return;
-    }
-
-    // if its a root instance set the config if it exists.
-    if (!this.$parent) {
-      Config.merge(this.$options.$_veeValidate || {});
-    }
-
-    var options = Config.resolve(this);
-    var Vue = this.$options._base; // the vue constructor.
-    // TODO: Deprecate
-    /* istanbul ignore next */
-    if (this.$options.$validates) {
-      warn('The ctor $validates option has been deprecated please set the $_veeValidate.validator option to "new" instead');
-      this.$validator = createValidator(this, options);
-    }
-
-    // if its a root instance, inject anyways, or if it requested a new instance.
-    if (!this.$parent || (this.$options.$_veeValidate && /new/.test(this.$options.$_veeValidate.validator))) {
-      this.$validator = createValidator(this, options);
-    }
-
-    var requested = requestsValidator(this.$options.inject);
-
-    // if automatic injection is enabled and no instance was requested.
-    if (! this.$validator && options.inject && !requested) {
-      this.$validator = createValidator(this, options);
-    }
-
-    // don't inject errors or fieldBag as no validator was resolved.
-    if (! requested && ! this.$validator) {
-      return;
-    }
-
-    // There is a validator but it isn't injected, mark as reactive.
-    if (! requested && this.$validator) {
-      Vue.util.defineReactive(this.$validator, 'errors', this.$validator.errors);
-      Vue.util.defineReactive(this.$validator, 'flags', this.$validator.flags);
-    }
-
-    if (! this.$options.computed) {
-      this.$options.computed = {};
-    }
-
-    this.$options.computed[options.errorBagName || 'errors'] = function errorBagGetter () {
-      return this.$validator.errors;
-    };
-    this.$options.computed[options.fieldsBagName || 'fields'] = function fieldBagGetter () {
-      if (!Object.keys(this.$validator.flags).length) {
-        return fakeFlags;
-      }
-
-      return this.$validator.flags;
-    };
-  },
-
-  beforeDestroy: function beforeDestroy () {
-    if (isBuiltInComponent(this.$vnode)) { return; }
-
-    // mark the validator paused to prevent delayed validation.
-    if (this.$validator && this.$validator.ownerId === this._uid) {
-      this.$validator.pause();
-      this.$validator.destroy();
-    }
-  }
-};
-
-// 
-
-/**
- * Finds the requested field by id from the context object.
- */
-var findField = function (el, context) {
-  if (!context || !context.$validator) {
-    return null;
-  }
-
-  return context.$validator.fields.find({ id: getDataAttribute(el, 'id') });
-};
-
-var directive = {
-  bind: function bind (el, binding, vnode) {
-    var validator = vnode.context.$validator;
-    if (! validator) {
-      warn("No validator instance is present on vm, did you forget to inject '$validator'?");
-      return;
-    }
-
-    var fieldOptions = Generator.generate(el, binding, vnode);
-    validator.attach(fieldOptions);
-  },
-  inserted: function (el, binding, vnode) {
-    var field = findField(el, vnode.context);
-    var scope = Generator.resolveScope(el, binding, vnode);
-
-    // skip if scope hasn't changed.
-    if (!field || scope === field.scope) { return; }
-
-    // only update scope.
-    field.update({ scope: scope });
-
-    // allows the field to re-evaluated once more in the update hook.
-    field.updated = false;
-  },
-  update: function (el, binding, vnode) {
-    var field = findField(el, vnode.context);
-
-    // make sure we don't do unneccasary work if no important change was done.
-    if (!field || (field.updated && isEqual(binding.value, binding.oldValue))) { return; }
-    var scope = Generator.resolveScope(el, binding, vnode);
-    var rules = Generator.resolveRules(el, binding);
-
-    field.update({
-      scope: scope,
-      rules: rules
-    });
-  },
-  unbind: function unbind (el, binding, ref) {
-    var context = ref.context;
-
-    var field = findField(el, context);
-    if (!field) { return; }
-
-    context.$validator.detach(field);
-  }
-};
-
-var Vue;
-
-function install (_Vue, options) {
-  if ( options === void 0 ) options = {};
-
-  if (Vue) {
-    warn('already installed, Vue.use(VeeValidate) should only be called once.');
-    return;
-  }
-
-  Vue = _Vue;
-  Config.merge(options);
-  var ref = Config.current;
-  var locale = ref.locale;
-  var dictionary = ref.dictionary;
-  var i18n = ref.i18n;
-
-  if (dictionary) {
-    Validator.localize(dictionary); // merge the dictionary.
-  }
-
-  // try to watch locale changes.
-  if (i18n && i18n._vm && isCallable(i18n._vm.$watch)) {
-    i18n._vm.$watch('locale', function () {
-      Validator.regenerate();
-    });
-  }
-
-  if (!i18n) {
-    Validator.localize(locale); // set the locale
-  }
-
-  Validator.setStrictMode(Config.current.strict);
-
-  Vue.mixin(mixin);
-  Vue.directive('validate', directive);
-}
-
-/**
- * Formates file size.
- *
- * @param {Number|String} size
- */
-var formatFileSize = function (size) {
-  var units = ['Byte', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
-  var threshold = 1024;
-  size = Number(size) * threshold;
-  var i = size === 0 ? 0 : Math.floor(Math.log(size) / Math.log(threshold));
-  return (((size / Math.pow(threshold, i)).toFixed(2) * 1) + " " + (units[i]));
-};
-
-/**
- * Checks if vee-validate is defined globally.
- */
-var isDefinedGlobally = function () {
-  return typeof VeeValidate !== 'undefined';
-};
-
-var messages = {
-  _default: function (field) { return ("The " + field + " value is not valid."); },
-  after: function (field, ref) {
-    var target = ref[0];
-    var inclusion = ref[1];
-
-    return ("The " + field + " must be after " + (inclusion ? 'or equal to ' : '') + target + ".");
-},
-  alpha_dash: function (field) { return ("The " + field + " field may contain alpha-numeric characters as well as dashes and underscores."); },
-  alpha_num: function (field) { return ("The " + field + " field may only contain alpha-numeric characters."); },
-  alpha_spaces: function (field) { return ("The " + field + " field may only contain alphabetic characters as well as spaces."); },
-  alpha: function (field) { return ("The " + field + " field may only contain alphabetic characters."); },
-  before: function (field, ref) {
-    var target = ref[0];
-    var inclusion = ref[1];
-
-    return ("The " + field + " must be before " + (inclusion ? 'or equal to ' : '') + target + ".");
-},
-  between: function (field, ref) {
-    var min = ref[0];
-    var max = ref[1];
-
-    return ("The " + field + " field must be between " + min + " and " + max + ".");
-},
-  confirmed: function (field) { return ("The " + field + " confirmation does not match."); },
-  credit_card: function (field) { return ("The " + field + " field is invalid."); },
-  date_between: function (field, ref) {
-    var min = ref[0];
-    var max = ref[1];
-
-    return ("The " + field + " must be between " + min + " and " + max + ".");
-},
-  date_format: function (field, ref) {
-    var format = ref[0];
-
-    return ("The " + field + " must be in the format " + format + ".");
-},
-  decimal: function (field, ref) {
-    if ( ref === void 0 ) ref = [];
-    var decimals = ref[0]; if ( decimals === void 0 ) decimals = '*';
-
-    return ("The " + field + " field must be numeric and may contain " + (!decimals || decimals === '*' ? '' : decimals) + " decimal points.");
-},
-  digits: function (field, ref) {
-    var length = ref[0];
-
-    return ("The " + field + " field must be numeric and exactly contain " + length + " digits.");
-},
-  dimensions: function (field, ref) {
-    var width = ref[0];
-    var height = ref[1];
-
-    return ("The " + field + " field must be " + width + " pixels by " + height + " pixels.");
-},
-  email: function (field) { return ("The " + field + " field must be a valid email."); },
-  ext: function (field) { return ("The " + field + " field must be a valid file."); },
-  image: function (field) { return ("The " + field + " field must be an image."); },
-  in: function (field) { return ("The " + field + " field must be a valid value."); },
-  integer: function (field) { return ("The " + field + " field must be an integer."); },
-  ip: function (field) { return ("The " + field + " field must be a valid ip address."); },
-  length: function (field, ref) {
-    var length = ref[0];
-    var max = ref[1];
-
-    if (max) {
-      return ("The " + field + " length be between " + length + " and " + max + ".");
-    }
-
-    return ("The " + field + " length must be " + length + ".");
-  },
-  max: function (field, ref) {
-    var length = ref[0];
-
-    return ("The " + field + " field may not be greater than " + length + " characters.");
-},
-  max_value: function (field, ref) {
-    var max = ref[0];
-
-    return ("The " + field + " field must be " + max + " or less.");
-},
-  mimes: function (field) { return ("The " + field + " field must have a valid file type."); },
-  min: function (field, ref) {
-    var length = ref[0];
-
-    return ("The " + field + " field must be at least " + length + " characters.");
-},
-  min_value: function (field, ref) {
-    var min = ref[0];
-
-    return ("The " + field + " field must be " + min + " or more.");
-},
-  not_in: function (field) { return ("The " + field + " field must be a valid value."); },
-  numeric: function (field) { return ("The " + field + " field may only contain numeric characters."); },
-  regex: function (field) { return ("The " + field + " field format is invalid."); },
-  required: function (field) { return ("The " + field + " field is required."); },
-  size: function (field, ref) {
-    var size = ref[0];
-
-    return ("The " + field + " size must be less than " + (formatFileSize(size)) + ".");
-},
-  url: function (field) { return ("The " + field + " field is not a valid URL."); }
-};
-
-var locale = {
-  name: 'en',
-  messages: messages,
-  attributes: {}
-};
-
-if (isDefinedGlobally()) {
-  // eslint-disable-next-line
-  VeeValidate.Validator.addLocale(locale);
-}
-
-// 
-
-function use (plugin, options) {
-  if ( options === void 0 ) options = {};
-
-  if (!isCallable(plugin)) {
-    return warn('The plugin must be a callable function');
-  }
-
-  plugin({ Validator: Validator, ErrorBag: ErrorBag, Rules: Validator.rules }, options);
-}
-
-var MILLISECONDS_IN_HOUR = 3600000;
-var MILLISECONDS_IN_MINUTE = 60000;
-var DEFAULT_ADDITIONAL_DIGITS = 2;
-
-var patterns = {
-  dateTimeDelimeter: /[T ]/,
-  plainTime: /:/,
-
-  // year tokens
-  YY: /^(\d{2})$/,
-  YYY: [
-    /^([+-]\d{2})$/, // 0 additional digits
-    /^([+-]\d{3})$/, // 1 additional digit
-    /^([+-]\d{4})$/ // 2 additional digits
-  ],
-  YYYY: /^(\d{4})/,
-  YYYYY: [
-    /^([+-]\d{4})/, // 0 additional digits
-    /^([+-]\d{5})/, // 1 additional digit
-    /^([+-]\d{6})/ // 2 additional digits
-  ],
-
-  // date tokens
-  MM: /^-(\d{2})$/,
-  DDD: /^-?(\d{3})$/,
-  MMDD: /^-?(\d{2})-?(\d{2})$/,
-  Www: /^-?W(\d{2})$/,
-  WwwD: /^-?W(\d{2})-?(\d{1})$/,
-
-  HH: /^(\d{2}([.,]\d*)?)$/,
-  HHMM: /^(\d{2}):?(\d{2}([.,]\d*)?)$/,
-  HHMMSS: /^(\d{2}):?(\d{2}):?(\d{2}([.,]\d*)?)$/,
-
-  // timezone tokens
-  timezone: /([Z+-].*)$/,
-  timezoneZ: /^(Z)$/,
-  timezoneHH: /^([+-])(\d{2})$/,
-  timezoneHHMM: /^([+-])(\d{2}):?(\d{2})$/
-};
-
-/**
- * @name toDate
- * @category Common Helpers
- * @summary Convert the given argument to an instance of Date.
- *
- * @description
- * Convert the given argument to an instance of Date.
- *
- * If the argument is an instance of Date, the function returns its clone.
- *
- * If the argument is a number, it is treated as a timestamp.
- *
- * If an argument is a string, the function tries to parse it.
- * Function accepts complete ISO 8601 formats as well as partial implementations.
- * ISO 8601: http://en.wikipedia.org/wiki/ISO_8601
- *
- * If the argument is null, it is treated as an invalid date.
- *
- * If all above fails, the function passes the given argument to Date constructor.
- *
- * **Note**: *all* Date arguments passed to any *date-fns* function is processed by `toDate`.
- * All *date-fns* functions will throw `RangeError` if `options.additionalDigits` is not 0, 1, 2 or undefined.
- *
- * @param {*} argument - the value to convert
- * @param {Options} [options] - the object with options. See [Options]{@link https://date-fns.org/docs/Options}
- * @param {0|1|2} [options.additionalDigits=2] - the additional number of digits in the extended year format
- * @returns {Date} the parsed date in the local time zone
- * @throws {TypeError} 1 argument required
- * @throws {RangeError} `options.additionalDigits` must be 0, 1 or 2
- *
- * @example
- * // Convert string '2014-02-11T11:30:30' to date:
- * var result = toDate('2014-02-11T11:30:30')
- * //=> Tue Feb 11 2014 11:30:30
- *
- * @example
- * // Convert string '+02014101' to date,
- * // if the additional number of digits in the extended year format is 1:
- * var result = toDate('+02014101', {additionalDigits: 1})
- * //=> Fri Apr 11 2014 00:00:00
- */
-function toDate (argument, dirtyOptions) {
-  if (arguments.length < 1) {
-    throw new TypeError('1 argument required, but only ' + arguments.length + ' present')
-  }
-
-  if (argument === null) {
-    return new Date(NaN)
-  }
-
-  var options = dirtyOptions || {};
-
-  var additionalDigits = options.additionalDigits === undefined ? DEFAULT_ADDITIONAL_DIGITS : Number(options.additionalDigits);
-  if (additionalDigits !== 2 && additionalDigits !== 1 && additionalDigits !== 0) {
-    throw new RangeError('additionalDigits must be 0, 1 or 2')
-  }
-
-  // Clone the date
-  if (argument instanceof Date) {
-    // Prevent the date to lose the milliseconds when passed to new Date() in IE10
-    return new Date(argument.getTime())
-  } else if (typeof argument !== 'string') {
-    return new Date(argument)
-  }
-
-  var dateStrings = splitDateString(argument);
-
-  var parseYearResult = parseYear(dateStrings.date, additionalDigits);
-  var year = parseYearResult.year;
-  var restDateString = parseYearResult.restDateString;
-
-  var date = parseDate(restDateString, year);
-
-  if (date) {
-    var timestamp = date.getTime();
-    var time = 0;
-    var offset;
-
-    if (dateStrings.time) {
-      time = parseTime(dateStrings.time);
-    }
-
-    if (dateStrings.timezone) {
-      offset = parseTimezone(dateStrings.timezone);
-    } else {
-      // get offset accurate to hour in timezones that change offset
-      offset = new Date(timestamp + time).getTimezoneOffset();
-      offset = new Date(timestamp + time + offset * MILLISECONDS_IN_MINUTE).getTimezoneOffset();
-    }
-
-    return new Date(timestamp + time + offset * MILLISECONDS_IN_MINUTE)
-  } else {
-    return new Date(argument)
-  }
-}
-
-function splitDateString (dateString) {
-  var dateStrings = {};
-  var array = dateString.split(patterns.dateTimeDelimeter);
-  var timeString;
-
-  if (patterns.plainTime.test(array[0])) {
-    dateStrings.date = null;
-    timeString = array[0];
-  } else {
-    dateStrings.date = array[0];
-    timeString = array[1];
-  }
-
-  if (timeString) {
-    var token = patterns.timezone.exec(timeString);
-    if (token) {
-      dateStrings.time = timeString.replace(token[1], '');
-      dateStrings.timezone = token[1];
-    } else {
-      dateStrings.time = timeString;
-    }
-  }
-
-  return dateStrings
-}
-
-function parseYear (dateString, additionalDigits) {
-  var patternYYY = patterns.YYY[additionalDigits];
-  var patternYYYYY = patterns.YYYYY[additionalDigits];
-
-  var token;
-
-  // YYYY or ±YYYYY
-  token = patterns.YYYY.exec(dateString) || patternYYYYY.exec(dateString);
-  if (token) {
-    var yearString = token[1];
-    return {
-      year: parseInt(yearString, 10),
-      restDateString: dateString.slice(yearString.length)
-    }
-  }
-
-  // YY or ±YYY
-  token = patterns.YY.exec(dateString) || patternYYY.exec(dateString);
-  if (token) {
-    var centuryString = token[1];
-    return {
-      year: parseInt(centuryString, 10) * 100,
-      restDateString: dateString.slice(centuryString.length)
-    }
-  }
-
-  // Invalid ISO-formatted year
-  return {
-    year: null
-  }
-}
-
-function parseDate (dateString, year) {
-  // Invalid ISO-formatted year
-  if (year === null) {
-    return null
-  }
-
-  var token;
-  var date;
-  var month;
-  var week;
-
-  // YYYY
-  if (dateString.length === 0) {
-    date = new Date(0);
-    date.setUTCFullYear(year);
-    return date
-  }
-
-  // YYYY-MM
-  token = patterns.MM.exec(dateString);
-  if (token) {
-    date = new Date(0);
-    month = parseInt(token[1], 10) - 1;
-    date.setUTCFullYear(year, month);
-    return date
-  }
-
-  // YYYY-DDD or YYYYDDD
-  token = patterns.DDD.exec(dateString);
-  if (token) {
-    date = new Date(0);
-    var dayOfYear = parseInt(token[1], 10);
-    date.setUTCFullYear(year, 0, dayOfYear);
-    return date
-  }
-
-  // YYYY-MM-DD or YYYYMMDD
-  token = patterns.MMDD.exec(dateString);
-  if (token) {
-    date = new Date(0);
-    month = parseInt(token[1], 10) - 1;
-    var day = parseInt(token[2], 10);
-    date.setUTCFullYear(year, month, day);
-    return date
-  }
-
-  // YYYY-Www or YYYYWww
-  token = patterns.Www.exec(dateString);
-  if (token) {
-    week = parseInt(token[1], 10) - 1;
-    return dayOfISOYear(year, week)
-  }
-
-  // YYYY-Www-D or YYYYWwwD
-  token = patterns.WwwD.exec(dateString);
-  if (token) {
-    week = parseInt(token[1], 10) - 1;
-    var dayOfWeek = parseInt(token[2], 10) - 1;
-    return dayOfISOYear(year, week, dayOfWeek)
-  }
-
-  // Invalid ISO-formatted date
-  return null
-}
-
-function parseTime (timeString) {
-  var token;
-  var hours;
-  var minutes;
-
-  // hh
-  token = patterns.HH.exec(timeString);
-  if (token) {
-    hours = parseFloat(token[1].replace(',', '.'));
-    return (hours % 24) * MILLISECONDS_IN_HOUR
-  }
-
-  // hh:mm or hhmm
-  token = patterns.HHMM.exec(timeString);
-  if (token) {
-    hours = parseInt(token[1], 10);
-    minutes = parseFloat(token[2].replace(',', '.'));
-    return (hours % 24) * MILLISECONDS_IN_HOUR +
-      minutes * MILLISECONDS_IN_MINUTE
-  }
-
-  // hh:mm:ss or hhmmss
-  token = patterns.HHMMSS.exec(timeString);
-  if (token) {
-    hours = parseInt(token[1], 10);
-    minutes = parseInt(token[2], 10);
-    var seconds = parseFloat(token[3].replace(',', '.'));
-    return (hours % 24) * MILLISECONDS_IN_HOUR +
-      minutes * MILLISECONDS_IN_MINUTE +
-      seconds * 1000
-  }
-
-  // Invalid ISO-formatted time
-  return null
-}
-
-function parseTimezone (timezoneString) {
-  var token;
-  var absoluteOffset;
-
-  // Z
-  token = patterns.timezoneZ.exec(timezoneString);
-  if (token) {
-    return 0
-  }
-
-  // ±hh
-  token = patterns.timezoneHH.exec(timezoneString);
-  if (token) {
-    absoluteOffset = parseInt(token[2], 10) * 60;
-    return (token[1] === '+') ? -absoluteOffset : absoluteOffset
-  }
-
-  // ±hh:mm or ±hhmm
-  token = patterns.timezoneHHMM.exec(timezoneString);
-  if (token) {
-    absoluteOffset = parseInt(token[2], 10) * 60 + parseInt(token[3], 10);
-    return (token[1] === '+') ? -absoluteOffset : absoluteOffset
-  }
-
-  return 0
-}
-
-function dayOfISOYear (isoYear, week, day) {
-  week = week || 0;
-  day = day || 0;
-  var date = new Date(0);
-  date.setUTCFullYear(isoYear, 0, 4);
-  var fourthOfJanuaryDay = date.getUTCDay() || 7;
-  var diff = week * 7 + day + 1 - fourthOfJanuaryDay;
-  date.setUTCDate(date.getUTCDate() + diff);
-  return date
-}
-
-/**
- * @name addMilliseconds
- * @category Millisecond Helpers
- * @summary Add the specified number of milliseconds to the given date.
- *
- * @description
- * Add the specified number of milliseconds to the given date.
- *
- * @param {Date|String|Number} date - the date to be changed
- * @param {Number} amount - the amount of milliseconds to be added
- * @param {Options} [options] - the object with options. See [Options]{@link https://date-fns.org/docs/Options}
- * @param {0|1|2} [options.additionalDigits=2] - passed to `toDate`. See [toDate]{@link https://date-fns.org/docs/toDate}
- * @returns {Date} the new date with the milliseconds added
- * @throws {TypeError} 2 arguments required
- * @throws {RangeError} `options.additionalDigits` must be 0, 1 or 2
- *
- * @example
- * // Add 750 milliseconds to 10 July 2014 12:45:30.000:
- * var result = addMilliseconds(new Date(2014, 6, 10, 12, 45, 30, 0), 750)
- * //=> Thu Jul 10 2014 12:45:30.750
- */
-function addMilliseconds (dirtyDate, dirtyAmount, dirtyOptions) {
-  if (arguments.length < 2) {
-    throw new TypeError('2 arguments required, but only ' + arguments.length + ' present')
-  }
-
-  var timestamp = toDate(dirtyDate, dirtyOptions).getTime();
-  var amount = Number(dirtyAmount);
-  return new Date(timestamp + amount)
-}
-
-function cloneObject (dirtyObject) {
-  dirtyObject = dirtyObject || {};
-  var object = {};
-
-  for (var property in dirtyObject) {
-    if (dirtyObject.hasOwnProperty(property)) {
-      object[property] = dirtyObject[property];
-    }
-  }
-
-  return object
-}
-
-var MILLISECONDS_IN_MINUTE$2 = 60000;
-
-/**
- * @name addMinutes
- * @category Minute Helpers
- * @summary Add the specified number of minutes to the given date.
- *
- * @description
- * Add the specified number of minutes to the given date.
- *
- * @param {Date|String|Number} date - the date to be changed
- * @param {Number} amount - the amount of minutes to be added
- * @param {Options} [options] - the object with options. See [Options]{@link https://date-fns.org/docs/Options}
- * @param {0|1|2} [options.additionalDigits=2] - passed to `toDate`. See [toDate]{@link https://date-fns.org/docs/toDate}
- * @returns {Date} the new date with the minutes added
- * @throws {TypeError} 2 arguments required
- * @throws {RangeError} `options.additionalDigits` must be 0, 1 or 2
- *
- * @example
- * // Add 30 minutes to 10 July 2014 12:00:00:
- * var result = addMinutes(new Date(2014, 6, 10, 12, 0), 30)
- * //=> Thu Jul 10 2014 12:30:00
- */
-function addMinutes (dirtyDate, dirtyAmount, dirtyOptions) {
-  if (arguments.length < 2) {
-    throw new TypeError('2 arguments required, but only ' + arguments.length + ' present')
-  }
-
-  var amount = Number(dirtyAmount);
-  return addMilliseconds(dirtyDate, amount * MILLISECONDS_IN_MINUTE$2, dirtyOptions)
-}
-
-/**
- * @name isValid
- * @category Common Helpers
- * @summary Is the given date valid?
- *
- * @description
- * Returns false if argument is Invalid Date and true otherwise.
- * Argument is converted to Date using `toDate`. See [toDate]{@link https://date-fns.org/docs/toDate}
- * Invalid Date is a Date, whose time value is NaN.
- *
- * Time value of Date: http://es5.github.io/#x15.9.1.1
- *
- * @param {*} date - the date to check
- * @param {Options} [options] - the object with options. See [Options]{@link https://date-fns.org/docs/Options}
- * @param {0|1|2} [options.additionalDigits=2] - passed to `toDate`. See [toDate]{@link https://date-fns.org/docs/toDate}
- * @returns {Boolean} the date is valid
- * @throws {TypeError} 1 argument required
- * @throws {RangeError} `options.additionalDigits` must be 0, 1 or 2
- *
- * @example
- * // For the valid date:
- * var result = isValid(new Date(2014, 1, 31))
- * //=> true
- *
- * @example
- * // For the value, convertable into a date:
- * var result = isValid('2014-02-31')
- * //=> true
- *
- * @example
- * // For the invalid date:
- * var result = isValid(new Date(''))
- * //=> false
- */
-function isValid (dirtyDate, dirtyOptions) {
-  if (arguments.length < 1) {
-    throw new TypeError('1 argument required, but only ' + arguments.length + ' present')
-  }
-
-  var date = toDate(dirtyDate, dirtyOptions);
-  return !isNaN(date)
-}
-
-var formatDistanceLocale = {
-  lessThanXSeconds: {
-    one: 'less than a second',
-    other: 'less than {{count}} seconds'
-  },
-
-  xSeconds: {
-    one: '1 second',
-    other: '{{count}} seconds'
-  },
-
-  halfAMinute: 'half a minute',
-
-  lessThanXMinutes: {
-    one: 'less than a minute',
-    other: 'less than {{count}} minutes'
-  },
-
-  xMinutes: {
-    one: '1 minute',
-    other: '{{count}} minutes'
-  },
-
-  aboutXHours: {
-    one: 'about 1 hour',
-    other: 'about {{count}} hours'
-  },
-
-  xHours: {
-    one: '1 hour',
-    other: '{{count}} hours'
-  },
-
-  xDays: {
-    one: '1 day',
-    other: '{{count}} days'
-  },
-
-  aboutXMonths: {
-    one: 'about 1 month',
-    other: 'about {{count}} months'
-  },
-
-  xMonths: {
-    one: '1 month',
-    other: '{{count}} months'
-  },
-
-  aboutXYears: {
-    one: 'about 1 year',
-    other: 'about {{count}} years'
-  },
-
-  xYears: {
-    one: '1 year',
-    other: '{{count}} years'
-  },
-
-  overXYears: {
-    one: 'over 1 year',
-    other: 'over {{count}} years'
-  },
-
-  almostXYears: {
-    one: 'almost 1 year',
-    other: 'almost {{count}} years'
-  }
-};
-
-function formatDistance (token, count, options) {
-  options = options || {};
-
-  var result;
-  if (typeof formatDistanceLocale[token] === 'string') {
-    result = formatDistanceLocale[token];
-  } else if (count === 1) {
-    result = formatDistanceLocale[token].one;
-  } else {
-    result = formatDistanceLocale[token].other.replace('{{count}}', count);
-  }
-
-  if (options.addSuffix) {
-    if (options.comparison > 0) {
-      return 'in ' + result
-    } else {
-      return result + ' ago'
-    }
-  }
-
-  return result
-}
-
-var tokensToBeShortedPattern = /MMMM|MM|DD|dddd/g;
-
-function buildShortLongFormat (format) {
-  return format.replace(tokensToBeShortedPattern, function (token) {
-    return token.slice(1)
-  })
-}
-
-/**
- * @name buildFormatLongFn
- * @category Locale Helpers
- * @summary Build `formatLong` property for locale used by `format`, `formatRelative` and `parse` functions.
- *
- * @description
- * Build `formatLong` property for locale used by `format`, `formatRelative` and `parse` functions.
- * Returns a function which takes one of the following tokens as the argument:
- * `'LTS'`, `'LT'`, `'L'`, `'LL'`, `'LLL'`, `'l'`, `'ll'`, `'lll'`, `'llll'`
- * and returns a long format string written as `format` token strings.
- * See [format]{@link https://date-fns.org/docs/format}
- *
- * `'l'`, `'ll'`, `'lll'` and `'llll'` formats are built automatically
- * by shortening some of the tokens from corresponding unshortened formats
- * (e.g., if `LL` is `'MMMM DD YYYY'` then `ll` will be `MMM D YYYY`)
- *
- * @param {Object} obj - the object with long formats written as `format` token strings
- * @param {String} obj.LT - time format: hours and minutes
- * @param {String} obj.LTS - time format: hours, minutes and seconds
- * @param {String} obj.L - short date format: numeric day, month and year
- * @param {String} [obj.l] - short date format: numeric day, month and year (shortened)
- * @param {String} obj.LL - long date format: day, month in words, and year
- * @param {String} [obj.ll] - long date format: day, month in words, and year (shortened)
- * @param {String} obj.LLL - long date and time format
- * @param {String} [obj.lll] - long date and time format (shortened)
- * @param {String} obj.LLLL - long date, time and weekday format
- * @param {String} [obj.llll] - long date, time and weekday format (shortened)
- * @returns {Function} `formatLong` property of the locale
- *
- * @example
- * // For `en-US` locale:
- * locale.formatLong = buildFormatLongFn({
- *   LT: 'h:mm aa',
- *   LTS: 'h:mm:ss aa',
- *   L: 'MM/DD/YYYY',
- *   LL: 'MMMM D YYYY',
- *   LLL: 'MMMM D YYYY h:mm aa',
- *   LLLL: 'dddd, MMMM D YYYY h:mm aa'
- * })
- */
-function buildFormatLongFn (obj) {
-  var formatLongLocale = {
-    LTS: obj.LTS,
-    LT: obj.LT,
-    L: obj.L,
-    LL: obj.LL,
-    LLL: obj.LLL,
-    LLLL: obj.LLLL,
-    l: obj.l || buildShortLongFormat(obj.L),
-    ll: obj.ll || buildShortLongFormat(obj.LL),
-    lll: obj.lll || buildShortLongFormat(obj.LLL),
-    llll: obj.llll || buildShortLongFormat(obj.LLLL)
-  };
-
-  return function (token) {
-    return formatLongLocale[token]
-  }
-}
-
-var formatLong = buildFormatLongFn({
-  LT: 'h:mm aa',
-  LTS: 'h:mm:ss aa',
-  L: 'MM/DD/YYYY',
-  LL: 'MMMM D YYYY',
-  LLL: 'MMMM D YYYY h:mm aa',
-  LLLL: 'dddd, MMMM D YYYY h:mm aa'
-});
-
-var formatRelativeLocale = {
-  lastWeek: '[last] dddd [at] LT',
-  yesterday: '[yesterday at] LT',
-  today: '[today at] LT',
-  tomorrow: '[tomorrow at] LT',
-  nextWeek: 'dddd [at] LT',
-  other: 'L'
-};
-
-function formatRelative (token, date, baseDate, options) {
-  return formatRelativeLocale[token]
-}
-
-/**
- * @name buildLocalizeFn
- * @category Locale Helpers
- * @summary Build `localize.weekday`, `localize.month` and `localize.timeOfDay` properties for the locale.
- *
- * @description
- * Build `localize.weekday`, `localize.month` and `localize.timeOfDay` properties for the locale
- * used by `format` function.
- * If no `type` is supplied to the options of the resulting function, `defaultType` will be used (see example).
- *
- * `localize.weekday` function takes the weekday index as argument (0 - Sunday).
- * `localize.month` takes the month index (0 - January).
- * `localize.timeOfDay` takes the hours. Use `indexCallback` to convert them to an array index (see example).
- *
- * @param {Object} values - the object with arrays of values
- * @param {String} defaultType - the default type for the localize function
- * @param {Function} [indexCallback] - the callback which takes the resulting function argument
- *   and converts it into value array index
- * @returns {Function} the resulting function
- *
- * @example
- * var timeOfDayValues = {
- *   uppercase: ['AM', 'PM'],
- *   lowercase: ['am', 'pm'],
- *   long: ['a.m.', 'p.m.']
- * }
- * locale.localize.timeOfDay = buildLocalizeFn(timeOfDayValues, 'long', function (hours) {
- *   // 0 is a.m. array index, 1 is p.m. array index
- *   return (hours / 12) >= 1 ? 1 : 0
- * })
- * locale.localize.timeOfDay(16, {type: 'uppercase'}) //=> 'PM'
- * locale.localize.timeOfDay(5) //=> 'a.m.'
- */
-function buildLocalizeFn (values, defaultType, indexCallback) {
-  return function (dirtyIndex, dirtyOptions) {
-    var options = dirtyOptions || {};
-    var type = options.type ? String(options.type) : defaultType;
-    var valuesArray = values[type] || values[defaultType];
-    var index = indexCallback ? indexCallback(Number(dirtyIndex)) : Number(dirtyIndex);
-    return valuesArray[index]
-  }
-}
-
-/**
- * @name buildLocalizeArrayFn
- * @category Locale Helpers
- * @summary Build `localize.weekdays`, `localize.months` and `localize.timesOfDay` properties for the locale.
- *
- * @description
- * Build `localize.weekdays`, `localize.months` and `localize.timesOfDay` properties for the locale.
- * If no `type` is supplied to the options of the resulting function, `defaultType` will be used (see example).
- *
- * @param {Object} values - the object with arrays of values
- * @param {String} defaultType - the default type for the localize function
- * @returns {Function} the resulting function
- *
- * @example
- * var weekdayValues = {
- *   narrow: ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'],
- *   short: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
- *   long: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
- * }
- * locale.localize.weekdays = buildLocalizeArrayFn(weekdayValues, 'long')
- * locale.localize.weekdays({type: 'narrow'}) //=> ['Su', 'Mo', ...]
- * locale.localize.weekdays() //=> ['Sunday', 'Monday', ...]
- */
-function buildLocalizeArrayFn (values, defaultType) {
-  return function (dirtyOptions) {
-    var options = dirtyOptions || {};
-    var type = options.type ? String(options.type) : defaultType;
-    return values[type] || values[defaultType]
-  }
-}
-
-// Note: in English, the names of days of the week and months are capitalized.
-// If you are making a new locale based on this one, check if the same is true for the language you're working on.
-// Generally, formatted dates should look like they are in the middle of a sentence,
-// e.g. in Spanish language the weekdays and months should be in the lowercase.
-var weekdayValues = {
-  narrow: ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'],
-  short: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
-  long: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
-};
-
-var monthValues = {
-  short: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-  long: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
-};
-
-// `timeOfDay` is used to designate which part of the day it is, when used with 12-hour clock.
-// Use the system which is used the most commonly in the locale.
-// For example, if the country doesn't use a.m./p.m., you can use `night`/`morning`/`afternoon`/`evening`:
-//
-//   var timeOfDayValues = {
-//     any: ['in the night', 'in the morning', 'in the afternoon', 'in the evening']
-//   }
-//
-// And later:
-//
-//   var localize = {
-//     // The callback takes the hours as the argument and returns the array index
-//     timeOfDay: buildLocalizeFn(timeOfDayValues, 'any', function (hours) {
-//       if (hours >= 17) {
-//         return 3
-//       } else if (hours >= 12) {
-//         return 2
-//       } else if (hours >= 4) {
-//         return 1
-//       } else {
-//         return 0
-//       }
-//     }),
-//     timesOfDay: buildLocalizeArrayFn(timeOfDayValues, 'any')
-//   }
-var timeOfDayValues = {
-  uppercase: ['AM', 'PM'],
-  lowercase: ['am', 'pm'],
-  long: ['a.m.', 'p.m.']
-};
-
-function ordinalNumber (dirtyNumber, dirtyOptions) {
-  var number = Number(dirtyNumber);
-
-  // If ordinal numbers depend on context, for example,
-  // if they are different for different grammatical genders,
-  // use `options.unit`:
-  //
-  //   var options = dirtyOptions || {}
-  //   var unit = String(options.unit)
-  //
-  // where `unit` can be 'month', 'quarter', 'week', 'isoWeek', 'dayOfYear',
-  // 'dayOfMonth' or 'dayOfWeek'
-
-  var rem100 = number % 100;
-  if (rem100 > 20 || rem100 < 10) {
-    switch (rem100 % 10) {
-      case 1:
-        return number + 'st'
-      case 2:
-        return number + 'nd'
-      case 3:
-        return number + 'rd'
-    }
-  }
-  return number + 'th'
-}
-
-var localize = {
-  ordinalNumber: ordinalNumber,
-  weekday: buildLocalizeFn(weekdayValues, 'long'),
-  weekdays: buildLocalizeArrayFn(weekdayValues, 'long'),
-  month: buildLocalizeFn(monthValues, 'long'),
-  months: buildLocalizeArrayFn(monthValues, 'long'),
-  timeOfDay: buildLocalizeFn(timeOfDayValues, 'long', function (hours) {
-    return (hours / 12) >= 1 ? 1 : 0
-  }),
-  timesOfDay: buildLocalizeArrayFn(timeOfDayValues, 'long')
-};
-
-/**
- * @name buildMatchFn
- * @category Locale Helpers
- * @summary Build `match.weekdays`, `match.months` and `match.timesOfDay` properties for the locale.
- *
- * @description
- * Build `match.weekdays`, `match.months` and `match.timesOfDay` properties for the locale used by `parse` function.
- * If no `type` is supplied to the options of the resulting function, `defaultType` will be used (see example).
- * The result of the match function will be passed into corresponding parser function
- * (`match.weekday`, `match.month` or `match.timeOfDay` respectively. See `buildParseFn`).
- *
- * @param {Object} values - the object with RegExps
- * @param {String} defaultType - the default type for the match function
- * @returns {Function} the resulting function
- *
- * @example
- * var matchWeekdaysPatterns = {
- *   narrow: /^(su|mo|tu|we|th|fr|sa)/i,
- *   short: /^(sun|mon|tue|wed|thu|fri|sat)/i,
- *   long: /^(sunday|monday|tuesday|wednesday|thursday|friday|saturday)/i
- * }
- * locale.match.weekdays = buildMatchFn(matchWeekdaysPatterns, 'long')
- * locale.match.weekdays('Sunday', {type: 'narrow'}) //=> ['Su', 'Su', ...]
- * locale.match.weekdays('Sunday') //=> ['Sunday', 'Sunday', ...]
- */
-function buildMatchFn (patterns, defaultType) {
-  return function (dirtyString, dirtyOptions) {
-    var options = dirtyOptions || {};
-    var type = options.type ? String(options.type) : defaultType;
-    var pattern = patterns[type] || patterns[defaultType];
-    var string = String(dirtyString);
-    return string.match(pattern)
-  }
-}
-
-/**
- * @name buildParseFn
- * @category Locale Helpers
- * @summary Build `match.weekday`, `match.month` and `match.timeOfDay` properties for the locale.
- *
- * @description
- * Build `match.weekday`, `match.month` and `match.timeOfDay` properties for the locale used by `parse` function.
- * The argument of the resulting function is the result of the corresponding match function
- * (`match.weekdays`, `match.months` or `match.timesOfDay` respectively. See `buildMatchFn`).
- *
- * @param {Object} values - the object with arrays of RegExps
- * @param {String} defaultType - the default type for the parser function
- * @returns {Function} the resulting function
- *
- * @example
- * var parseWeekdayPatterns = {
- *   any: [/^su/i, /^m/i, /^tu/i, /^w/i, /^th/i, /^f/i, /^sa/i]
- * }
- * locale.match.weekday = buildParseFn(matchWeekdaysPatterns, 'long')
- * var matchResult = locale.match.weekdays('Friday')
- * locale.match.weekday(matchResult) //=> 5
- */
-function buildParseFn (patterns, defaultType) {
-  return function (matchResult, dirtyOptions) {
-    var options = dirtyOptions || {};
-    var type = options.type ? String(options.type) : defaultType;
-    var patternsArray = patterns[type] || patterns[defaultType];
-    var string = matchResult[1];
-
-    return patternsArray.findIndex(function (pattern) {
-      return pattern.test(string)
-    })
-  }
-}
-
-/**
- * @name buildMatchPatternFn
- * @category Locale Helpers
- * @summary Build match function from a single RegExp.
- *
- * @description
- * Build match function from a single RegExp.
- * Usually used for building `match.ordinalNumbers` property of the locale.
- *
- * @param {Object} pattern - the RegExp
- * @returns {Function} the resulting function
- *
- * @example
- * locale.match.ordinalNumbers = buildMatchPatternFn(/^(\d+)(th|st|nd|rd)?/i)
- * locale.match.ordinalNumbers('3rd') //=> ['3rd', '3', 'rd', ...]
- */
-function buildMatchPatternFn (pattern) {
-  return function (dirtyString) {
-    var string = String(dirtyString);
-    return string.match(pattern)
-  }
-}
-
-/**
- * @name parseDecimal
- * @category Locale Helpers
- * @summary Parses the match result into decimal number.
- *
- * @description
- * Parses the match result into decimal number.
- * Uses the string matched with the first set of parentheses of match RegExp.
- *
- * @param {Array} matchResult - the object returned by matching function
- * @returns {Number} the parsed value
- *
- * @example
- * locale.match = {
- *   ordinalNumbers: (dirtyString) {
- *     return String(dirtyString).match(/^(\d+)(th|st|nd|rd)?/i)
- *   },
- *   ordinalNumber: parseDecimal
- * }
- */
-function parseDecimal (matchResult) {
-  return parseInt(matchResult[1], 10)
-}
-
-var matchOrdinalNumbersPattern = /^(\d+)(th|st|nd|rd)?/i;
-
-var matchWeekdaysPatterns = {
-  narrow: /^(su|mo|tu|we|th|fr|sa)/i,
-  short: /^(sun|mon|tue|wed|thu|fri|sat)/i,
-  long: /^(sunday|monday|tuesday|wednesday|thursday|friday|saturday)/i
-};
-
-var parseWeekdayPatterns = {
-  any: [/^su/i, /^m/i, /^tu/i, /^w/i, /^th/i, /^f/i, /^sa/i]
-};
-
-var matchMonthsPatterns = {
-  short: /^(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)/i,
-  long: /^(january|february|march|april|may|june|july|august|september|october|november|december)/i
-};
-
-var parseMonthPatterns = {
-  any: [/^ja/i, /^f/i, /^mar/i, /^ap/i, /^may/i, /^jun/i, /^jul/i, /^au/i, /^s/i, /^o/i, /^n/i, /^d/i]
-};
-
-// `timeOfDay` is used to designate which part of the day it is, when used with 12-hour clock.
-// Use the system which is used the most commonly in the locale.
-// For example, if the country doesn't use a.m./p.m., you can use `night`/`morning`/`afternoon`/`evening`:
-//
-//   var matchTimesOfDayPatterns = {
-//     long: /^((in the)? (night|morning|afternoon|evening?))/i
-//   }
-//
-//   var parseTimeOfDayPatterns = {
-//     any: [/(night|morning)/i, /(afternoon|evening)/i]
-//   }
-var matchTimesOfDayPatterns = {
-  short: /^(am|pm)/i,
-  long: /^([ap]\.?\s?m\.?)/i
-};
-
-var parseTimeOfDayPatterns = {
-  any: [/^a/i, /^p/i]
-};
-
-var match = {
-  ordinalNumbers: buildMatchPatternFn(matchOrdinalNumbersPattern),
-  ordinalNumber: parseDecimal,
-  weekdays: buildMatchFn(matchWeekdaysPatterns, 'long'),
-  weekday: buildParseFn(parseWeekdayPatterns, 'any'),
-  months: buildMatchFn(matchMonthsPatterns, 'long'),
-  month: buildParseFn(parseMonthPatterns, 'any'),
-  timesOfDay: buildMatchFn(matchTimesOfDayPatterns, 'long'),
-  timeOfDay: buildParseFn(parseTimeOfDayPatterns, 'any')
-};
-
-/**
- * @type {Locale}
- * @category Locales
- * @summary English locale (United States).
- * @language English
- * @iso-639-2 eng
- */
-var locale$1 = {
-  formatDistance: formatDistance,
-  formatLong: formatLong,
-  formatRelative: formatRelative,
-  localize: localize,
-  match: match,
-  options: {
-    weekStartsOn: 0 /* Sunday */,
-    firstWeekContainsDate: 1
-  }
-};
-
-var MILLISECONDS_IN_DAY$1 = 86400000;
-
-// This function will be a part of public API when UTC function will be implemented.
-// See issue: https://github.com/date-fns/date-fns/issues/376
-function getUTCDayOfYear (dirtyDate, dirtyOptions) {
-  var date = toDate(dirtyDate, dirtyOptions);
-  var timestamp = date.getTime();
-  date.setUTCMonth(0, 1);
-  date.setUTCHours(0, 0, 0, 0);
-  var startOfYearTimestamp = date.getTime();
-  var difference = timestamp - startOfYearTimestamp;
-  return Math.floor(difference / MILLISECONDS_IN_DAY$1) + 1
-}
-
-// This function will be a part of public API when UTC function will be implemented.
-// See issue: https://github.com/date-fns/date-fns/issues/376
-function startOfUTCISOWeek (dirtyDate, dirtyOptions) {
-  var weekStartsOn = 1;
-
-  var date = toDate(dirtyDate, dirtyOptions);
-  var day = date.getUTCDay();
-  var diff = (day < weekStartsOn ? 7 : 0) + day - weekStartsOn;
-
-  date.setUTCDate(date.getUTCDate() - diff);
-  date.setUTCHours(0, 0, 0, 0);
-  return date
-}
-
-// This function will be a part of public API when UTC function will be implemented.
-// See issue: https://github.com/date-fns/date-fns/issues/376
-function getUTCISOWeekYear (dirtyDate, dirtyOptions) {
-  var date = toDate(dirtyDate, dirtyOptions);
-  var year = date.getUTCFullYear();
-
-  var fourthOfJanuaryOfNextYear = new Date(0);
-  fourthOfJanuaryOfNextYear.setUTCFullYear(year + 1, 0, 4);
-  fourthOfJanuaryOfNextYear.setUTCHours(0, 0, 0, 0);
-  var startOfNextYear = startOfUTCISOWeek(fourthOfJanuaryOfNextYear, dirtyOptions);
-
-  var fourthOfJanuaryOfThisYear = new Date(0);
-  fourthOfJanuaryOfThisYear.setUTCFullYear(year, 0, 4);
-  fourthOfJanuaryOfThisYear.setUTCHours(0, 0, 0, 0);
-  var startOfThisYear = startOfUTCISOWeek(fourthOfJanuaryOfThisYear, dirtyOptions);
-
-  if (date.getTime() >= startOfNextYear.getTime()) {
-    return year + 1
-  } else if (date.getTime() >= startOfThisYear.getTime()) {
-    return year
-  } else {
-    return year - 1
-  }
-}
-
-// This function will be a part of public API when UTC function will be implemented.
-// See issue: https://github.com/date-fns/date-fns/issues/376
-function startOfUTCISOWeekYear (dirtyDate, dirtyOptions) {
-  var year = getUTCISOWeekYear(dirtyDate, dirtyOptions);
-  var fourthOfJanuary = new Date(0);
-  fourthOfJanuary.setUTCFullYear(year, 0, 4);
-  fourthOfJanuary.setUTCHours(0, 0, 0, 0);
-  var date = startOfUTCISOWeek(fourthOfJanuary, dirtyOptions);
-  return date
-}
-
-var MILLISECONDS_IN_WEEK$2 = 604800000;
-
-// This function will be a part of public API when UTC function will be implemented.
-// See issue: https://github.com/date-fns/date-fns/issues/376
-function getUTCISOWeek (dirtyDate, dirtyOptions) {
-  var date = toDate(dirtyDate, dirtyOptions);
-  var diff = startOfUTCISOWeek(date, dirtyOptions).getTime() - startOfUTCISOWeekYear(date, dirtyOptions).getTime();
-
-  // Round the number of days to the nearest integer
-  // because the number of milliseconds in a week is not constant
-  // (e.g. it's different in the week of the daylight saving time clock shift)
-  return Math.round(diff / MILLISECONDS_IN_WEEK$2) + 1
-}
-
-var formatters = {
-  // Month: 1, 2, ..., 12
-  'M': function (date) {
-    return date.getUTCMonth() + 1
-  },
-
-  // Month: 1st, 2nd, ..., 12th
-  'Mo': function (date, options) {
-    var month = date.getUTCMonth() + 1;
-    return options.locale.localize.ordinalNumber(month, {unit: 'month'})
-  },
-
-  // Month: 01, 02, ..., 12
-  'MM': function (date) {
-    return addLeadingZeros(date.getUTCMonth() + 1, 2)
-  },
-
-  // Month: Jan, Feb, ..., Dec
-  'MMM': function (date, options) {
-    return options.locale.localize.month(date.getUTCMonth(), {type: 'short'})
-  },
-
-  // Month: January, February, ..., December
-  'MMMM': function (date, options) {
-    return options.locale.localize.month(date.getUTCMonth(), {type: 'long'})
-  },
-
-  // Quarter: 1, 2, 3, 4
-  'Q': function (date) {
-    return Math.ceil((date.getUTCMonth() + 1) / 3)
-  },
-
-  // Quarter: 1st, 2nd, 3rd, 4th
-  'Qo': function (date, options) {
-    var quarter = Math.ceil((date.getUTCMonth() + 1) / 3);
-    return options.locale.localize.ordinalNumber(quarter, {unit: 'quarter'})
-  },
-
-  // Day of month: 1, 2, ..., 31
-  'D': function (date) {
-    return date.getUTCDate()
-  },
-
-  // Day of month: 1st, 2nd, ..., 31st
-  'Do': function (date, options) {
-    return options.locale.localize.ordinalNumber(date.getUTCDate(), {unit: 'dayOfMonth'})
-  },
-
-  // Day of month: 01, 02, ..., 31
-  'DD': function (date) {
-    return addLeadingZeros(date.getUTCDate(), 2)
-  },
-
-  // Day of year: 1, 2, ..., 366
-  'DDD': function (date) {
-    return getUTCDayOfYear(date)
-  },
-
-  // Day of year: 1st, 2nd, ..., 366th
-  'DDDo': function (date, options) {
-    return options.locale.localize.ordinalNumber(getUTCDayOfYear(date), {unit: 'dayOfYear'})
-  },
-
-  // Day of year: 001, 002, ..., 366
-  'DDDD': function (date) {
-    return addLeadingZeros(getUTCDayOfYear(date), 3)
-  },
-
-  // Day of week: Su, Mo, ..., Sa
-  'dd': function (date, options) {
-    return options.locale.localize.weekday(date.getUTCDay(), {type: 'narrow'})
-  },
-
-  // Day of week: Sun, Mon, ..., Sat
-  'ddd': function (date, options) {
-    return options.locale.localize.weekday(date.getUTCDay(), {type: 'short'})
-  },
-
-  // Day of week: Sunday, Monday, ..., Saturday
-  'dddd': function (date, options) {
-    return options.locale.localize.weekday(date.getUTCDay(), {type: 'long'})
-  },
-
-  // Day of week: 0, 1, ..., 6
-  'd': function (date) {
-    return date.getUTCDay()
-  },
-
-  // Day of week: 0th, 1st, 2nd, ..., 6th
-  'do': function (date, options) {
-    return options.locale.localize.ordinalNumber(date.getUTCDay(), {unit: 'dayOfWeek'})
-  },
-
-  // Day of ISO week: 1, 2, ..., 7
-  'E': function (date) {
-    return date.getUTCDay() || 7
-  },
-
-  // ISO week: 1, 2, ..., 53
-  'W': function (date) {
-    return getUTCISOWeek(date)
-  },
-
-  // ISO week: 1st, 2nd, ..., 53th
-  'Wo': function (date, options) {
-    return options.locale.localize.ordinalNumber(getUTCISOWeek(date), {unit: 'isoWeek'})
-  },
-
-  // ISO week: 01, 02, ..., 53
-  'WW': function (date) {
-    return addLeadingZeros(getUTCISOWeek(date), 2)
-  },
-
-  // Year: 00, 01, ..., 99
-  'YY': function (date) {
-    return addLeadingZeros(date.getUTCFullYear(), 4).substr(2)
-  },
-
-  // Year: 1900, 1901, ..., 2099
-  'YYYY': function (date) {
-    return addLeadingZeros(date.getUTCFullYear(), 4)
-  },
-
-  // ISO week-numbering year: 00, 01, ..., 99
-  'GG': function (date) {
-    return String(getUTCISOWeekYear(date)).substr(2)
-  },
-
-  // ISO week-numbering year: 1900, 1901, ..., 2099
-  'GGGG': function (date) {
-    return getUTCISOWeekYear(date)
-  },
-
-  // Hour: 0, 1, ... 23
-  'H': function (date) {
-    return date.getUTCHours()
-  },
-
-  // Hour: 00, 01, ..., 23
-  'HH': function (date) {
-    return addLeadingZeros(date.getUTCHours(), 2)
-  },
-
-  // Hour: 1, 2, ..., 12
-  'h': function (date) {
-    var hours = date.getUTCHours();
-    if (hours === 0) {
-      return 12
-    } else if (hours > 12) {
-      return hours % 12
-    } else {
-      return hours
-    }
-  },
-
-  // Hour: 01, 02, ..., 12
-  'hh': function (date) {
-    return addLeadingZeros(formatters['h'](date), 2)
-  },
-
-  // Minute: 0, 1, ..., 59
-  'm': function (date) {
-    return date.getUTCMinutes()
-  },
-
-  // Minute: 00, 01, ..., 59
-  'mm': function (date) {
-    return addLeadingZeros(date.getUTCMinutes(), 2)
-  },
-
-  // Second: 0, 1, ..., 59
-  's': function (date) {
-    return date.getUTCSeconds()
-  },
-
-  // Second: 00, 01, ..., 59
-  'ss': function (date) {
-    return addLeadingZeros(date.getUTCSeconds(), 2)
-  },
-
-  // 1/10 of second: 0, 1, ..., 9
-  'S': function (date) {
-    return Math.floor(date.getUTCMilliseconds() / 100)
-  },
-
-  // 1/100 of second: 00, 01, ..., 99
-  'SS': function (date) {
-    return addLeadingZeros(Math.floor(date.getUTCMilliseconds() / 10), 2)
-  },
-
-  // Millisecond: 000, 001, ..., 999
-  'SSS': function (date) {
-    return addLeadingZeros(date.getUTCMilliseconds(), 3)
-  },
-
-  // Timezone: -01:00, +00:00, ... +12:00
-  'Z': function (date, options) {
-    var originalDate = options._originalDate || date;
-    return formatTimezone(originalDate.getTimezoneOffset(), ':')
-  },
-
-  // Timezone: -0100, +0000, ... +1200
-  'ZZ': function (date, options) {
-    var originalDate = options._originalDate || date;
-    return formatTimezone(originalDate.getTimezoneOffset())
-  },
-
-  // Seconds timestamp: 512969520
-  'X': function (date, options) {
-    var originalDate = options._originalDate || date;
-    return Math.floor(originalDate.getTime() / 1000)
-  },
-
-  // Milliseconds timestamp: 512969520900
-  'x': function (date, options) {
-    var originalDate = options._originalDate || date;
-    return originalDate.getTime()
-  },
-
-  // AM, PM
-  'A': function (date, options) {
-    return options.locale.localize.timeOfDay(date.getUTCHours(), {type: 'uppercase'})
-  },
-
-  // am, pm
-  'a': function (date, options) {
-    return options.locale.localize.timeOfDay(date.getUTCHours(), {type: 'lowercase'})
-  },
-
-  // a.m., p.m.
-  'aa': function (date, options) {
-    return options.locale.localize.timeOfDay(date.getUTCHours(), {type: 'long'})
-  }
-};
-
-function formatTimezone (offset, delimeter) {
-  delimeter = delimeter || '';
-  var sign = offset > 0 ? '-' : '+';
-  var absOffset = Math.abs(offset);
-  var hours = Math.floor(absOffset / 60);
-  var minutes = absOffset % 60;
-  return sign + addLeadingZeros(hours, 2) + delimeter + addLeadingZeros(minutes, 2)
-}
-
-function addLeadingZeros (number, targetLength) {
-  var output = Math.abs(number).toString();
-  while (output.length < targetLength) {
-    output = '0' + output;
-  }
-  return output
-}
-
-// This function will be a part of public API when UTC function will be implemented.
-// See issue: https://github.com/date-fns/date-fns/issues/376
-function addUTCMinutes (dirtyDate, dirtyAmount, dirtyOptions) {
-  var date = toDate(dirtyDate, dirtyOptions);
-  var amount = Number(dirtyAmount);
-  date.setUTCMinutes(date.getUTCMinutes() + amount);
-  return date
-}
-
-var longFormattingTokensRegExp = /(\[[^[]*])|(\\)?(LTS|LT|LLLL|LLL|LL|L|llll|lll|ll|l)/g;
-var defaultFormattingTokensRegExp = /(\[[^[]*])|(\\)?(x|ss|s|mm|m|hh|h|do|dddd|ddd|dd|d|aa|a|ZZ|Z|YYYY|YY|X|Wo|WW|W|SSS|SS|S|Qo|Q|Mo|MMMM|MMM|MM|M|HH|H|GGGG|GG|E|Do|DDDo|DDDD|DDD|DD|D|A|.)/g;
-
-/**
- * @name format
- * @category Common Helpers
- * @summary Format the date.
- *
- * @description
- * Return the formatted date string in the given format.
- *
- * Accepted tokens:
- * | Unit                    | Token | Result examples                  |
- * |-------------------------|-------|----------------------------------|
- * | Month                   | M     | 1, 2, ..., 12                    |
- * |                         | Mo    | 1st, 2nd, ..., 12th              |
- * |                         | MM    | 01, 02, ..., 12                  |
- * |                         | MMM   | Jan, Feb, ..., Dec               |
- * |                         | MMMM  | January, February, ..., December |
- * | Quarter                 | Q     | 1, 2, 3, 4                       |
- * |                         | Qo    | 1st, 2nd, 3rd, 4th               |
- * | Day of month            | D     | 1, 2, ..., 31                    |
- * |                         | Do    | 1st, 2nd, ..., 31st              |
- * |                         | DD    | 01, 02, ..., 31                  |
- * | Day of year             | DDD   | 1, 2, ..., 366                   |
- * |                         | DDDo  | 1st, 2nd, ..., 366th             |
- * |                         | DDDD  | 001, 002, ..., 366               |
- * | Day of week             | d     | 0, 1, ..., 6                     |
- * |                         | do    | 0th, 1st, ..., 6th               |
- * |                         | dd    | Su, Mo, ..., Sa                  |
- * |                         | ddd   | Sun, Mon, ..., Sat               |
- * |                         | dddd  | Sunday, Monday, ..., Saturday    |
- * | Day of ISO week         | E     | 1, 2, ..., 7                     |
- * | ISO week                | W     | 1, 2, ..., 53                    |
- * |                         | Wo    | 1st, 2nd, ..., 53rd              |
- * |                         | WW    | 01, 02, ..., 53                  |
- * | Year                    | YY    | 00, 01, ..., 99                  |
- * |                         | YYYY  | 1900, 1901, ..., 2099            |
- * | ISO week-numbering year | GG    | 00, 01, ..., 99                  |
- * |                         | GGGG  | 1900, 1901, ..., 2099            |
- * | AM/PM                   | A     | AM, PM                           |
- * |                         | a     | am, pm                           |
- * |                         | aa    | a.m., p.m.                       |
- * | Hour                    | H     | 0, 1, ... 23                     |
- * |                         | HH    | 00, 01, ... 23                   |
- * |                         | h     | 1, 2, ..., 12                    |
- * |                         | hh    | 01, 02, ..., 12                  |
- * | Minute                  | m     | 0, 1, ..., 59                    |
- * |                         | mm    | 00, 01, ..., 59                  |
- * | Second                  | s     | 0, 1, ..., 59                    |
- * |                         | ss    | 00, 01, ..., 59                  |
- * | 1/10 of second          | S     | 0, 1, ..., 9                     |
- * | 1/100 of second         | SS    | 00, 01, ..., 99                  |
- * | Millisecond             | SSS   | 000, 001, ..., 999               |
- * | Timezone                | Z     | -01:00, +00:00, ... +12:00       |
- * |                         | ZZ    | -0100, +0000, ..., +1200         |
- * | Seconds timestamp       | X     | 512969520                        |
- * | Milliseconds timestamp  | x     | 512969520900                     |
- * | Long format             | LT    | 05:30 a.m.                       |
- * |                         | LTS   | 05:30:15 a.m.                    |
- * |                         | L     | 07/02/1995                       |
- * |                         | l     | 7/2/1995                         |
- * |                         | LL    | July 2 1995                      |
- * |                         | ll    | Jul 2 1995                       |
- * |                         | LLL   | July 2 1995 05:30 a.m.           |
- * |                         | lll   | Jul 2 1995 05:30 a.m.            |
- * |                         | LLLL  | Sunday, July 2 1995 05:30 a.m.   |
- * |                         | llll  | Sun, Jul 2 1995 05:30 a.m.       |
- *
- * The characters wrapped in square brackets are escaped.
- *
- * The result may vary by locale.
- *
- * @param {Date|String|Number} date - the original date
- * @param {String} format - the string of tokens
- * @param {Options} [options] - the object with options. See [Options]{@link https://date-fns.org/docs/Options}
- * @param {0|1|2} [options.additionalDigits=2] - passed to `toDate`. See [toDate]{@link https://date-fns.org/docs/toDate}
- * @param {Locale} [options.locale=defaultLocale] - the locale object. See [Locale]{@link https://date-fns.org/docs/Locale}
- * @returns {String} the formatted date string
- * @throws {TypeError} 2 arguments required
- * @throws {RangeError} `options.additionalDigits` must be 0, 1 or 2
- * @throws {RangeError} `options.locale` must contain `localize` property
- * @throws {RangeError} `options.locale` must contain `formatLong` property
- *
- * @example
- * // Represent 11 February 2014 in middle-endian format:
- * var result = format(
- *   new Date(2014, 1, 11),
- *   'MM/DD/YYYY'
- * )
- * //=> '02/11/2014'
- *
- * @example
- * // Represent 2 July 2014 in Esperanto:
- * import { eoLocale } from 'date-fns/locale/eo'
- * var result = format(
- *   new Date(2014, 6, 2),
- *   'Do [de] MMMM YYYY',
- *   {locale: eoLocale}
- * )
- * //=> '2-a de julio 2014'
- */
-function format (dirtyDate, dirtyFormatStr, dirtyOptions) {
-  if (arguments.length < 2) {
-    throw new TypeError('2 arguments required, but only ' + arguments.length + ' present')
-  }
-
-  var formatStr = String(dirtyFormatStr);
-  var options = dirtyOptions || {};
-
-  var locale = options.locale || locale$1;
-
-  if (!locale.localize) {
-    throw new RangeError('locale must contain localize property')
-  }
-
-  if (!locale.formatLong) {
-    throw new RangeError('locale must contain formatLong property')
-  }
-
-  var localeFormatters = locale.formatters || {};
-  var formattingTokensRegExp = locale.formattingTokensRegExp || defaultFormattingTokensRegExp;
-  var formatLong = locale.formatLong;
-
-  var originalDate = toDate(dirtyDate, options);
-
-  if (!isValid(originalDate, options)) {
-    return 'Invalid Date'
-  }
-
-  // Convert the date in system timezone to the same date in UTC+00:00 timezone.
-  // This ensures that when UTC functions will be implemented, locales will be compatible with them.
-  // See an issue about UTC functions: https://github.com/date-fns/date-fns/issues/376
-  var timezoneOffset = originalDate.getTimezoneOffset();
-  var utcDate = addUTCMinutes(originalDate, -timezoneOffset, options);
-
-  var formatterOptions = cloneObject(options);
-  formatterOptions.locale = locale;
-  formatterOptions.formatters = formatters;
-
-  // When UTC functions will be implemented, options._originalDate will likely be a part of public API.
-  // Right now, please don't use it in locales. If you have to use an original date,
-  // please restore it from `date`, adding a timezone offset to it.
-  formatterOptions._originalDate = originalDate;
-
-  var result = formatStr
-    .replace(longFormattingTokensRegExp, function (substring) {
-      if (substring[0] === '[') {
-        return substring
-      }
-
-      if (substring[0] === '\\') {
-        return cleanEscapedString(substring)
-      }
-
-      return formatLong(substring)
-    })
-    .replace(formattingTokensRegExp, function (substring) {
-      var formatter = localeFormatters[substring] || formatters[substring];
-
-      if (formatter) {
-        return formatter(utcDate, formatterOptions)
-      } else {
-        return cleanEscapedString(substring)
-      }
-    });
-
-  return result
-}
-
-function cleanEscapedString (input) {
-  if (input.match(/\[[\s\S]/)) {
-    return input.replace(/^\[|]$/g, '')
-  }
-  return input.replace(/\\/g, '')
-}
-
-/**
- * @name subMinutes
- * @category Minute Helpers
- * @summary Subtract the specified number of minutes from the given date.
- *
- * @description
- * Subtract the specified number of minutes from the given date.
- *
- * @param {Date|String|Number} date - the date to be changed
- * @param {Number} amount - the amount of minutes to be subtracted
- * @param {Options} [options] - the object with options. See [Options]{@link https://date-fns.org/docs/Options}
- * @param {0|1|2} [options.additionalDigits=2] - passed to `toDate`. See [toDate]{@link https://date-fns.org/docs/toDate}
- * @returns {Date} the new date with the mintues subtracted
- * @throws {TypeError} 2 arguments required
- * @throws {RangeError} `options.additionalDigits` must be 0, 1 or 2
- *
- * @example
- * // Subtract 30 minutes from 10 July 2014 12:00:00:
- * var result = subMinutes(new Date(2014, 6, 10, 12, 0), 30)
- * //=> Thu Jul 10 2014 11:30:00
- */
-function subMinutes (dirtyDate, dirtyAmount, dirtyOptions) {
-  if (arguments.length < 2) {
-    throw new TypeError('2 arguments required, but only ' + arguments.length + ' present')
-  }
-
-  var amount = Number(dirtyAmount);
-  return addMinutes(dirtyDate, -amount, dirtyOptions)
-}
-
-/**
- * @name isAfter
- * @category Common Helpers
- * @summary Is the first date after the second one?
- *
- * @description
- * Is the first date after the second one?
- *
- * @param {Date|String|Number} date - the date that should be after the other one to return true
- * @param {Date|String|Number} dateToCompare - the date to compare with
- * @param {Options} [options] - the object with options. See [Options]{@link https://date-fns.org/docs/Options}
- * @param {0|1|2} [options.additionalDigits=2] - passed to `toDate`. See [toDate]{@link https://date-fns.org/docs/toDate}
- * @returns {Boolean} the first date is after the second date
- * @throws {TypeError} 2 arguments required
- * @throws {RangeError} `options.additionalDigits` must be 0, 1 or 2
- *
- * @example
- * // Is 10 July 1989 after 11 February 1987?
- * var result = isAfter(new Date(1989, 6, 10), new Date(1987, 1, 11))
- * //=> true
- */
-function isAfter (dirtyDate, dirtyDateToCompare, dirtyOptions) {
-  if (arguments.length < 2) {
-    throw new TypeError('2 arguments required, but only ' + arguments.length + ' present')
-  }
-
-  var date = toDate(dirtyDate, dirtyOptions);
-  var dateToCompare = toDate(dirtyDateToCompare, dirtyOptions);
-  return date.getTime() > dateToCompare.getTime()
-}
-
-/**
- * @name isBefore
- * @category Common Helpers
- * @summary Is the first date before the second one?
- *
- * @description
- * Is the first date before the second one?
- *
- * @param {Date|String|Number} date - the date that should be before the other one to return true
- * @param {Date|String|Number} dateToCompare - the date to compare with
- * @param {Options} [options] - the object with options. See [Options]{@link https://date-fns.org/docs/Options}
- * @param {0|1|2} [options.additionalDigits=2] - passed to `toDate`. See [toDate]{@link https://date-fns.org/docs/toDate}
- * @returns {Boolean} the first date is before the second date
- * @throws {TypeError} 2 arguments required
- * @throws {RangeError} `options.additionalDigits` must be 0, 1 or 2
- *
- * @example
- * // Is 10 July 1989 before 11 February 1987?
- * var result = isBefore(new Date(1989, 6, 10), new Date(1987, 1, 11))
- * //=> false
- */
-function isBefore (dirtyDate, dirtyDateToCompare, dirtyOptions) {
-  if (arguments.length < 2) {
-    throw new TypeError('2 arguments required, but only ' + arguments.length + ' present')
-  }
-
-  var date = toDate(dirtyDate, dirtyOptions);
-  var dateToCompare = toDate(dirtyDateToCompare, dirtyOptions);
-  return date.getTime() < dateToCompare.getTime()
-}
-
-/**
- * @name isEqual
- * @category Common Helpers
- * @summary Are the given dates equal?
- *
- * @description
- * Are the given dates equal?
- *
- * @param {Date|String|Number} dateLeft - the first date to compare
- * @param {Date|String|Number} dateRight - the second date to compare
- * @param {Options} [options] - the object with options. See [Options]{@link https://date-fns.org/docs/Options}
- * @param {0|1|2} [options.additionalDigits=2] - passed to `toDate`. See [toDate]{@link https://date-fns.org/docs/toDate}
- * @returns {Boolean} the dates are equal
- * @throws {TypeError} 2 arguments required
- * @throws {RangeError} `options.additionalDigits` must be 0, 1 or 2
- *
- * @example
- * // Are 2 July 2014 06:30:45.000 and 2 July 2014 06:30:45.500 equal?
- * var result = isEqual(
- *   new Date(2014, 6, 2, 6, 30, 45, 0)
- *   new Date(2014, 6, 2, 6, 30, 45, 500)
- * )
- * //=> false
- */
-function isEqual$1 (dirtyLeftDate, dirtyRightDate, dirtyOptions) {
-  if (arguments.length < 2) {
-    throw new TypeError('2 arguments required, but only ' + arguments.length + ' present')
-  }
-
-  var dateLeft = toDate(dirtyLeftDate, dirtyOptions);
-  var dateRight = toDate(dirtyRightDate, dirtyOptions);
-  return dateLeft.getTime() === dateRight.getTime()
-}
-
-var patterns$1 = {
-  'M': /^(1[0-2]|0?\d)/, // 0 to 12
-  'D': /^(3[0-1]|[0-2]?\d)/, // 0 to 31
-  'DDD': /^(36[0-6]|3[0-5]\d|[0-2]?\d?\d)/, // 0 to 366
-  'W': /^(5[0-3]|[0-4]?\d)/, // 0 to 53
-  'YYYY': /^(\d{1,4})/, // 0 to 9999
-  'H': /^(2[0-3]|[0-1]?\d)/, // 0 to 23
-  'm': /^([0-5]?\d)/, // 0 to 59
-  'Z': /^([+-])(\d{2}):(\d{2})/,
-  'ZZ': /^([+-])(\d{2})(\d{2})/,
-  singleDigit: /^(\d)/,
-  twoDigits: /^(\d{2})/,
-  threeDigits: /^(\d{3})/,
-  fourDigits: /^(\d{4})/,
-  anyDigits: /^(\d+)/
-};
-
-function parseDecimal$1 (matchResult) {
-  return parseInt(matchResult[1], 10)
-}
-
-var parsers = {
-  // Year: 00, 01, ..., 99
-  'YY': {
-    unit: 'twoDigitYear',
-    match: patterns$1.twoDigits,
-    parse: function (matchResult) {
-      return parseDecimal$1(matchResult)
-    }
-  },
-
-  // Year: 1900, 1901, ..., 2099
-  'YYYY': {
-    unit: 'year',
-    match: patterns$1.YYYY,
-    parse: parseDecimal$1
-  },
-
-  // ISO week-numbering year: 00, 01, ..., 99
-  'GG': {
-    unit: 'isoYear',
-    match: patterns$1.twoDigits,
-    parse: function (matchResult) {
-      return parseDecimal$1(matchResult) + 1900
-    }
-  },
-
-  // ISO week-numbering year: 1900, 1901, ..., 2099
-  'GGGG': {
-    unit: 'isoYear',
-    match: patterns$1.YYYY,
-    parse: parseDecimal$1
-  },
-
-  // Quarter: 1, 2, 3, 4
-  'Q': {
-    unit: 'quarter',
-    match: patterns$1.singleDigit,
-    parse: parseDecimal$1
-  },
-
-  // Ordinal quarter
-  'Qo': {
-    unit: 'quarter',
-    match: function (string, options) {
-      return options.locale.match.ordinalNumbers(string, {unit: 'quarter'})
-    },
-    parse: function (matchResult, options) {
-      return options.locale.match.ordinalNumber(matchResult, {unit: 'quarter'})
-    }
-  },
-
-  // Month: 1, 2, ..., 12
-  'M': {
-    unit: 'month',
-    match: patterns$1.M,
-    parse: function (matchResult) {
-      return parseDecimal$1(matchResult) - 1
-    }
-  },
-
-  // Ordinal month
-  'Mo': {
-    unit: 'month',
-    match: function (string, options) {
-      return options.locale.match.ordinalNumbers(string, {unit: 'month'})
-    },
-    parse: function (matchResult, options) {
-      return options.locale.match.ordinalNumber(matchResult, {unit: 'month'}) - 1
-    }
-  },
-
-  // Month: 01, 02, ..., 12
-  'MM': {
-    unit: 'month',
-    match: patterns$1.twoDigits,
-    parse: function (matchResult) {
-      return parseDecimal$1(matchResult) - 1
-    }
-  },
-
-  // Month: Jan, Feb, ..., Dec
-  'MMM': {
-    unit: 'month',
-    match: function (string, options) {
-      return options.locale.match.months(string, {type: 'short'})
-    },
-    parse: function (matchResult, options) {
-      return options.locale.match.month(matchResult, {type: 'short'})
-    }
-  },
-
-  // Month: January, February, ..., December
-  'MMMM': {
-    unit: 'month',
-    match: function (string, options) {
-      return options.locale.match.months(string, {type: 'long'}) ||
-        options.locale.match.months(string, {type: 'short'})
-    },
-    parse: function (matchResult, options) {
-      var parseResult = options.locale.match.month(matchResult, {type: 'long'});
-
-      if (parseResult == null) {
-        parseResult = options.locale.match.month(matchResult, {type: 'short'});
-      }
-
-      return parseResult
-    }
-  },
-
-  // ISO week: 1, 2, ..., 53
-  'W': {
-    unit: 'isoWeek',
-    match: patterns$1.W,
-    parse: parseDecimal$1
-  },
-
-  // Ordinal ISO week
-  'Wo': {
-    unit: 'isoWeek',
-    match: function (string, options) {
-      return options.locale.match.ordinalNumbers(string, {unit: 'isoWeek'})
-    },
-    parse: function (matchResult, options) {
-      return options.locale.match.ordinalNumber(matchResult, {unit: 'isoWeek'})
-    }
-  },
-
-  // ISO week: 01, 02, ..., 53
-  'WW': {
-    unit: 'isoWeek',
-    match: patterns$1.twoDigits,
-    parse: parseDecimal$1
-  },
-
-  // Day of week: 0, 1, ..., 6
-  'd': {
-    unit: 'dayOfWeek',
-    match: patterns$1.singleDigit,
-    parse: parseDecimal$1
-  },
-
-  // Ordinal day of week
-  'do': {
-    unit: 'dayOfWeek',
-    match: function (string, options) {
-      return options.locale.match.ordinalNumbers(string, {unit: 'dayOfWeek'})
-    },
-    parse: function (matchResult, options) {
-      return options.locale.match.ordinalNumber(matchResult, {unit: 'dayOfWeek'})
-    }
-  },
-
-  // Day of week: Su, Mo, ..., Sa
-  'dd': {
-    unit: 'dayOfWeek',
-    match: function (string, options) {
-      return options.locale.match.weekdays(string, {type: 'narrow'})
-    },
-    parse: function (matchResult, options) {
-      return options.locale.match.weekday(matchResult, {type: 'narrow'})
-    }
-  },
-
-  // Day of week: Sun, Mon, ..., Sat
-  'ddd': {
-    unit: 'dayOfWeek',
-    match: function (string, options) {
-      return options.locale.match.weekdays(string, {type: 'short'}) ||
-        options.locale.match.weekdays(string, {type: 'narrow'})
-    },
-    parse: function (matchResult, options) {
-      var parseResult = options.locale.match.weekday(matchResult, {type: 'short'});
-
-      if (parseResult == null) {
-        parseResult = options.locale.match.weekday(matchResult, {type: 'narrow'});
-      }
-
-      return parseResult
-    }
-  },
-
-  // Day of week: Sunday, Monday, ..., Saturday
-  'dddd': {
-    unit: 'dayOfWeek',
-    match: function (string, options) {
-      return options.locale.match.weekdays(string, {type: 'long'}) ||
-        options.locale.match.weekdays(string, {type: 'short'}) ||
-        options.locale.match.weekdays(string, {type: 'narrow'})
-    },
-    parse: function (matchResult, options) {
-      var parseResult = options.locale.match.weekday(matchResult, {type: 'long'});
-
-      if (parseResult == null) {
-        parseResult = options.locale.match.weekday(matchResult, {type: 'short'});
-
-        if (parseResult == null) {
-          parseResult = options.locale.match.weekday(matchResult, {type: 'narrow'});
-        }
-      }
-
-      return parseResult
-    }
-  },
-
-  // Day of ISO week: 1, 2, ..., 7
-  'E': {
-    unit: 'dayOfISOWeek',
-    match: patterns$1.singleDigit,
-    parse: function (matchResult) {
-      return parseDecimal$1(matchResult)
-    }
-  },
-
-  // Day of month: 1, 2, ..., 31
-  'D': {
-    unit: 'dayOfMonth',
-    match: patterns$1.D,
-    parse: parseDecimal$1
-  },
-
-  // Ordinal day of month
-  'Do': {
-    unit: 'dayOfMonth',
-    match: function (string, options) {
-      return options.locale.match.ordinalNumbers(string, {unit: 'dayOfMonth'})
-    },
-    parse: function (matchResult, options) {
-      return options.locale.match.ordinalNumber(matchResult, {unit: 'dayOfMonth'})
-    }
-  },
-
-  // Day of month: 01, 02, ..., 31
-  'DD': {
-    unit: 'dayOfMonth',
-    match: patterns$1.twoDigits,
-    parse: parseDecimal$1
-  },
-
-  // Day of year: 1, 2, ..., 366
-  'DDD': {
-    unit: 'dayOfYear',
-    match: patterns$1.DDD,
-    parse: parseDecimal$1
-  },
-
-  // Ordinal day of year
-  'DDDo': {
-    unit: 'dayOfYear',
-    match: function (string, options) {
-      return options.locale.match.ordinalNumbers(string, {unit: 'dayOfYear'})
-    },
-    parse: function (matchResult, options) {
-      return options.locale.match.ordinalNumber(matchResult, {unit: 'dayOfYear'})
-    }
-  },
-
-  // Day of year: 001, 002, ..., 366
-  'DDDD': {
-    unit: 'dayOfYear',
-    match: patterns$1.threeDigits,
-    parse: parseDecimal$1
-  },
-
-  // AM, PM
-  'A': {
-    unit: 'timeOfDay',
-    match: function (string, options) {
-      return options.locale.match.timesOfDay(string, {type: 'short'})
-    },
-    parse: function (matchResult, options) {
-      return options.locale.match.timeOfDay(matchResult, {type: 'short'})
-    }
-  },
-
-  // a.m., p.m.
-  'aa': {
-    unit: 'timeOfDay',
-    match: function (string, options) {
-      return options.locale.match.timesOfDay(string, {type: 'long'}) ||
-        options.locale.match.timesOfDay(string, {type: 'short'})
-    },
-    parse: function (matchResult, options) {
-      var parseResult = options.locale.match.timeOfDay(matchResult, {type: 'long'});
-
-      if (parseResult == null) {
-        parseResult = options.locale.match.timeOfDay(matchResult, {type: 'short'});
-      }
-
-      return parseResult
-    }
-  },
-
-  // Hour: 0, 1, ... 23
-  'H': {
-    unit: 'hours',
-    match: patterns$1.H,
-    parse: parseDecimal$1
-  },
-
-  // Hour: 00, 01, ..., 23
-  'HH': {
-    unit: 'hours',
-    match: patterns$1.twoDigits,
-    parse: parseDecimal$1
-  },
-
-  // Hour: 1, 2, ..., 12
-  'h': {
-    unit: 'timeOfDayHours',
-    match: patterns$1.M,
-    parse: parseDecimal$1
-  },
-
-  // Hour: 01, 02, ..., 12
-  'hh': {
-    unit: 'timeOfDayHours',
-    match: patterns$1.twoDigits,
-    parse: parseDecimal$1
-  },
-
-  // Minute: 0, 1, ..., 59
-  'm': {
-    unit: 'minutes',
-    match: patterns$1.m,
-    parse: parseDecimal$1
-  },
-
-  // Minute: 00, 01, ..., 59
-  'mm': {
-    unit: 'minutes',
-    match: patterns$1.twoDigits,
-    parse: parseDecimal$1
-  },
-
-  // Second: 0, 1, ..., 59
-  's': {
-    unit: 'seconds',
-    match: patterns$1.m,
-    parse: parseDecimal$1
-  },
-
-  // Second: 00, 01, ..., 59
-  'ss': {
-    unit: 'seconds',
-    match: patterns$1.twoDigits,
-    parse: parseDecimal$1
-  },
-
-  // 1/10 of second: 0, 1, ..., 9
-  'S': {
-    unit: 'milliseconds',
-    match: patterns$1.singleDigit,
-    parse: function (matchResult) {
-      return parseDecimal$1(matchResult) * 100
-    }
-  },
-
-  // 1/100 of second: 00, 01, ..., 99
-  'SS': {
-    unit: 'milliseconds',
-    match: patterns$1.twoDigits,
-    parse: function (matchResult) {
-      return parseDecimal$1(matchResult) * 10
-    }
-  },
-
-  // Millisecond: 000, 001, ..., 999
-  'SSS': {
-    unit: 'milliseconds',
-    match: patterns$1.threeDigits,
-    parse: parseDecimal$1
-  },
-
-  // Timezone: -01:00, +00:00, ... +12:00
-  'Z': {
-    unit: 'timezone',
-    match: patterns$1.Z,
-    parse: function (matchResult) {
-      var sign = matchResult[1];
-      var hours = parseInt(matchResult[2], 10);
-      var minutes = parseInt(matchResult[3], 10);
-      var absoluteOffset = hours * 60 + minutes;
-      return (sign === '+') ? absoluteOffset : -absoluteOffset
-    }
-  },
-
-  // Timezone: -0100, +0000, ... +1200
-  'ZZ': {
-    unit: 'timezone',
-    match: patterns$1.ZZ,
-    parse: function (matchResult) {
-      var sign = matchResult[1];
-      var hours = parseInt(matchResult[2], 10);
-      var minutes = parseInt(matchResult[3], 10);
-      var absoluteOffset = hours * 60 + minutes;
-      return (sign === '+') ? absoluteOffset : -absoluteOffset
-    }
-  },
-
-  // Seconds timestamp: 512969520
-  'X': {
-    unit: 'timestamp',
-    match: patterns$1.anyDigits,
-    parse: function (matchResult) {
-      return parseDecimal$1(matchResult) * 1000
-    }
-  },
-
-  // Milliseconds timestamp: 512969520900
-  'x': {
-    unit: 'timestamp',
-    match: patterns$1.anyDigits,
-    parse: parseDecimal$1
-  }
-};
-
-parsers['a'] = parsers['A'];
-
-// This function will be a part of public API when UTC function will be implemented.
-// See issue: https://github.com/date-fns/date-fns/issues/376
-function setUTCDay (dirtyDate, dirtyDay, dirtyOptions) {
-  var options = dirtyOptions || {};
-  var locale = options.locale;
-  var localeWeekStartsOn = locale && locale.options && locale.options.weekStartsOn;
-  var defaultWeekStartsOn = localeWeekStartsOn === undefined ? 0 : Number(localeWeekStartsOn);
-  var weekStartsOn = options.weekStartsOn === undefined ? defaultWeekStartsOn : Number(options.weekStartsOn);
-
-  // Test if weekStartsOn is between 0 and 6 _and_ is not NaN
-  if (!(weekStartsOn >= 0 && weekStartsOn <= 6)) {
-    throw new RangeError('weekStartsOn must be between 0 and 6 inclusively')
-  }
-
-  var date = toDate(dirtyDate, dirtyOptions);
-  var day = Number(dirtyDay);
-
-  var currentDay = date.getUTCDay();
-
-  var remainder = day % 7;
-  var dayIndex = (remainder + 7) % 7;
-
-  var diff = (dayIndex < weekStartsOn ? 7 : 0) + day - currentDay;
-
-  date.setUTCDate(date.getUTCDate() + diff);
-  return date
-}
-
-// This function will be a part of public API when UTC function will be implemented.
-// See issue: https://github.com/date-fns/date-fns/issues/376
-function setUTCISODay (dirtyDate, dirtyDay, dirtyOptions) {
-  var day = Number(dirtyDay);
-
-  if (day % 7 === 0) {
-    day = day - 7;
-  }
-
-  var weekStartsOn = 1;
-  var date = toDate(dirtyDate, dirtyOptions);
-  var currentDay = date.getUTCDay();
-
-  var remainder = day % 7;
-  var dayIndex = (remainder + 7) % 7;
-
-  var diff = (dayIndex < weekStartsOn ? 7 : 0) + day - currentDay;
-
-  date.setUTCDate(date.getUTCDate() + diff);
-  return date
-}
-
-// This function will be a part of public API when UTC function will be implemented.
-// See issue: https://github.com/date-fns/date-fns/issues/376
-function setUTCISOWeek (dirtyDate, dirtyISOWeek, dirtyOptions) {
-  var date = toDate(dirtyDate, dirtyOptions);
-  var isoWeek = Number(dirtyISOWeek);
-  var diff = getUTCISOWeek(date, dirtyOptions) - isoWeek;
-  date.setUTCDate(date.getUTCDate() - diff * 7);
-  return date
-}
-
-var MILLISECONDS_IN_DAY$3 = 86400000;
-
-// This function will be a part of public API when UTC function will be implemented.
-// See issue: https://github.com/date-fns/date-fns/issues/376
-function setUTCISOWeekYear (dirtyDate, dirtyISOYear, dirtyOptions) {
-  var date = toDate(dirtyDate, dirtyOptions);
-  var isoYear = Number(dirtyISOYear);
-  var dateStartOfYear = startOfUTCISOWeekYear(date, dirtyOptions);
-  var diff = Math.floor((date.getTime() - dateStartOfYear.getTime()) / MILLISECONDS_IN_DAY$3);
-  var fourthOfJanuary = new Date(0);
-  fourthOfJanuary.setUTCFullYear(isoYear, 0, 4);
-  fourthOfJanuary.setUTCHours(0, 0, 0, 0);
-  date = startOfUTCISOWeekYear(fourthOfJanuary, dirtyOptions);
-  date.setUTCDate(date.getUTCDate() + diff);
-  return date
-}
-
-var MILLISECONDS_IN_MINUTE$7 = 60000;
-
-function setTimeOfDay (hours, timeOfDay) {
-  var isAM = timeOfDay === 0;
-
-  if (isAM) {
-    if (hours === 12) {
-      return 0
-    }
-  } else {
-    if (hours !== 12) {
-      return 12 + hours
-    }
-  }
-
-  return hours
-}
-
-var units = {
-  twoDigitYear: {
-    priority: 10,
-    set: function (dateValues, value) {
-      var century = Math.floor(dateValues.date.getUTCFullYear() / 100);
-      var year = century * 100 + value;
-      dateValues.date.setUTCFullYear(year, 0, 1);
-      dateValues.date.setUTCHours(0, 0, 0, 0);
-      return dateValues
-    }
-  },
-
-  year: {
-    priority: 10,
-    set: function (dateValues, value) {
-      dateValues.date.setUTCFullYear(value, 0, 1);
-      dateValues.date.setUTCHours(0, 0, 0, 0);
-      return dateValues
-    }
-  },
-
-  isoYear: {
-    priority: 10,
-    set: function (dateValues, value, options) {
-      dateValues.date = startOfUTCISOWeekYear(setUTCISOWeekYear(dateValues.date, value, options), options);
-      return dateValues
-    }
-  },
-
-  quarter: {
-    priority: 20,
-    set: function (dateValues, value) {
-      dateValues.date.setUTCMonth((value - 1) * 3, 1);
-      dateValues.date.setUTCHours(0, 0, 0, 0);
-      return dateValues
-    }
-  },
-
-  month: {
-    priority: 30,
-    set: function (dateValues, value) {
-      dateValues.date.setUTCMonth(value, 1);
-      dateValues.date.setUTCHours(0, 0, 0, 0);
-      return dateValues
-    }
-  },
-
-  isoWeek: {
-    priority: 40,
-    set: function (dateValues, value, options) {
-      dateValues.date = startOfUTCISOWeek(setUTCISOWeek(dateValues.date, value, options), options);
-      return dateValues
-    }
-  },
-
-  dayOfWeek: {
-    priority: 50,
-    set: function (dateValues, value, options) {
-      dateValues.date = setUTCDay(dateValues.date, value, options);
-      dateValues.date.setUTCHours(0, 0, 0, 0);
-      return dateValues
-    }
-  },
-
-  dayOfISOWeek: {
-    priority: 50,
-    set: function (dateValues, value, options) {
-      dateValues.date = setUTCISODay(dateValues.date, value, options);
-      dateValues.date.setUTCHours(0, 0, 0, 0);
-      return dateValues
-    }
-  },
-
-  dayOfMonth: {
-    priority: 50,
-    set: function (dateValues, value) {
-      dateValues.date.setUTCDate(value);
-      dateValues.date.setUTCHours(0, 0, 0, 0);
-      return dateValues
-    }
-  },
-
-  dayOfYear: {
-    priority: 50,
-    set: function (dateValues, value) {
-      dateValues.date.setUTCMonth(0, value);
-      dateValues.date.setUTCHours(0, 0, 0, 0);
-      return dateValues
-    }
-  },
-
-  timeOfDay: {
-    priority: 60,
-    set: function (dateValues, value, options) {
-      dateValues.timeOfDay = value;
-      return dateValues
-    }
-  },
-
-  hours: {
-    priority: 70,
-    set: function (dateValues, value, options) {
-      dateValues.date.setUTCHours(value, 0, 0, 0);
-      return dateValues
-    }
-  },
-
-  timeOfDayHours: {
-    priority: 70,
-    set: function (dateValues, value, options) {
-      var timeOfDay = dateValues.timeOfDay;
-      if (timeOfDay != null) {
-        value = setTimeOfDay(value, timeOfDay);
-      }
-      dateValues.date.setUTCHours(value, 0, 0, 0);
-      return dateValues
-    }
-  },
-
-  minutes: {
-    priority: 80,
-    set: function (dateValues, value) {
-      dateValues.date.setUTCMinutes(value, 0, 0);
-      return dateValues
-    }
-  },
-
-  seconds: {
-    priority: 90,
-    set: function (dateValues, value) {
-      dateValues.date.setUTCSeconds(value, 0);
-      return dateValues
-    }
-  },
-
-  milliseconds: {
-    priority: 100,
-    set: function (dateValues, value) {
-      dateValues.date.setUTCMilliseconds(value);
-      return dateValues
-    }
-  },
-
-  timezone: {
-    priority: 110,
-    set: function (dateValues, value) {
-      dateValues.date = new Date(dateValues.date.getTime() - value * MILLISECONDS_IN_MINUTE$7);
-      return dateValues
-    }
-  },
-
-  timestamp: {
-    priority: 120,
-    set: function (dateValues, value) {
-      dateValues.date = new Date(value);
-      return dateValues
-    }
-  }
-};
-
-var TIMEZONE_UNIT_PRIORITY = 110;
-var MILLISECONDS_IN_MINUTE$6 = 60000;
-
-var longFormattingTokensRegExp$1 = /(\[[^[]*])|(\\)?(LTS|LT|LLLL|LLL|LL|L|llll|lll|ll|l)/g;
-var defaultParsingTokensRegExp = /(\[[^[]*])|(\\)?(x|ss|s|mm|m|hh|h|do|dddd|ddd|dd|d|aa|a|ZZ|Z|YYYY|YY|X|Wo|WW|W|SSS|SS|S|Qo|Q|Mo|MMMM|MMM|MM|M|HH|H|GGGG|GG|E|Do|DDDo|DDDD|DDD|DD|D|A|.)/g;
-
-/**
- * @name parse
- * @category Common Helpers
- * @summary Parse the date.
- *
- * @description
- * Return the date parsed from string using the given format.
- *
- * Accepted format tokens:
- * | Unit                    | Priority | Token | Input examples                   |
- * |-------------------------|----------|-------|----------------------------------|
- * | Year                    | 10       | YY    | 00, 01, ..., 99                  |
- * |                         |          | YYYY  | 1900, 1901, ..., 2099            |
- * | ISO week-numbering year | 10       | GG    | 00, 01, ..., 99                  |
- * |                         |          | GGGG  | 1900, 1901, ..., 2099            |
- * | Quarter                 | 20       | Q     | 1, 2, 3, 4                       |
- * |                         |          | Qo    | 1st, 2nd, 3rd, 4th               |
- * | Month                   | 30       | M     | 1, 2, ..., 12                    |
- * |                         |          | Mo    | 1st, 2nd, ..., 12th              |
- * |                         |          | MM    | 01, 02, ..., 12                  |
- * |                         |          | MMM   | Jan, Feb, ..., Dec               |
- * |                         |          | MMMM  | January, February, ..., December |
- * | ISO week                | 40       | W     | 1, 2, ..., 53                    |
- * |                         |          | Wo    | 1st, 2nd, ..., 53rd              |
- * |                         |          | WW    | 01, 02, ..., 53                  |
- * | Day of week             | 50       | d     | 0, 1, ..., 6                     |
- * |                         |          | do    | 0th, 1st, ..., 6th               |
- * |                         |          | dd    | Su, Mo, ..., Sa                  |
- * |                         |          | ddd   | Sun, Mon, ..., Sat               |
- * |                         |          | dddd  | Sunday, Monday, ..., Saturday    |
- * | Day of ISO week         | 50       | E     | 1, 2, ..., 7                     |
- * | Day of month            | 50       | D     | 1, 2, ..., 31                    |
- * |                         |          | Do    | 1st, 2nd, ..., 31st              |
- * |                         |          | DD    | 01, 02, ..., 31                  |
- * | Day of year             | 50       | DDD   | 1, 2, ..., 366                   |
- * |                         |          | DDDo  | 1st, 2nd, ..., 366th             |
- * |                         |          | DDDD  | 001, 002, ..., 366               |
- * | Time of day             | 60       | A     | AM, PM                           |
- * |                         |          | a     | am, pm                           |
- * |                         |          | aa    | a.m., p.m.                       |
- * | Hour                    | 70       | H     | 0, 1, ... 23                     |
- * |                         |          | HH    | 00, 01, ... 23                   |
- * | Time of day hour        | 70       | h     | 1, 2, ..., 12                    |
- * |                         |          | hh    | 01, 02, ..., 12                  |
- * | Minute                  | 80       | m     | 0, 1, ..., 59                    |
- * |                         |          | mm    | 00, 01, ..., 59                  |
- * | Second                  | 90       | s     | 0, 1, ..., 59                    |
- * |                         |          | ss    | 00, 01, ..., 59                  |
- * | 1/10 of second          | 100      | S     | 0, 1, ..., 9                     |
- * | 1/100 of second         | 100      | SS    | 00, 01, ..., 99                  |
- * | Millisecond             | 100      | SSS   | 000, 001, ..., 999               |
- * | Timezone                | 110      | Z     | -01:00, +00:00, ... +12:00       |
- * |                         |          | ZZ    | -0100, +0000, ..., +1200         |
- * | Seconds timestamp       | 120      | X     | 512969520                        |
- * | Milliseconds timestamp  | 120      | x     | 512969520900                     |
- *
- * Values will be assigned to the date in the ascending order of its unit's priority.
- * Units of an equal priority overwrite each other in the order of appearance.
- *
- * If no values of higher priority are parsed (e.g. when parsing string 'January 1st' without a year),
- * the values will be taken from 3rd argument `baseDate` which works as a context of parsing.
- *
- * `baseDate` must be passed for correct work of the function.
- * If you're not sure which `baseDate` to supply, create a new instance of Date:
- * `parse('02/11/2014', 'MM/DD/YYYY', new Date())`
- * In this case parsing will be done in the context of the current date.
- * If `baseDate` is `Invalid Date` or a value not convertible to valid `Date`,
- * then `Invalid Date` will be returned.
- *
- * Also, `parse` unfolds long formats like those in [format]{@link https://date-fns.org/docs/format}:
- * | Token | Input examples                 |
- * |-------|--------------------------------|
- * | LT    | 05:30 a.m.                     |
- * | LTS   | 05:30:15 a.m.                  |
- * | L     | 07/02/1995                     |
- * | l     | 7/2/1995                       |
- * | LL    | July 2 1995                    |
- * | ll    | Jul 2 1995                     |
- * | LLL   | July 2 1995 05:30 a.m.         |
- * | lll   | Jul 2 1995 05:30 a.m.          |
- * | LLLL  | Sunday, July 2 1995 05:30 a.m. |
- * | llll  | Sun, Jul 2 1995 05:30 a.m.     |
- *
- * The characters wrapped in square brackets in the format string are escaped.
- *
- * The result may vary by locale.
- *
- * If `formatString` matches with `dateString` but does not provides tokens, `baseDate` will be returned.
- *
- * If parsing failed, `Invalid Date` will be returned.
- * Invalid Date is a Date, whose time value is NaN.
- * Time value of Date: http://es5.github.io/#x15.9.1.1
- *
- * @param {String} dateString - the string to parse
- * @param {String} formatString - the string of tokens
- * @param {Date|String|Number} baseDate - the date to took the missing higher priority values from
- * @param {Options} [options] - the object with options. See [Options]{@link https://date-fns.org/docs/Options}
- * @param {0|1|2} [options.additionalDigits=2] - passed to `toDate`. See [toDate]{@link https://date-fns.org/docs/toDate}
- * @param {Locale} [options.locale=defaultLocale] - the locale object. See [Locale]{@link https://date-fns.org/docs/Locale}
- * @param {0|1|2|3|4|5|6} [options.weekStartsOn=0] - the index of the first day of the week (0 - Sunday)
- * @returns {Date} the parsed date
- * @throws {TypeError} 3 arguments required
- * @throws {RangeError} `options.additionalDigits` must be 0, 1 or 2
- * @throws {RangeError} `options.weekStartsOn` must be between 0 and 6
- * @throws {RangeError} `options.locale` must contain `match` property
- * @throws {RangeError} `options.locale` must contain `formatLong` property
- *
- * @example
- * // Parse 11 February 2014 from middle-endian format:
- * var result = parse(
- *   '02/11/2014',
- *   'MM/DD/YYYY',
- *   new Date()
- * )
- * //=> Tue Feb 11 2014 00:00:00
- *
- * @example
- * // Parse 28th of February in English locale in the context of 2010 year:
- * import eoLocale from 'date-fns/locale/eo'
- * var result = parse(
- *   '28-a de februaro',
- *   'Do [de] MMMM',
- *   new Date(2010, 0, 1)
- *   {locale: eoLocale}
- * )
- * //=> Sun Feb 28 2010 00:00:00
- */
-function parse (dirtyDateString, dirtyFormatString, dirtyBaseDate, dirtyOptions) {
-  if (arguments.length < 3) {
-    throw new TypeError('3 arguments required, but only ' + arguments.length + ' present')
-  }
-
-  var dateString = String(dirtyDateString);
-  var options = dirtyOptions || {};
-
-  var weekStartsOn = options.weekStartsOn === undefined ? 0 : Number(options.weekStartsOn);
-
-  // Test if weekStartsOn is between 0 and 6 _and_ is not NaN
-  if (!(weekStartsOn >= 0 && weekStartsOn <= 6)) {
-    throw new RangeError('weekStartsOn must be between 0 and 6 inclusively')
-  }
-
-  var locale = options.locale || locale$1;
-  var localeParsers = locale.parsers || {};
-  var localeUnits = locale.units || {};
-
-  if (!locale.match) {
-    throw new RangeError('locale must contain match property')
-  }
-
-  if (!locale.formatLong) {
-    throw new RangeError('locale must contain formatLong property')
-  }
-
-  var formatString = String(dirtyFormatString)
-    .replace(longFormattingTokensRegExp$1, function (substring) {
-      if (substring[0] === '[') {
-        return substring
-      }
-
-      if (substring[0] === '\\') {
-        return cleanEscapedString$1(substring)
-      }
-
-      return locale.formatLong(substring)
-    });
-
-  if (formatString === '') {
-    if (dateString === '') {
-      return toDate(dirtyBaseDate, options)
-    } else {
-      return new Date(NaN)
-    }
-  }
-
-  var subFnOptions = cloneObject(options);
-  subFnOptions.locale = locale;
-
-  var tokens = formatString.match(locale.parsingTokensRegExp || defaultParsingTokensRegExp);
-  var tokensLength = tokens.length;
-
-  // If timezone isn't specified, it will be set to the system timezone
-  var setters = [{
-    priority: TIMEZONE_UNIT_PRIORITY,
-    set: dateToSystemTimezone,
-    index: 0
-  }];
-
-  var i;
-  for (i = 0; i < tokensLength; i++) {
-    var token = tokens[i];
-    var parser = localeParsers[token] || parsers[token];
-    if (parser) {
-      var matchResult;
-
-      if (parser.match instanceof RegExp) {
-        matchResult = parser.match.exec(dateString);
-      } else {
-        matchResult = parser.match(dateString, subFnOptions);
-      }
-
-      if (!matchResult) {
-        return new Date(NaN)
-      }
-
-      var unitName = parser.unit;
-      var unit = localeUnits[unitName] || units[unitName];
-
-      setters.push({
-        priority: unit.priority,
-        set: unit.set,
-        value: parser.parse(matchResult, subFnOptions),
-        index: setters.length
-      });
-
-      var substring = matchResult[0];
-      dateString = dateString.slice(substring.length);
-    } else {
-      var head = tokens[i].match(/^\[.*]$/) ? tokens[i].replace(/^\[|]$/g, '') : tokens[i];
-      if (dateString.indexOf(head) === 0) {
-        dateString = dateString.slice(head.length);
-      } else {
-        return new Date(NaN)
-      }
-    }
-  }
-
-  var uniquePrioritySetters = setters
-    .map(function (setter) {
-      return setter.priority
-    })
-    .sort(function (a, b) {
-      return a - b
-    })
-    .filter(function (priority, index, array) {
-      return array.indexOf(priority) === index
-    })
-    .map(function (priority) {
-      return setters
-        .filter(function (setter) {
-          return setter.priority === priority
-        })
-        .reverse()
-    })
-    .map(function (setterArray) {
-      return setterArray[0]
-    });
-
-  var date = toDate(dirtyBaseDate, options);
-
-  if (isNaN(date)) {
-    return new Date(NaN)
-  }
-
-  // Convert the date in system timezone to the same date in UTC+00:00 timezone.
-  // This ensures that when UTC functions will be implemented, locales will be compatible with them.
-  // See an issue about UTC functions: https://github.com/date-fns/date-fns/issues/37
-  var utcDate = subMinutes(date, date.getTimezoneOffset());
-
-  var dateValues = {date: utcDate};
-
-  var settersLength = uniquePrioritySetters.length;
-  for (i = 0; i < settersLength; i++) {
-    var setter = uniquePrioritySetters[i];
-    dateValues = setter.set(dateValues, setter.value, subFnOptions);
-  }
-
-  return dateValues.date
-}
-
-function dateToSystemTimezone (dateValues) {
-  var date = dateValues.date;
-  var time = date.getTime();
-
-  // Get the system timezone offset at (moment of time - offset)
-  var offset = date.getTimezoneOffset();
-
-  // Get the system timezone offset at the exact moment of time
-  offset = new Date(time + offset * MILLISECONDS_IN_MINUTE$6).getTimezoneOffset();
-
-  // Convert date in timezone "UTC+00:00" to the system timezone
-  dateValues.date = new Date(time + offset * MILLISECONDS_IN_MINUTE$6);
-
-  return dateValues
-}
-
-function cleanEscapedString$1 (input) {
-  if (input.match(/\[[\s\S]/)) {
-    return input.replace(/^\[|]$/g, '')
-  }
-  return input.replace(/\\/g, '')
-}
-
-// This file is generated automatically by `scripts/build/indices.js`. Please, don't change it.
-
-// 
-
-/**
- * Custom parse behavior on top of date-fns parse function.
- */
-function parseDate$1 (date, format$$1) {
-  if (typeof date !== 'string') {
-    return isValid(date) ? date : null;
-  }
-
-  var parsed = parse(date, format$$1, new Date());
-
-  // if date is not valid or the formatted output after parsing does not match
-  // the string value passed in (avoids overflows)
-  if (!isValid(parsed) || format(parsed, format$$1) !== date) {
-    return null;
-  }
-
-  return parsed;
-}
-
-var after = function (value, ref) {
-  var otherValue = ref[0];
-  var inclusion = ref[1];
-  var format = ref[2];
-
-  if (typeof format === 'undefined') {
-    format = inclusion;
-    inclusion = false;
-  }
-  value = parseDate$1(value, format);
-  otherValue = parseDate$1(otherValue, format);
-
-  // if either is not valid.
-  if (!value || !otherValue) {
-    return false;
-  }
-
-  return isAfter(value, otherValue) || (inclusion && isEqual$1(value, otherValue));
-};
-
-/**
- * Some Alpha Regex helpers.
- * https://github.com/chriso/validator.js/blob/master/src/lib/alpha.js
- */
-
-var alpha$1 = {
-  en: /^[A-Z]*$/i,
-  cs: /^[A-ZÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ]*$/i,
-  da: /^[A-ZÆØÅ]*$/i,
-  de: /^[A-ZÄÖÜß]*$/i,
-  es: /^[A-ZÁÉÍÑÓÚÜ]*$/i,
-  fr: /^[A-ZÀÂÆÇÉÈÊËÏÎÔŒÙÛÜŸ]*$/i,
-  lt: /^[A-ZĄČĘĖĮŠŲŪŽ]*$/i,
-  nl: /^[A-ZÉËÏÓÖÜ]*$/i,
-  hu: /^[A-ZÁÉÍÓÖŐÚÜŰ]*$/i,
-  pl: /^[A-ZĄĆĘŚŁŃÓŻŹ]*$/i,
-  pt: /^[A-ZÃÁÀÂÇÉÊÍÕÓÔÚÜ]*$/i,
-  ru: /^[А-ЯЁ]*$/i,
-  sk: /^[A-ZÁÄČĎÉÍĹĽŇÓŔŠŤÚÝŽ]*$/i,
-  sr: /^[A-ZČĆŽŠĐ]*$/i,
-  tr: /^[A-ZÇĞİıÖŞÜ]*$/i,
-  uk: /^[А-ЩЬЮЯЄІЇҐ]*$/i,
-  ar: /^[ءآأؤإئابةتثجحخدذرزسشصضطظعغفقكلمنهوىيًٌٍَُِّْٰ]*$/
-};
-
-var alphaSpaces = {
-  en: /^[A-Z\s]*$/i,
-  cs: /^[A-ZÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ\s]*$/i,
-  da: /^[A-ZÆØÅ\s]*$/i,
-  de: /^[A-ZÄÖÜß\s]*$/i,
-  es: /^[A-ZÁÉÍÑÓÚÜ\s]*$/i,
-  fr: /^[A-ZÀÂÆÇÉÈÊËÏÎÔŒÙÛÜŸ\s]*$/i,
-  lt: /^[A-ZĄČĘĖĮŠŲŪŽ\s]*$/i,
-  nl: /^[A-ZÉËÏÓÖÜ\s]*$/i,
-  hu: /^[A-ZÁÉÍÓÖŐÚÜŰ\s]*$/i,
-  pl: /^[A-ZĄĆĘŚŁŃÓŻŹ\s]*$/i,
-  pt: /^[A-ZÃÁÀÂÇÉÊÍÕÓÔÚÜ\s]*$/i,
-  ru: /^[А-ЯЁ\s]*$/i,
-  sk: /^[A-ZÁÄČĎÉÍĹĽŇÓŔŠŤÚÝŽ\s]*$/i,
-  sr: /^[A-ZČĆŽŠĐ\s]*$/i,
-  tr: /^[A-ZÇĞİıÖŞÜ\s]*$/i,
-  uk: /^[А-ЩЬЮЯЄІЇҐ\s]*$/i,
-  ar: /^[ءآأؤإئابةتثجحخدذرزسشصضطظعغفقكلمنهوىيًٌٍَُِّْٰ\s]*$/
-};
-
-var alphanumeric = {
-  en: /^[0-9A-Z]*$/i,
-  cs: /^[0-9A-ZÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ]*$/i,
-  da: /^[0-9A-ZÆØÅ]$/i,
-  de: /^[0-9A-ZÄÖÜß]*$/i,
-  es: /^[0-9A-ZÁÉÍÑÓÚÜ]*$/i,
-  fr: /^[0-9A-ZÀÂÆÇÉÈÊËÏÎÔŒÙÛÜŸ]*$/i,
-  lt: /^[0-9A-ZĄČĘĖĮŠŲŪŽ]*$/i,
-  hu: /^[0-9A-ZÁÉÍÓÖŐÚÜŰ]*$/i,
-  nl: /^[0-9A-ZÉËÏÓÖÜ]*$/i,
-  pl: /^[0-9A-ZĄĆĘŚŁŃÓŻŹ]*$/i,
-  pt: /^[0-9A-ZÃÁÀÂÇÉÊÍÕÓÔÚÜ]*$/i,
-  ru: /^[0-9А-ЯЁ]*$/i,
-  sk: /^[0-9A-ZÁÄČĎÉÍĹĽŇÓŔŠŤÚÝŽ]*$/i,
-  sr: /^[0-9A-ZČĆŽŠĐ]*$/i,
-  tr: /^[0-9A-ZÇĞİıÖŞÜ]*$/i,
-  uk: /^[0-9А-ЩЬЮЯЄІЇҐ]*$/i,
-  ar: /^[٠١٢٣٤٥٦٧٨٩0-9ءآأؤإئابةتثجحخدذرزسشصضطظعغفقكلمنهوىيًٌٍَُِّْٰ]*$/
-};
-
-var alphaDash = {
-  en: /^[0-9A-Z_-]*$/i,
-  cs: /^[0-9A-ZÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ_-]*$/i,
-  da: /^[0-9A-ZÆØÅ_-]*$/i,
-  de: /^[0-9A-ZÄÖÜß_-]*$/i,
-  es: /^[0-9A-ZÁÉÍÑÓÚÜ_-]*$/i,
-  fr: /^[0-9A-ZÀÂÆÇÉÈÊËÏÎÔŒÙÛÜŸ_-]*$/i,
-  lt: /^[0-9A-ZĄČĘĖĮŠŲŪŽ_-]*$/i,
-  nl: /^[0-9A-ZÉËÏÓÖÜ_-]*$/i,
-  hu: /^[0-9A-ZÁÉÍÓÖŐÚÜŰ_-]*$/i,
-  pl: /^[0-9A-ZĄĆĘŚŁŃÓŻŹ_-]*$/i,
-  pt: /^[0-9A-ZÃÁÀÂÇÉÊÍÕÓÔÚÜ_-]*$/i,
-  ru: /^[0-9А-ЯЁ_-]*$/i,
-  sk: /^[0-9A-ZÁÄČĎÉÍĹĽŇÓŔŠŤÚÝŽ_-]*$/i,
-  sr: /^[0-9A-ZČĆŽŠĐ_-]*$/i,
-  tr: /^[0-9A-ZÇĞİıÖŞÜ_-]*$/i,
-  uk: /^[0-9А-ЩЬЮЯЄІЇҐ_-]*$/i,
-  ar: /^[٠١٢٣٤٥٦٧٨٩0-9ءآأؤإئابةتثجحخدذرزسشصضطظعغفقكلمنهوىيًٌٍَُِّْٰ_-]*$/
-};
-
-var validate = function (value, ref) {
-  if ( ref === void 0 ) ref = [];
-  var locale = ref[0]; if ( locale === void 0 ) locale = null;
-
-  if (Array.isArray(value)) {
-    return value.every(function (val) { return validate(val, [locale]); });
-  }
-
-  // Match at least one locale.
-  if (! locale) {
-    return Object.keys(alpha$1).some(function (loc) { return alpha$1[loc].test(value); });
-  }
-
-  return (alpha$1[locale] || alpha$1.en).test(value);
-};
-
-var validate$1 = function (value, ref) {
-  if ( ref === void 0 ) ref = [];
-  var locale = ref[0]; if ( locale === void 0 ) locale = null;
-
-  if (Array.isArray(value)) {
-    return value.every(function (val) { return validate$1(val, [locale]); });
-  }
-
-  // Match at least one locale.
-  if (! locale) {
-    return Object.keys(alphaDash).some(function (loc) { return alphaDash[loc].test(value); });
-  }
-
-  return (alphaDash[locale] || alphaDash.en).test(value);
-};
-
-var validate$2 = function (value, ref) {
-  if ( ref === void 0 ) ref = [];
-  var locale = ref[0]; if ( locale === void 0 ) locale = null;
-
-  if (Array.isArray(value)) {
-    return value.every(function (val) { return validate$2(val, [locale]); });
-  }
-
-  // Match at least one locale.
-  if (! locale) {
-    return Object.keys(alphanumeric).some(function (loc) { return alphanumeric[loc].test(value); });
-  }
-
-  return (alphanumeric[locale] || alphanumeric.en).test(value);
-};
-
-var validate$3 = function (value, ref) {
-  if ( ref === void 0 ) ref = [];
-  var locale = ref[0]; if ( locale === void 0 ) locale = null;
-
-  if (Array.isArray(value)) {
-    return value.every(function (val) { return validate$3(val, [locale]); });
-  }
-
-  // Match at least one locale.
-  if (! locale) {
-    return Object.keys(alphaSpaces).some(function (loc) { return alphaSpaces[loc].test(value); });
-  }
-
-  return (alphaSpaces[locale] || alphaSpaces.en).test(value);
-};
-
-var before = function (value, ref) {
-  var otherValue = ref[0];
-  var inclusion = ref[1];
-  var format = ref[2];
-
-  if (typeof format === 'undefined') {
-    format = inclusion;
-    inclusion = false;
-  }
-  value = parseDate$1(value, format);
-  otherValue = parseDate$1(otherValue, format);
-
-  // if either is not valid.
-  if (!value || !otherValue) {
-    return false;
-  }
-
-  return isBefore(value, otherValue) || (inclusion && isEqual$1(value, otherValue));
-};
-
-var validate$4 = function (value, ref) {
-  var min = ref[0];
-  var max = ref[1];
-
-  if (Array.isArray(value)) {
-    return value.every(function (val) { return validate$4(val, [min, max]); });
-  }
-
-  return Number(min) <= value && Number(max) >= value;
-};
-
-var confirmed = function (value, other) { return String(value) === String(other); };
-
-function unwrapExports (x) {
-	return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, 'default') ? x['default'] : x;
-}
-
-function createCommonjsModule(fn, module) {
-	return module = { exports: {} }, fn(module, module.exports), module.exports;
-}
-
-var assertString_1 = createCommonjsModule(function (module, exports) {
-'use strict';
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = assertString;
-function assertString(input) {
-  var isString = typeof input === 'string' || input instanceof String;
-
-  if (!isString) {
-    throw new TypeError('This library (validator.js) validates strings only');
-  }
-}
-module.exports = exports['default'];
-});
-
-unwrapExports(assertString_1);
-
-var isCreditCard_1 = createCommonjsModule(function (module, exports) {
-'use strict';
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = isCreditCard;
-
-
-
-var _assertString2 = _interopRequireDefault(assertString_1);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-/* eslint-disable max-len */
-var creditCard = /^(?:4[0-9]{12}(?:[0-9]{3})?|5[1-5][0-9]{14}|(222[1-9]|22[3-9][0-9]|2[3-6][0-9]{2}|27[01][0-9]|2720)[0-9]{12}|6(?:011|5[0-9][0-9])[0-9]{12}|3[47][0-9]{13}|3(?:0[0-5]|[68][0-9])[0-9]{11}|(?:2131|1800|35\d{3})\d{11}|62[0-9]{14})$/;
-/* eslint-enable max-len */
-
-function isCreditCard(str) {
-  (0, _assertString2.default)(str);
-  var sanitized = str.replace(/[- ]+/g, '');
-  if (!creditCard.test(sanitized)) {
-    return false;
-  }
-  var sum = 0;
-  var digit = void 0;
-  var tmpNum = void 0;
-  var shouldDouble = void 0;
-  for (var i = sanitized.length - 1; i >= 0; i--) {
-    digit = sanitized.substring(i, i + 1);
-    tmpNum = parseInt(digit, 10);
-    if (shouldDouble) {
-      tmpNum *= 2;
-      if (tmpNum >= 10) {
-        sum += tmpNum % 10 + 1;
-      } else {
-        sum += tmpNum;
-      }
-    } else {
-      sum += tmpNum;
-    }
-    shouldDouble = !shouldDouble;
-  }
-  return !!(sum % 10 === 0 ? sanitized : false);
-}
-module.exports = exports['default'];
-});
-
-var isCreditCard = unwrapExports(isCreditCard_1);
-
-var credit_card = function (value) { return isCreditCard(String(value)); };
-
-var validate$5 = function (value, ref) {
-  if ( ref === void 0 ) ref = [];
-  var decimals = ref[0]; if ( decimals === void 0 ) decimals = '*';
-  var separator = ref[1]; if ( separator === void 0 ) separator = '.';
-
-  if (Array.isArray(value)) {
-    return value.every(function (val) { return validate$5(val, [decimals, separator]); });
-  }
-
-  if (value === null || value === undefined || value === '') {
-    return true;
-  }
-
-  // if is 0.
-  if (Number(decimals) === 0) {
-    return /^-?\d*$/.test(value);
-  }
-
-  var regexPart = decimals === '*' ? '+' : ("{1," + decimals + "}");
-  var regex = new RegExp(("^-?\\d*(\\" + separator + "\\d" + regexPart + ")?$"));
-
-  if (! regex.test(value)) {
-    return false;
-  }
-
-  var parsedValue = parseFloat(value);
-
-  // eslint-disable-next-line
-    return parsedValue === parsedValue;
-};
-
-var date_between = function (value, params) {
-  var min;
-  var max;
-  var format;
-  var inclusivity = '()';
-
-  if (params.length > 3) {
-    var assign;
-    (assign = params, min = assign[0], max = assign[1], inclusivity = assign[2], format = assign[3]);
-  } else {
-    var assign$1;
-    (assign$1 = params, min = assign$1[0], max = assign$1[1], format = assign$1[2]);
-  }
-
-  var minDate = parseDate$1(min, format);
-  var maxDate = parseDate$1(max, format);
-  var dateVal = parseDate$1(value, format);
-
-  if (!minDate || !maxDate || !dateVal) {
-    return false;
-  }
-
-  if (inclusivity === '()') {
-    return isAfter(dateVal, minDate) && isBefore(dateVal, maxDate);
-  }
-
-  if (inclusivity === '(]') {
-    return isAfter(dateVal, minDate) && (isEqual$1(dateVal, maxDate) || isBefore(dateVal, maxDate));
-  }
-
-  if (inclusivity === '[)') {
-    return isBefore(dateVal, maxDate) && (isEqual$1(dateVal, minDate) || isAfter(dateVal, minDate));
-  }
-
-  return isEqual$1(dateVal, maxDate) || isEqual$1(dateVal, minDate) ||
-        (isBefore(dateVal, maxDate) && isAfter(dateVal, minDate));
-};
-
-var date_format = function (value, ref) {
-  var format = ref[0];
-
-  return !!parseDate$1(value, format);
-};
-
-var validate$6 = function (value, ref) {
-  var length = ref[0];
-
-  if (Array.isArray(value)) {
-    return value.every(function (val) { return validate$6(val, [length]); });
-  }
-  var strVal = String(value);
-
-  return /^[0-9]*$/.test(strVal) && strVal.length === Number(length);
-};
-
-var validateImage = function (file, width, height) {
-  var URL = window.URL || window.webkitURL;
-  return new Promise(function (resolve) {
-    var image = new Image();
-    image.onerror = function () { return resolve({ valid: false }); };
-    image.onload = function () { return resolve({
-      valid: image.width === Number(width) && image.height === Number(height)
-    }); };
-
-    image.src = URL.createObjectURL(file);
-  });
-};
-
-var dimensions = function (files, ref) {
-  var width = ref[0];
-  var height = ref[1];
-
-  var list = [];
-  for (var i = 0; i < files.length; i++) {
-    // if file is not an image, reject.
-    if (! /\.(jpg|svg|jpeg|png|bmp|gif)$/i.test(files[i].name)) {
-      return false;
-    }
-
-    list.push(files[i]);
-  }
-
-  return Promise.all(list.map(function (file) { return validateImage(file, width, height); }));
-};
-
-var merge_1 = createCommonjsModule(function (module, exports) {
-'use strict';
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = merge;
-function merge() {
-  var obj = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-  var defaults = arguments[1];
-
-  for (var key in defaults) {
-    if (typeof obj[key] === 'undefined') {
-      obj[key] = defaults[key];
-    }
-  }
-  return obj;
-}
-module.exports = exports['default'];
-});
-
-unwrapExports(merge_1);
-
-var isByteLength_1 = createCommonjsModule(function (module, exports) {
-'use strict';
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-
-exports.default = isByteLength;
-
-
-
-var _assertString2 = _interopRequireDefault(assertString_1);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-/* eslint-disable prefer-rest-params */
-function isByteLength(str, options) {
-  (0, _assertString2.default)(str);
-  var min = void 0;
-  var max = void 0;
-  if ((typeof options === 'undefined' ? 'undefined' : _typeof(options)) === 'object') {
-    min = options.min || 0;
-    max = options.max;
-  } else {
-    // backwards compatibility: isByteLength(str, min [, max])
-    min = arguments[1];
-    max = arguments[2];
-  }
-  var len = encodeURI(str).split(/%..|./).length - 1;
-  return len >= min && (typeof max === 'undefined' || len <= max);
-}
-module.exports = exports['default'];
-});
-
-unwrapExports(isByteLength_1);
-
-var isFQDN = createCommonjsModule(function (module, exports) {
-'use strict';
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = isFDQN;
-
-
-
-var _assertString2 = _interopRequireDefault(assertString_1);
-
-
-
-var _merge2 = _interopRequireDefault(merge_1);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-var default_fqdn_options = {
-  require_tld: true,
-  allow_underscores: false,
-  allow_trailing_dot: false
-};
-
-function isFDQN(str, options) {
-  (0, _assertString2.default)(str);
-  options = (0, _merge2.default)(options, default_fqdn_options);
-
-  /* Remove the optional trailing dot before checking validity */
-  if (options.allow_trailing_dot && str[str.length - 1] === '.') {
-    str = str.substring(0, str.length - 1);
-  }
-  var parts = str.split('.');
-  if (options.require_tld) {
-    var tld = parts.pop();
-    if (!parts.length || !/^([a-z\u00a1-\uffff]{2,}|xn[a-z0-9-]{2,})$/i.test(tld)) {
-      return false;
-    }
-    // disallow spaces
-    if (/[\s\u2002-\u200B\u202F\u205F\u3000\uFEFF\uDB40\uDC20]/.test(tld)) {
-      return false;
-    }
-  }
-  for (var part, i = 0; i < parts.length; i++) {
-    part = parts[i];
-    if (options.allow_underscores) {
-      part = part.replace(/_/g, '');
-    }
-    if (!/^[a-z\u00a1-\uffff0-9-]+$/i.test(part)) {
-      return false;
-    }
-    // disallow full-width chars
-    if (/[\uff01-\uff5e]/.test(part)) {
-      return false;
-    }
-    if (part[0] === '-' || part[part.length - 1] === '-') {
-      return false;
-    }
-  }
-  return true;
-}
-module.exports = exports['default'];
-});
-
-unwrapExports(isFQDN);
-
-var isEmail_1 = createCommonjsModule(function (module, exports) {
-'use strict';
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = isEmail;
-
-
-
-var _assertString2 = _interopRequireDefault(assertString_1);
-
-
-
-var _merge2 = _interopRequireDefault(merge_1);
-
-
-
-var _isByteLength2 = _interopRequireDefault(isByteLength_1);
-
-
-
-var _isFQDN2 = _interopRequireDefault(isFQDN);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-var default_email_options = {
-  allow_display_name: false,
-  require_display_name: false,
-  allow_utf8_local_part: true,
-  require_tld: true
-};
-
-/* eslint-disable max-len */
-/* eslint-disable no-control-regex */
-var displayName = /^[a-z\d!#\$%&'\*\+\-\/=\?\^_`{\|}~\.\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]+[a-z\d!#\$%&'\*\+\-\/=\?\^_`{\|}~\,\.\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF\s]*<(.+)>$/i;
-var emailUserPart = /^[a-z\d!#\$%&'\*\+\-\/=\?\^_`{\|}~]+$/i;
-var quotedEmailUser = /^([\s\x01-\x08\x0b\x0c\x0e-\x1f\x7f\x21\x23-\x5b\x5d-\x7e]|(\\[\x01-\x09\x0b\x0c\x0d-\x7f]))*$/i;
-var emailUserUtf8Part = /^[a-z\d!#\$%&'\*\+\-\/=\?\^_`{\|}~\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]+$/i;
-var quotedEmailUserUtf8 = /^([\s\x01-\x08\x0b\x0c\x0e-\x1f\x7f\x21\x23-\x5b\x5d-\x7e\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]|(\\[\x01-\x09\x0b\x0c\x0d-\x7f\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]))*$/i;
-/* eslint-enable max-len */
-/* eslint-enable no-control-regex */
-
-function isEmail(str, options) {
-  (0, _assertString2.default)(str);
-  options = (0, _merge2.default)(options, default_email_options);
-
-  if (options.require_display_name || options.allow_display_name) {
-    var display_email = str.match(displayName);
-    if (display_email) {
-      str = display_email[1];
-    } else if (options.require_display_name) {
-      return false;
-    }
-  }
-
-  var parts = str.split('@');
-  var domain = parts.pop();
-  var user = parts.join('@');
-
-  var lower_domain = domain.toLowerCase();
-  if (lower_domain === 'gmail.com' || lower_domain === 'googlemail.com') {
-    user = user.replace(/\./g, '').toLowerCase();
-  }
-
-  if (!(0, _isByteLength2.default)(user, { max: 64 }) || !(0, _isByteLength2.default)(domain, { max: 254 })) {
-    return false;
-  }
-
-  if (!(0, _isFQDN2.default)(domain, { require_tld: options.require_tld })) {
-    return false;
-  }
-
-  if (user[0] === '"') {
-    user = user.slice(1, user.length - 1);
-    return options.allow_utf8_local_part ? quotedEmailUserUtf8.test(user) : quotedEmailUser.test(user);
-  }
-
-  var pattern = options.allow_utf8_local_part ? emailUserUtf8Part : emailUserPart;
-
-  var user_parts = user.split('.');
-  for (var i = 0; i < user_parts.length; i++) {
-    if (!pattern.test(user_parts[i])) {
-      return false;
-    }
-  }
-
-  return true;
-}
-module.exports = exports['default'];
-});
-
-var isEmail = unwrapExports(isEmail_1);
-
-var validate$7 = function (value) {
-  if (Array.isArray(value)) {
-    return value.every(function (val) { return isEmail(String(val)); });
-  }
-
-  return isEmail(String(value));
-};
-
-var ext = function (files, extensions) {
-  var regex = new RegExp((".(" + (extensions.join('|')) + ")$"), 'i');
-
-  return files.every(function (file) { return regex.test(file.name); });
-};
-
-var image = function (files) { return files.every(function (file) { return /\.(jpg|svg|jpeg|png|bmp|gif)$/i.test(file.name); }
-); };
-
-var validate$8 = function (value, options) {
-  if (Array.isArray(value)) {
-    return value.every(function (val) { return validate$8(val, options); });
-  }
-
-  // eslint-disable-next-line
-  return !! options.filter(function (option) { return option == value; }).length;
-};
-
-var is = function (value, ref) {
-  if ( ref === void 0 ) ref = [];
-  var other = ref[0];
-
-  return value === other;
-};
-
-var isIP_1 = createCommonjsModule(function (module, exports) {
-'use strict';
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = isIP;
-
-
-
-var _assertString2 = _interopRequireDefault(assertString_1);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-var ipv4Maybe = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/;
-var ipv6Block = /^[0-9A-F]{1,4}$/i;
-
-function isIP(str) {
-  var version = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '';
-
-  (0, _assertString2.default)(str);
-  version = String(version);
-  if (!version) {
-    return isIP(str, 4) || isIP(str, 6);
-  } else if (version === '4') {
-    if (!ipv4Maybe.test(str)) {
-      return false;
-    }
-    var parts = str.split('.').sort(function (a, b) {
-      return a - b;
-    });
-    return parts[3] <= 255;
-  } else if (version === '6') {
-    var blocks = str.split(':');
-    var foundOmissionBlock = false; // marker to indicate ::
-
-    // At least some OS accept the last 32 bits of an IPv6 address
-    // (i.e. 2 of the blocks) in IPv4 notation, and RFC 3493 says
-    // that '::ffff:a.b.c.d' is valid for IPv4-mapped IPv6 addresses,
-    // and '::a.b.c.d' is deprecated, but also valid.
-    var foundIPv4TransitionBlock = isIP(blocks[blocks.length - 1], 4);
-    var expectedNumberOfBlocks = foundIPv4TransitionBlock ? 7 : 8;
-
-    if (blocks.length > expectedNumberOfBlocks) {
-      return false;
-    }
-    // initial or final ::
-    if (str === '::') {
-      return true;
-    } else if (str.substr(0, 2) === '::') {
-      blocks.shift();
-      blocks.shift();
-      foundOmissionBlock = true;
-    } else if (str.substr(str.length - 2) === '::') {
-      blocks.pop();
-      blocks.pop();
-      foundOmissionBlock = true;
-    }
-
-    for (var i = 0; i < blocks.length; ++i) {
-      // test for a :: which can not be at the string start/end
-      // since those cases have been handled above
-      if (blocks[i] === '' && i > 0 && i < blocks.length - 1) {
-        if (foundOmissionBlock) {
-          return false; // multiple :: in address
-        }
-        foundOmissionBlock = true;
-      } else if (foundIPv4TransitionBlock && i === blocks.length - 1) {
-        // it has been checked before that the last
-        // block is a valid IPv4 address
-      } else if (!ipv6Block.test(blocks[i])) {
-        return false;
-      }
-    }
-    if (foundOmissionBlock) {
-      return blocks.length >= 1;
-    }
-    return blocks.length === expectedNumberOfBlocks;
-  }
-  return false;
-}
-module.exports = exports['default'];
-});
-
-var isIP = unwrapExports(isIP_1);
-
-var ip = function (value, ref) {
-  if ( ref === void 0 ) ref = [];
-  var version = ref[0]; if ( version === void 0 ) version = 4;
-
-  if (isNullOrUndefined(value)) {
-    value = '';
-  }
-
-  if (Array.isArray(value)) {
-    return value.every(function (val) { return isIP(val, version); });
-  }
-
-  return isIP(value, version);
-};
-
-/**
- * @param {Array|String} value
- * @param {Number} length
- * @param {Number} max
- */
-var compare = function (value, length, max) {
-  if (max === undefined) {
-    return value.length === length;
-  }
-
-  // cast to number.
-  max = Number(max);
-
-  return value.length >= length && value.length <= max;
-};
-
-var length = function (value, ref) {
-  var length = ref[0];
-  var max = ref[1]; if ( max === void 0 ) max = undefined;
-
-  length = Number(length);
-  if (value === undefined || value === null) {
-    return false;
-  }
-
-  if (typeof value === 'number') {
-    value = String(value);
-  }
-
-  if (!value.length) {
-    value = toArray(value);
-  }
-
-  return compare(value, length, max);
-};
-
-var integer = function (value) {
-  if (Array.isArray(value)) {
-    return value.every(function (val) { return /^-?[0-9]+$/.test(String(val)); });
-  }
-
-  return /^-?[0-9]+$/.test(String(value));
-};
-
-var max$1 = function (value, ref) {
-  var length = ref[0];
-
-  if (value === undefined || value === null) {
-    return length >= 0;
-  }
-
-  return String(value).length <= length;
-};
-
-var max_value = function (value, ref) {
-  var max = ref[0];
-
-  if (Array.isArray(value) || value === null || value === undefined || value === '') {
-    return false;
-  }
-
-  return Number(value) <= max;
-};
-
-var mimes = function (files, mimes) {
-  var regex = new RegExp(((mimes.join('|').replace('*', '.+')) + "$"), 'i');
-
-  return files.every(function (file) { return regex.test(file.type); });
-};
-
-var min$1 = function (value, ref) {
-  var length = ref[0];
-
-  if (value === undefined || value === null) {
-    return false;
-  }
-  return String(value).length >= length;
-};
-
-var min_value = function (value, ref) {
-  var min = ref[0];
-
-  if (Array.isArray(value) || value === null || value === undefined || value === '') {
-    return false;
-  }
-
-  return Number(value) >= min;
-};
-
-var validate$9 = function (value, options) {
-  if (Array.isArray(value)) {
-    return value.every(function (val) { return validate$9(val, options); });
-  }
-
-  // eslint-disable-next-line
-  return ! options.filter(function (option) { return option == value; }).length;
-};
-
-var numeric = function (value) {
-  if (Array.isArray(value)) {
-    return value.every(function (val) { return /^[0-9]+$/.test(String(val)); });
-  }
-
-  return /^[0-9]+$/.test(String(value));
-};
-
-var regex = function (value, ref) {
-  var regex = ref[0];
-  var flags = ref.slice(1);
-
-  if (regex instanceof RegExp) {
-    return regex.test(value);
-  }
-
-  return new RegExp(regex, flags).test(String(value));
-};
-
-var required = function (value, ref) {
-  if ( ref === void 0 ) ref = [];
-  var invalidateFalse = ref[0]; if ( invalidateFalse === void 0 ) invalidateFalse = false;
-
-  if (Array.isArray(value)) {
-    return !! value.length;
-  }
-
-  // incase a field considers `false` as an empty value like checkboxes.
-  if (value === false && invalidateFalse) {
-    return false;
-  }
-
-  if (value === undefined || value === null) {
-    return false;
-  }
-
-  return !! String(value).trim().length;
-};
-
-var size = function (files, ref) {
-  var size = ref[0];
-
-  if (isNaN(size)) {
-    return false;
-  }
-
-  var nSize = Number(size) * 1024;
-  for (var i = 0; i < files.length; i++) {
-    if (files[i].size > nSize) {
-      return false;
-    }
-  }
-
-  return true;
-};
-
-var isURL_1 = createCommonjsModule(function (module, exports) {
-'use strict';
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = isURL;
-
-
-
-var _assertString2 = _interopRequireDefault(assertString_1);
-
-
-
-var _isFQDN2 = _interopRequireDefault(isFQDN);
-
-
-
-var _isIP2 = _interopRequireDefault(isIP_1);
-
-
-
-var _merge2 = _interopRequireDefault(merge_1);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-var default_url_options = {
-  protocols: ['http', 'https', 'ftp'],
-  require_tld: true,
-  require_protocol: false,
-  require_host: true,
-  require_valid_protocol: true,
-  allow_underscores: false,
-  allow_trailing_dot: false,
-  allow_protocol_relative_urls: false
-};
-
-var wrapped_ipv6 = /^\[([^\]]+)\](?::([0-9]+))?$/;
-
-function isRegExp(obj) {
-  return Object.prototype.toString.call(obj) === '[object RegExp]';
-}
-
-function checkHost(host, matches) {
-  for (var i = 0; i < matches.length; i++) {
-    var match = matches[i];
-    if (host === match || isRegExp(match) && match.test(host)) {
-      return true;
-    }
-  }
-  return false;
-}
-
-function isURL(url, options) {
-  (0, _assertString2.default)(url);
-  if (!url || url.length >= 2083 || /[\s<>]/.test(url)) {
-    return false;
-  }
-  if (url.indexOf('mailto:') === 0) {
-    return false;
-  }
-  options = (0, _merge2.default)(options, default_url_options);
-  var protocol = void 0,
-      auth = void 0,
-      host = void 0,
-      hostname = void 0,
-      port = void 0,
-      port_str = void 0,
-      split = void 0,
-      ipv6 = void 0;
-
-  split = url.split('#');
-  url = split.shift();
-
-  split = url.split('?');
-  url = split.shift();
-
-  split = url.split('://');
-  if (split.length > 1) {
-    protocol = split.shift();
-    if (options.require_valid_protocol && options.protocols.indexOf(protocol) === -1) {
-      return false;
-    }
-  } else if (options.require_protocol) {
-    return false;
-  } else if (options.allow_protocol_relative_urls && url.substr(0, 2) === '//') {
-    split[0] = url.substr(2);
-  }
-  url = split.join('://');
-
-  if (url === '') {
-    return false;
-  }
-
-  split = url.split('/');
-  url = split.shift();
-
-  if (url === '' && !options.require_host) {
-    return true;
-  }
-
-  split = url.split('@');
-  if (split.length > 1) {
-    auth = split.shift();
-    if (auth.indexOf(':') >= 0 && auth.split(':').length > 2) {
-      return false;
-    }
-  }
-  hostname = split.join('@');
-
-  port_str = null;
-  ipv6 = null;
-  var ipv6_match = hostname.match(wrapped_ipv6);
-  if (ipv6_match) {
-    host = '';
-    ipv6 = ipv6_match[1];
-    port_str = ipv6_match[2] || null;
-  } else {
-    split = hostname.split(':');
-    host = split.shift();
-    if (split.length) {
-      port_str = split.join(':');
-    }
-  }
-
-  if (port_str !== null) {
-    port = parseInt(port_str, 10);
-    if (!/^[0-9]+$/.test(port_str) || port <= 0 || port > 65535) {
-      return false;
-    }
-  }
-
-  if (!(0, _isIP2.default)(host) && !(0, _isFQDN2.default)(host, options) && (!ipv6 || !(0, _isIP2.default)(ipv6, 6))) {
-    return false;
-  }
-
-  host = host || ipv6;
-
-  if (options.host_whitelist && !checkHost(host, options.host_whitelist)) {
-    return false;
-  }
-  if (options.host_blacklist && checkHost(host, options.host_blacklist)) {
-    return false;
-  }
-
-  return true;
-}
-module.exports = exports['default'];
-});
-
-var isURL = unwrapExports(isURL_1);
-
-var url = function (value, ref) {
-  if ( ref === void 0 ) ref = [];
-  var requireProtocol = ref[0]; if ( requireProtocol === void 0 ) requireProtocol = false;
-
-  var options = { require_protocol: !!requireProtocol, allow_underscores: true };
-  if (isNullOrUndefined(value)) {
-    value = '';
-  }
-
-  if (Array.isArray(value)) {
-    return value.every(function (val) { return isURL(val, options); });
-  }
-
-  return isURL(value, options);
-};
-
-/* eslint-disable camelcase */
-var Rules = {
-  after: after,
-  alpha_dash: validate$1,
-  alpha_num: validate$2,
-  alpha_spaces: validate$3,
-  alpha: validate,
-  before: before,
-  between: validate$4,
-  confirmed: confirmed,
-  credit_card: credit_card,
-  date_between: date_between,
-  date_format: date_format,
-  decimal: validate$5,
-  digits: validate$6,
-  dimensions: dimensions,
-  email: validate$7,
-  ext: ext,
-  image: image,
-  in: validate$8,
-  integer: integer,
-  length: length,
-  ip: ip,
-  is: is,
-  max: max$1,
-  max_value: max_value,
-  mimes: mimes,
-  min: min$1,
-  min_value: min_value,
-  not_in: validate$9,
-  numeric: numeric,
-  regex: regex,
-  required: required,
-  size: size,
-  url: url
-};
-
-// 
-
-var normalize = function (fields) {
-  if (Array.isArray(fields)) {
-    return fields.reduce(function (prev, curr) {
-      if (~curr.indexOf('.')) {
-        prev[curr.split('.')[1]] = curr;
-      } else {
-        prev[curr] = curr;
-      }
-
-      return prev;
-    }, {});
-  }
-
-  return fields;
-};
-
-// Combines two flags using either AND or OR depending on the flag type.
-var combine = function (lhs, rhs) {
-  var mapper = {
-    pristine: function (lhs, rhs) { return lhs && rhs; },
-    dirty: function (lhs, rhs) { return lhs || rhs; },
-    touched: function (lhs, rhs) { return lhs || rhs; },
-    untouched: function (lhs, rhs) { return lhs && rhs; },
-    valid: function (lhs, rhs) { return lhs && rhs; },
-    invalid: function (lhs, rhs) { return lhs || rhs; },
-    pending: function (lhs, rhs) { return lhs || rhs; },
-    required: function (lhs, rhs) { return lhs || rhs; },
-    validated: function (lhs, rhs) { return lhs && rhs; }
-  };
-
-  return Object.keys(mapper).reduce(function (flags, flag) {
-    flags[flag] = mapper[flag](lhs[flag], rhs[flag]);
-
-    return flags;
-  }, {});
-};
-
-var mapScope = function (scope, deep) {
-  if ( deep === void 0 ) deep = true;
-
-  return Object.keys(scope).reduce(function (flags, field) {
-    if (!flags) {
-      flags = assign({}, scope[field]);
-      return flags;
-    }
-
-    // scope.
-    var isScope = field.indexOf('$') === 0;
-    if (deep && isScope) {
-      flags = mapScope(scope[field]);
-      return flags;
-    } else if (!deep && isScope) {
-      return flags;
-    }
-
-    flags = combine(flags, scope[field]);
-
-    return flags;
-  }, null);
-};
-
-/**
- * Maps fields to computed functions.
- */
-var mapFields = function (fields) {
-  if (!fields) {
-    return function () {
-      return mapScope(this.$validator.flags);
-    };
-  }
-
-  var normalized = normalize(fields);
-  return Object.keys(normalized).reduce(function (prev, curr) {
-    var field = normalized[curr];
-    prev[curr] = function mappedField () {
-      // if field exists
-      if (this.$validator.flags[field]) {
-        return this.$validator.flags[field];
-      }
-
-      // scopeless fields were selected.
-      if (normalized[curr] === '*') {
-        return mapScope(this.$validator.flags, false);
-      }
-
-      // if it has a scope defined
-      var index = field.indexOf('.');
-      if (index <= 0) {
-        return {};
-      }
-
-      var ref = field.split('.');
-      var scope = ref[0];
-      var name = ref.slice(1);
-
-      scope = this.$validator.flags[("$" + scope)];
-      name = name.join('.');
-
-      // an entire scope was selected: scope.*
-      if (name === '*' && scope) {
-        return mapScope(scope);
-      }
-
-      if (scope && scope[name]) {
-        return scope[name];
-      }
-
-      return {};
-    };
-
-    return prev;
-  }, {});
-};
-
-var version = '2.0.0-rc.27';
-
-var rulesPlugin = function (ref) {
-  var Validator$$1 = ref.Validator;
-
-  Object.keys(Rules).forEach(function (rule) {
-    Validator$$1.extend(rule, Rules[rule]);
-  });
-
-  // Merge the english messages.
-  Validator$$1.localize('en', locale);
-};
-
-use(rulesPlugin);
-
-var index_esm = {
-  install: install,
-  use: use,
-  directive: directive,
-  mixin: mixin,
-  mapFields: mapFields,
-  Validator: Validator,
-  ErrorBag: ErrorBag,
-  Rules: Rules,
-  version: version
-};
-
-
-/* harmony default export */ __webpack_exports__["a"] = (index_esm);
-
-
-/***/ }),
-
-/***/ 298:
+webpackJsonp([36],Array(62).concat([
+/* 62 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_vee_validate__ = __webpack_require__(148);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__account_EditProfile_vue__ = __webpack_require__(299);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__account_EditProfile_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__account_EditProfile_vue__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__account_ChangePassword_vue__ = __webpack_require__(302);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__account_ChangePassword_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2__account_ChangePassword_vue__);
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-
-
-
-
-Vue.use(__WEBPACK_IMPORTED_MODULE_0_vee_validate__["a" /* default */]);
-/* harmony default export */ __webpack_exports__["default"] = ({
-    components: { editProfile: __WEBPACK_IMPORTED_MODULE_1__account_EditProfile_vue___default.a, changePassword: __WEBPACK_IMPORTED_MODULE_2__account_ChangePassword_vue___default.a },
-    computed: {
-        user: function user() {
-            return this.$store.state.user.user;
-        }
-    }
-});
-
-/***/ }),
-
-/***/ 299:
-/***/ (function(module, exports, __webpack_require__) {
-
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__babel_loader_cacheDirectory_true_presets_env_modules_false_targets_browsers_2_uglify_true_env_modules_false_targets_browsers_last_2_versions_safari_7_debug_true_plugins_transform_object_rest_spread_transform_runtime_polyfill_false_helpers_false_syntax_dynamic_import_node_modules_vue_loader_lib_selector_type_script_index_0_User_vue__ = __webpack_require__(171);
+/* empty harmony namespace reexport */
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_43998c28_hasScoped_true_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_User_vue__ = __webpack_require__(251);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__node_modules_vue_loader_lib_runtime_component_normalizer__ = __webpack_require__(3);
 var disposed = false
-var normalizeComponent = __webpack_require__(1)
+function injectStyle (context) {
+  if (disposed) return
+  __webpack_require__(243)
+  __webpack_require__(245)
+}
 /* script */
-var __vue_script__ = __webpack_require__(300)
+
+
 /* template */
-var __vue_template__ = __webpack_require__(301)
+
 /* template functional */
 var __vue_template_functional__ = false
 /* styles */
-var __vue_styles__ = null
+var __vue_styles__ = injectStyle
 /* scopeId */
-var __vue_scopeId__ = null
+var __vue_scopeId__ = "data-v-43998c28"
 /* moduleIdentifier (server only) */
 var __vue_module_identifier__ = null
-var Component = normalizeComponent(
-  __vue_script__,
-  __vue_template__,
+
+var Component = Object(__WEBPACK_IMPORTED_MODULE_2__node_modules_vue_loader_lib_runtime_component_normalizer__["a" /* default */])(
+  __WEBPACK_IMPORTED_MODULE_0__babel_loader_cacheDirectory_true_presets_env_modules_false_targets_browsers_2_uglify_true_env_modules_false_targets_browsers_last_2_versions_safari_7_debug_true_plugins_transform_object_rest_spread_transform_runtime_polyfill_false_helpers_false_syntax_dynamic_import_node_modules_vue_loader_lib_selector_type_script_index_0_User_vue__["a" /* default */],
+  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_43998c28_hasScoped_true_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_User_vue__["a" /* render */],
+  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_43998c28_hasScoped_true_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_User_vue__["b" /* staticRenderFns */],
   __vue_template_functional__,
   __vue_styles__,
   __vue_scopeId__,
   __vue_module_identifier__
 )
-Component.options.__file = "resources/assets/js/components/user/account/EditProfile.vue"
+Component.options.__file = "resources/assets/js/components/user/User.vue"
 
 /* hot reload */
 if (false) {(function () {
@@ -7091,52 +46,83 @@ if (false) {(function () {
   if (!hotAPI.compatible) return
   module.hot.accept()
   if (!module.hot.data) {
-    hotAPI.createRecord("data-v-6e7dfd90", Component.options)
+    hotAPI.createRecord("data-v-43998c28", Component.options)
   } else {
-    hotAPI.reload("data-v-6e7dfd90", Component.options)
+    hotAPI.reload("data-v-43998c28", Component.options)
   }
   module.hot.dispose(function (data) {
     disposed = true
   })
 })()}
 
-module.exports = Component.exports
+/* harmony default export */ __webpack_exports__["default"] = (Component.exports);
 
 
 /***/ }),
-
-/***/ 300:
+/* 63 */,
+/* 64 */,
+/* 65 */,
+/* 66 */,
+/* 67 */,
+/* 68 */,
+/* 69 */,
+/* 70 */,
+/* 71 */,
+/* 72 */,
+/* 73 */,
+/* 74 */,
+/* 75 */,
+/* 76 */,
+/* 77 */,
+/* 78 */,
+/* 79 */,
+/* 80 */,
+/* 81 */,
+/* 82 */,
+/* 83 */,
+/* 84 */,
+/* 85 */,
+/* 86 */,
+/* 87 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var state = function () {
+    function state() {
+        _classCallCheck(this, state);
+
+        this.state = {
+            replyUser_id: null,
+            loading: false
+        };
+    }
+
+    _createClass(state, [{
+        key: "get",
+        value: function get(key) {
+            return this.state[key];
+        }
+    }, {
+        key: "set",
+        value: function set(key, val) {
+            this.state[key] = val;
+        }
+    }]);
+
+    return state;
+}();
+
+/* harmony default export */ __webpack_exports__["a"] = (new state());
+
+/***/ }),
+/* 88 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
 //
 //
 //
@@ -7158,396 +144,1802 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 
-/* harmony default export */ __webpack_exports__["default"] = ({
-    $validates: true,
+/* harmony default export */ __webpack_exports__["a"] = ({
+    props: {
+        open: Boolean,
+        message: String,
+        url: String
+    },
+    data: function data() {
+        return {
+            dialog: false
+        };
+    },
     computed: {
-        user: function user() {
-            return this.$store.state.user.user;
+        text: function text() {
+            var text = [];
+            try {
+                JSON.parse(this.message).map(function (msg) {
+                    return text.push(msg.text);
+                });
+                return text.join('');
+            } catch (e) {
+                return this.message || '';
+            }
         }
     },
     methods: {
-        save: function save(event) {
-            var _this = this;
-
-            this.$validator.validateAll().then(function (validated) {
-                if (validated) {
-                    var formdata = new FormData(event.target);
-                    _this.$http.put('user/' + _this.user.id, formdata).then(function (response) {
-                        if (response.body.id) {
-                            _this.$store.dispatch("user/update", response.body);
-                        }
-                    });
-                }
-            });
+        popupCenter: function popupCenter(url, title, width, height) {
+            var popupWidth = width || 640;
+            var popupHeight = height || 320;
+            var windowLeft = window.screenLeft || window.screenX;
+            var windowTop = window.screenTop || window.screenY;
+            var windowWidth = window.innerWidth || document.documentElement.clientWidth;
+            var windowHeight = window.innerHeight || document.documentElement.clientHeight;
+            var popupLeft = windowLeft + windowWidth / 2 - popupWidth / 2;
+            var popupTop = windowTop + windowHeight / 2 - popupHeight / 2;
+            var popup = window.open(url, title, 'scrollbars=yes, width=' + popupWidth + ', height=' + popupHeight + ', top=' + popupTop + ', left=' + popupLeft);
+            popup.focus();
+            return true;
+        },
+        twitter: function twitter() {
+            var shareUrl = "https://twitter.com/intent/tweet?text=" + this.text + "&url=" + encodeURIComponent(this.url);
+            this.popupCenter(shareUrl, "Share on Twitter");
+        },
+        facebook: function facebook() {
+            var shareUrl = "https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(this.url);
+            this.popupCenter(shareUrl, "Share on facebook");
+        }
+    },
+    watch: {
+        open: function open(data) {
+            if (data) this.dialog = true;
+        },
+        dialog: function dialog(data) {
+            if (!data) this.$emit("close");
         }
     }
 });
 
 /***/ }),
-
-/***/ 301:
-/***/ (function(module, exports, __webpack_require__) {
-
-var render = function() {
-  var _vm = this
-  var _h = _vm.$createElement
-  var _c = _vm._self._c || _h
-  return _c(
-    "v-form",
-    {
-      on: {
-        submit: function($event) {
-          $event.preventDefault()
-          _vm.save($event)
-        }
-      }
-    },
-    [
-      _c("v-text-field", {
-        directives: [
-          {
-            name: "validate",
-            rawName: "v-validate",
-            value: "required",
-            expression: "'required'"
-          }
-        ],
-        attrs: {
-          label: "Name",
-          value: _vm.user.name,
-          "error-messages": _vm.errors.collect("name"),
-          "data-vv-name": "name",
-          name: "name"
-        }
-      }),
-      _vm._v(" "),
-      _c("v-text-field", {
-        directives: [
-          {
-            name: "validate",
-            rawName: "v-validate",
-            value: "required",
-            expression: "'required'"
-          }
-        ],
-        staticClass: "input-group--focused",
-        attrs: {
-          label: "Forename",
-          name: "forename",
-          value: _vm.user.forename,
-          "error-messages": _vm.errors.collect("forename"),
-          "data-vv-name": "forename"
-        }
-      }),
-      _vm._v(" "),
-      _c("v-text-field", {
-        directives: [
-          {
-            name: "validate",
-            rawName: "v-validate",
-            value: "required|email",
-            expression: "'required|email'"
-          }
-        ],
-        attrs: {
-          label: "E-mail",
-          name: "email",
-          value: _vm.user.email,
-          "error-messages": _vm.errors.collect("email"),
-          "data-vv-name": "email"
-        }
-      }),
-      _vm._v(" "),
-      _c("v-text-field", {
-        attrs: {
-          label: "Who I am?",
-          name: "title",
-          value: _vm.user.title,
-          "data-vv-name": "title",
-          counter: "50",
-          maxlength: "50"
-        }
-      }),
-      _vm._v(" "),
-      _c("v-text-field", {
-        attrs: {
-          name: "biography",
-          label: "Biography",
-          value: _vm.user.biography,
-          counter: "300",
-          maxlength: "300",
-          textarea: ""
-        }
-      }),
-      _vm._v(" "),
-      _c(
-        "v-btn",
-        {
-          staticStyle: { margin: "0" },
-          attrs: { color: "primary", type: "submit" }
-        },
-        [_vm._v("Save")]
-      )
-    ],
-    1
-  )
-}
-var staticRenderFns = []
-render._withStripped = true
-module.exports = { render: render, staticRenderFns: staticRenderFns }
-if (false) {
-  module.hot.accept()
-  if (module.hot.data) {
-    require("vue-hot-reload-api")      .rerender("data-v-6e7dfd90", module.exports)
-  }
-}
-
-/***/ }),
-
-/***/ 302:
-/***/ (function(module, exports, __webpack_require__) {
-
-var disposed = false
-var normalizeComponent = __webpack_require__(1)
-/* script */
-var __vue_script__ = __webpack_require__(303)
-/* template */
-var __vue_template__ = __webpack_require__(304)
-/* template functional */
-var __vue_template_functional__ = false
-/* styles */
-var __vue_styles__ = null
-/* scopeId */
-var __vue_scopeId__ = null
-/* moduleIdentifier (server only) */
-var __vue_module_identifier__ = null
-var Component = normalizeComponent(
-  __vue_script__,
-  __vue_template__,
-  __vue_template_functional__,
-  __vue_styles__,
-  __vue_scopeId__,
-  __vue_module_identifier__
-)
-Component.options.__file = "resources/assets/js/components/user/account/ChangePassword.vue"
-
-/* hot reload */
-if (false) {(function () {
-  var hotAPI = require("vue-hot-reload-api")
-  hotAPI.install(require("vue"), false)
-  if (!hotAPI.compatible) return
-  module.hot.accept()
-  if (!module.hot.data) {
-    hotAPI.createRecord("data-v-4def62aa", Component.options)
-  } else {
-    hotAPI.reload("data-v-4def62aa", Component.options)
-  }
-  module.hot.dispose(function (data) {
-    disposed = true
-  })
-})()}
-
-module.exports = Component.exports
-
-
-/***/ }),
-
-/***/ 303:
+/* 89 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-
-/* harmony default export */ __webpack_exports__["default"] = ({
-    $validates: true,
+/* harmony default export */ __webpack_exports__["a"] = ({
+    props: {
+        article: Object
+    },
     data: function data() {
         return {
-            visibility: false,
-            data: {
-                password: null,
-                cPassword: null,
-                lPassword: null
-            }
+            subscribed: false,
+            openDialogComment: false,
+            articleDelete: false,
+            loading: false,
+            userPopover: false,
+            emoticons: [{
+                "emocion": "amo",
+                "TextoEmocion": "Love",
+                "type": 8
+            }, {
+                "emocion": "gusta",
+                "TextoEmocion": "Like",
+                "type": 7
+            }, {
+                "emocion": "divierte",
+                "TextoEmocion": "Haha",
+                "type": 6
+            }, {
+                "emocion": "asombro",
+                "TextoEmocion": "Wow",
+                "type": 5
+            }, {
+                "emocion": "alegre",
+                "TextoEmocion": "Glad",
+                "type": 4
+            }, {
+                "emocion": "asusta",
+                "TextoEmocion": "Bother",
+                "type": 3
+            }, {
+                "emocion": "triste",
+                "TextoEmocion": "Sad",
+                "type": 2
+            }, {
+                "emocion": "molesto",
+                "TextoEmocion": "Angry",
+                "type": 1
+            }].reverse()
         };
     },
     computed: {
         user: function user() {
             return this.$store.state.user.user;
+        },
+        owner: function owner() {
+            var _this = this;
+
+            return this.$store.state.users.users.find(function (user) {
+                return user.id === _this.article.user_id;
+            });
+        },
+        darked: function darked() {
+            return this.$store.state.setting.darked;
+        },
+        facemotion: function facemotion() {
+            var _this2 = this;
+
+            return this.article.liked ? this.emoticons.find(function (e) {
+                return e.type === _this2.article.liked.type;
+            }).emocion : null;
+        },
+        text: function text() {
+            var _this3 = this;
+
+            return this.article.liked ? this.emoticons.find(function (e) {
+                return e.type === _this3.article.liked.type;
+            }).TextoEmocion : null;
+        },
+        name: function name() {
+            return this.article.type ? this.article.type : 'article';
+        }
+    },
+    mounted: function mounted() {
+        document.querySelector('.faceMocion').parentNode.setAttribute("menu", "like");
+    },
+
+    methods: {
+        like: function like(event, name) {
+            var _this4 = this;
+
+            var facemotion = name ? name : event.target.className;
+            var emoticon = this.emoticons.find(function (e) {
+                return e.emocion === facemotion;
+            });
+            if (emoticon && !this.article.liked) {
+                this.$http.get('user/' + this.name + '/' + this.article.id + '/like/' + emoticon.type).then(function (response) {
+                    if (response.body.id) {
+                        _this4.$store.dispatch("like/save", response.body);
+                        _this4.$store.dispatch(_this4.name + '/addLike', { article: _this4.article, like: response.body });
+                    }
+                });
+            }
+        },
+        deleteLike: function deleteLike() {
+            var _this5 = this;
+
+            if (this.article.liked.id) {
+                this.$http.delete('user/' + this.name + '/' + this.article.id + '/like').then(function (response) {
+                    if (response.body.status === 1) {
+                        _this5.$store.dispatch("like/delete", _this5.article.liked);
+                        _this5.$store.dispatch(_this5.name + '/deleteLike', { article: _this5.article });
+                    }
+                });
+            }
+        },
+        follow: function follow(user) {
+            var _this6 = this;
+
+            this.$set(user, "loadingSubs", true);
+            if (user.followed) {
+                this.$http.get("user/unfollow/" + user.id).then(function (response) {
+                    if (response.body.status === 1) {
+                        _this6.$set(user, "loadingSubs", false);
+                        _this6.$set(user, "followed", null);
+                        user.followers_count--;
+                    }
+                });
+            } else {
+                this.$http.post('user/subscription', { receiver_id: user.id }).then(function (response) {
+                    if (response.body.id) {
+                        _this6.$set(user, "followed", response.body);
+                        user.followers_count++;
+                        _this6.$set(user, "loadingSubs", false);
+                    }
+                });
+            }
+        },
+        masquer: function masquer() {
+            this.$store.dispatch(this.name + "/delete", { id: this.article.id });
+        },
+        destroy: function destroy() {
+            var _this7 = this;
+
+            this.loading = true;
+            this.$http.delete('user/' + this.name + '/' + this.article.id).then(function (response) {
+                if (response.body.status === 1) {
+                    _this7.$store.dispatch(_this7.name + '/delete', _this7.article);
+                    _this7.articleDelete = false;
+                    _this7.loading = false;
+                }
+            });
+        },
+        copie: function copie() {
+            var textarea = document.querySelector("#textareaClipboard");
+            textarea.value = this.urlArticle(this.article.id, this.article.user_id);
+            textarea.select();
+            document.execCommand('copy');
+            textarea.blur();
+        }
+    }
+});
+
+/***/ }),
+/* 90 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__babel_loader_cacheDirectory_true_presets_env_modules_false_targets_browsers_2_uglify_true_env_modules_false_targets_browsers_last_2_versions_safari_7_debug_true_plugins_transform_object_rest_spread_transform_runtime_polyfill_false_helpers_false_syntax_dynamic_import_node_modules_vue_loader_lib_selector_type_script_index_0_DialogShare_vue__ = __webpack_require__(88);
+/* unused harmony namespace reexport */
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_9ea2bec0_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_DialogShare_vue__ = __webpack_require__(105);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__node_modules_vue_loader_lib_runtime_component_normalizer__ = __webpack_require__(3);
+var disposed = false
+/* script */
+
+
+/* template */
+
+/* template functional */
+var __vue_template_functional__ = false
+/* styles */
+var __vue_styles__ = null
+/* scopeId */
+var __vue_scopeId__ = null
+/* moduleIdentifier (server only) */
+var __vue_module_identifier__ = null
+
+var Component = Object(__WEBPACK_IMPORTED_MODULE_2__node_modules_vue_loader_lib_runtime_component_normalizer__["a" /* default */])(
+  __WEBPACK_IMPORTED_MODULE_0__babel_loader_cacheDirectory_true_presets_env_modules_false_targets_browsers_2_uglify_true_env_modules_false_targets_browsers_last_2_versions_safari_7_debug_true_plugins_transform_object_rest_spread_transform_runtime_polyfill_false_helpers_false_syntax_dynamic_import_node_modules_vue_loader_lib_selector_type_script_index_0_DialogShare_vue__["a" /* default */],
+  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_9ea2bec0_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_DialogShare_vue__["a" /* render */],
+  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_9ea2bec0_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_DialogShare_vue__["b" /* staticRenderFns */],
+  __vue_template_functional__,
+  __vue_styles__,
+  __vue_scopeId__,
+  __vue_module_identifier__
+)
+Component.options.__file = "resources/assets/js/components/share/DialogShare.vue"
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-9ea2bec0", Component.options)
+  } else {
+    hotAPI.reload("data-v-9ea2bec0", Component.options)
+  }
+  module.hot.dispose(function (data) {
+    disposed = true
+  })
+})()}
+
+/* harmony default export */ __webpack_exports__["a"] = (Component.exports);
+
+
+/***/ }),
+/* 91 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__mixin_cardMixin__ = __webpack_require__(89);
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+
+/* harmony default export */ __webpack_exports__["a"] = ({
+    props: {
+        article: Object
+    },
+    mounted: function mounted() {}
+});
+
+/***/ }),
+/* 92 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__Comments_vue__ = __webpack_require__(100);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__CommentForm_vue__ = __webpack_require__(101);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__mixin_cardMixin__ = __webpack_require__(89);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__share_DialogShare_vue__ = __webpack_require__(90);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__like_DialogLike_vue__ = __webpack_require__(102);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__card_DialogFormEdit_vue__ = __webpack_require__(103);
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+
+
+
+
+
+
+/* harmony default export */ __webpack_exports__["a"] = ({
+    components: { commentForm: __WEBPACK_IMPORTED_MODULE_1__CommentForm_vue__["a" /* default */], comments: __WEBPACK_IMPORTED_MODULE_0__Comments_vue__["a" /* default */], dialogShare: __WEBPACK_IMPORTED_MODULE_3__share_DialogShare_vue__["a" /* default */], dialogLike: __WEBPACK_IMPORTED_MODULE_4__like_DialogLike_vue__["a" /* default */], dialogFormEdit: __WEBPACK_IMPORTED_MODULE_5__card_DialogFormEdit_vue__["a" /* default */] },
+    mixins: [__WEBPACK_IMPORTED_MODULE_2__mixin_cardMixin__["a" /* default */]],
+    props: {
+        open: Boolean
+    },
+    data: function data() {
+        return {
+            openDialogShare: false,
+            openDialogLike: false,
+            dialogFormEdit: false
+        };
+    },
+    mounted: function mounted() {}
+});
+
+/***/ }),
+/* 93 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__Comment_vue__ = __webpack_require__(115);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__state__ = __webpack_require__(87);
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+
+
+/* harmony default export */ __webpack_exports__["a"] = ({
+    components: { comment: __WEBPACK_IMPORTED_MODULE_0__Comment_vue__["a" /* default */] },
+    props: {
+        article: Object,
+        open: Boolean
+    },
+    data: function data() {
+        return {
+            ready: true
+        };
+    },
+    computed: {
+        comments: function comments() {
+            var _this = this;
+
+            return this.$store.state.comment.comments.filter(function (comment) {
+                return comment.commentable_id === _this.article.id && comment.commentable_type === _this.commentableType;
+            });
+        },
+        end: function end() {
+            var _this2 = this;
+
+            return this.$store.state.query.queries.find(function (e) {
+                return e.name === "comment" + _this2.name && !e.next && e.id === _this2.article.id;
+            });
+        },
+        query: function query() {
+            var _this3 = this;
+
+            return this.$store.state.query.queries.find(function (e) {
+                return e.name === "comment" + _this3.name && e.id === _this3.article.id;
+            });
+        },
+        user: function user() {
+            return this.$store.state.user.user;
+        },
+        name: function name() {
+            return this.article.type ? this.article.type : 'article';
+        },
+        commentableType: function commentableType() {
+            return "App\\" + this.name[0].toUpperCase() + this.name.substring(1);
         }
     },
     methods: {
-        save: function save(event) {
+        loadMore: function loadMore() {
+            var _this4 = this;
+
+            if (!this.end && this.ready) {
+                __WEBPACK_IMPORTED_MODULE_1__state__["a" /* default */].set('loading', true);
+                this.ready = false;
+                this.$http.get(this.query.next).then(function (response) {
+                    if (response.body && _typeof(response.body) === "object") {
+                        var users = [];
+                        var replyed_users = [];
+                        response.body.data.map(function (comment) {
+                            users.push(comment.user);
+                            delete comment.user;
+                            if (comment.replyed_user) {
+                                replyed_users.push(comment.replyed_user);
+                                delete comment.replyed_user;
+                            }
+                        });
+                        _this4.$store.dispatch('users/save', users);
+                        _this4.$store.dispatch('users/save', replyed_users);
+                        _this4.$store.dispatch('comment/save', response.body.data);
+                        _this4.$store.dispatch("query/save", { name: 'comment' + _this4.name, next: response.body.next_page_url, id: _this4.article.id });
+                        _this4.$nextTick(function () {
+                            _this4.$scrollTo('#showComment', 1000, { container: '#comments' });
+                        });
+                    }
+                    __WEBPACK_IMPORTED_MODULE_1__state__["a" /* default */].set('loading', false);
+                    _this4.ready = true;
+                });
+            }
+        },
+        load: function load() {
+            var _this5 = this;
+
+            if (!this.query && this.ready) {
+                __WEBPACK_IMPORTED_MODULE_1__state__["a" /* default */].set('loading', true);
+                this.ready = false;
+                this.$http.get('/user/' + this.name + '/' + this.article.id + '/comment').then(function (response) {
+                    if (response.body && _typeof(response.body.data) === "object") {
+                        var users = [];
+                        var replyed_users = [];
+                        response.body.data.map(function (comment) {
+                            users.push(comment.user);
+                            delete comment.user;
+                            if (comment.replyed_user) {
+                                replyed_users.push(comment.replyed_user);
+                                delete comment.replyed_user;
+                            }
+                        });
+                        _this5.$store.dispatch('users/save', users);
+                        _this5.$store.dispatch('users/save', replyed_users);
+                        _this5.$store.dispatch('comment/save', response.body.data);
+                        _this5.$store.dispatch("query/save", { name: 'comment' + _this5.name, next: response.body.next_page_url, id: _this5.article.id });
+                        _this5.$nextTick(function () {
+                            _this5.$scrollTo('#showComment', 1000, { container: '#comments' });
+                        });
+                    }
+                    __WEBPACK_IMPORTED_MODULE_1__state__["a" /* default */].set('loading', false);
+                    _this5.ready = true;
+                });
+            } else {
+                this.$nextTick(function () {
+                    _this5.$scrollTo('#showComment', 1000, { container: '#comments' });
+                });
+            }
+        }
+    },
+    mounted: function mounted() {
+        this.load();
+    },
+
+    watch: {
+        open: function open(data) {
+            var _this6 = this;
+
+            alert(document.querySelector('#showComment'));
+            if (data === true) {
+                this.$nextTick(function () {
+                    _this6.$scrollTo('#showComment', 1000, { container: '#comments' });
+                });
+            }
+        }
+    }
+});
+
+/***/ }),
+/* 94 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__state__ = __webpack_require__(87);
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+
+/* harmony default export */ __webpack_exports__["a"] = ({
+    props: {
+        article: Object,
+        comment: Object
+    },
+    data: function data() {
+        return {
+            store: __WEBPACK_IMPORTED_MODULE_0__state__["a" /* default */].state,
+            commentDelete: false,
+            loading: false
+        };
+    },
+
+    computed: {
+        owner: function owner() {
             var _this = this;
 
-            this.$validator.validateAll().then(function (validated) {
-                if (validated) {
-                    var formdata = new FormData(event.target);
-                    _this.$http.put('user/' + _this.user.id, formdata).then(function (response) {});
+            return this.$store.state.users.users.find(function (user) {
+                return user.id === _this.comment.user_id;
+            });
+        },
+        replyed_user: function replyed_user() {
+            var _this2 = this;
+
+            return this.$store.state.users.users.find(function (user) {
+                return user.id === _this2.comment.comment_id;
+            });
+        },
+        user: function user() {
+            return this.$store.state.user.user;
+        },
+        name: function name() {
+            return this.article.type ? this.article.type : 'article';
+        }
+    },
+    methods: {
+        reply: function reply() {
+            __WEBPACK_IMPORTED_MODULE_0__state__["a" /* default */].set("replyUser_id", this.owner.id);
+        },
+        destroy: function destroy() {
+            var _this3 = this;
+
+            this.loading = true;
+            this.$http.delete('user/' + this.name + '/' + this.comment.commentable_id + '/comment/' + this.comment.id).then(function (response) {
+                if (response.body.status === 1) {
+                    _this3.$store.dispatch('comment/delete', _this3.comment);
+                    _this3.$store.dispatch(_this3.name + '/deleteComment', _this3.article);
                 }
+                _this3.loading = false;
+                _this3.commentDelete = false;
+            });
+        },
+        like: function like() {
+            var _this4 = this;
+
+            __WEBPACK_IMPORTED_MODULE_0__state__["a" /* default */].set('loading', true);
+            this.$http.get('user/' + this.name + '/' + this.comment.commentable_id + '/comment/' + this.comment.id + '/like/' + 8).then(function (response) {
+                if (response.body.id) {
+                    _this4.$store.dispatch('comment/addLike', { comment: _this4.comment, like: response.body });
+                }
+                __WEBPACK_IMPORTED_MODULE_0__state__["a" /* default */].set('loading', false);
+            });
+        },
+        deleteLike: function deleteLike() {
+            var _this5 = this;
+
+            __WEBPACK_IMPORTED_MODULE_0__state__["a" /* default */].set('loading', true);
+            this.$http.delete('user/' + this.name + '/' + this.comment.commentable_id + '/comment/' + this.comment.id + '/like/').then(function (response) {
+                if (response.body.status === 1) {
+                    _this5.$store.dispatch('comment/deleteLike', { comment: _this5.comment });
+                }
+                __WEBPACK_IMPORTED_MODULE_0__state__["a" /* default */].set('loading', false);
             });
         }
     }
 });
 
 /***/ }),
+/* 95 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
-/***/ 304:
-/***/ (function(module, exports, __webpack_require__) {
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__state_js__ = __webpack_require__(87);
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
+
+/* harmony default export */ __webpack_exports__["a"] = ({
+    props: {
+        article: Object
+    },
+    computed: {
+        darked: function darked() {
+            return this.$store.state.setting.darked;
+        },
+        replyUser: function replyUser() {
+            var _this = this;
+
+            return this.$store.state.users.users.find(function (user) {
+                return user.id === _this.store.replyUser_id;
+            });
+        },
+        user: function user() {
+            return this.$store.state.user.user;
+        },
+        emojiClass: function emojiClass() {
+            return [this.darked ? 'commentForm blackForm' : 'commentForm', !this.$vuetify.breakpoint.smAndUp ? ' noEmoji enlargeCmt' : null].join(' ');
+        },
+        name: function name() {
+            return this.article.type ? this.article.type : 'article';
+        }
+    },
+    data: function data() {
+        return {
+            store: __WEBPACK_IMPORTED_MODULE_0__state_js__["a" /* default */].state
+        };
+    },
+
+    methods: {
+        publish: function publish() {
+            var _this2 = this;
+
+            var message = this.parseText();
+            if (JSON.parse(message).length > 0) {
+                var data = { message: message, user_id: this.user.id };
+                var elt = this.$el.querySelector('.emojionearea-editor').querySelector('.replyUser');
+                if (elt && elt.innerText.trim().length > 1 && this.store.replyUser_id) {
+                    data['comment_id'] = this.store.replyUser_id;
+                }
+                __WEBPACK_IMPORTED_MODULE_0__state_js__["a" /* default */].set('loading', true);
+                this.$http.post("/user/" + this.name + "/" + this.article.id + "/comment", data).then(function (response) {
+                    if (response.body.id) {
+                        _this2.clear();
+                        var replyUser = response.body.replyed_user;
+                        delete response.body.replyed_user;
+                        _this2.$store.dispatch('comment/save', response.body);
+                        if (replyUser) _this2.$store.dispatch('users/save', replyUser);
+                        _this2.$store.dispatch(_this2.name + '/addComment', _this2.article);
+                        _this2.$store.dispatch('comment/scrollTo', response.body.id);
+                        _this2.$nextTick(function () {
+                            _this2.$scrollTo('#showComment', 500, { container: '#comments' });
+                        });
+                    }
+                    __WEBPACK_IMPORTED_MODULE_0__state_js__["a" /* default */].set('loading', false);
+                });
+            } else {
+                this.$el.querySelector(".emojionearea-editor").innerHTML = "";
+            }
+        },
+        clear: function clear() {
+            this.$el.querySelector("textarea").value = "";
+            this.$el.querySelector(".emojionearea-editor").innerHTML = "";
+            __WEBPACK_IMPORTED_MODULE_0__state_js__["a" /* default */].set('replyUser_id', null);
+        },
+        parseText: function parseText() {
+            var message = this.$el.querySelector("textarea").value.trim().replace(new RegExp("@.*? "), "");
+            var tableau = [];
+            var results = message.match(new RegExp("(<img .*? class=\"emojioneemoji\" src=\"https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/.*?\\.png\"/>)", "g"));
+            var texts = message.split(new RegExp('<img .*? class=\"emojioneemoji\" src=\"https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/.*?\\.png\"/>'));
+            texts.map(function (text, i) {
+                if (text.length > 0) {
+                    tableau.push({ text: text });
+                }
+                if (results && results[i]) {
+                    tableau.push({ url: results[i].match(new RegExp('src="(.*?)"'))[1] });
+                }
+            });
+            return JSON.stringify(tableau);
+        }
+    },
+    mounted: function mounted() {
+        var _this3 = this;
+
+        if (!this.$el.querySelector('.emojionearea').emojioneArea) {
+            $(this.$el.querySelector('.emojionearea')).emojioneArea({
+                pickerPosition: "top",
+                tonesStyle: "bullet",
+                searchPlaceholder: "Search emoji",
+                placeholder: "Add a comment...",
+                autocomplete: false,
+                saveEmojisAs: 'image'
+            });
+            $(this.$el).on("keypress", '.emojionearea-editor', function (event) {
+                if (event.keyCode === 13) {
+                    event.preventDefault();
+                    event.stopImmediatePropagation();
+                    event.target.blur();
+                    _this3.publish();
+                    return false;
+                }
+            });
+        }
+    },
+    destroyed: function destroyed() {
+        $(this.$el.querySelector(".emojionearea-editor")).unbind();
+        $('.commentForm .emojionearea-editor').unbind("keypress");
+    },
+
+    watch: {
+        replyUser: function replyUser(data) {
+            if (data) {
+                var last = this.$el.querySelector('.replyUser');
+                if (last) last.remove();
+                var elt = this.$el.querySelector('.emojionearea-editor');
+                elt.focus();
+                elt.innerHTML = '<span class="replyUser">@' + data.name + '_' + data.forename + '&nbsp;</span>' + elt.innerHTML;
+                var range = document.createRange();
+                range.selectNodeContents(elt);
+                range.collapse(false);
+                var sel = window.getSelection();
+                sel.removeAllRanges();
+                sel.addRange(range);
+            }
+        }
+    }
+});
+
+/***/ }),
+/* 96 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__Liker_vue__ = __webpack_require__(127);
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+
+/* harmony default export */ __webpack_exports__["a"] = ({
+    components: { liker: __WEBPACK_IMPORTED_MODULE_0__Liker_vue__["a" /* default */] },
+    props: {
+        article: Object,
+        open: Boolean
+    },
+    data: function data() {
+        return {
+            reactions: [{ name: "love", className: "amo", type: 8 }, { name: "like", className: "gusta", type: 7 }, { name: "haha", className: "divierte", type: 6 }, { name: "wow", className: "asombro", type: 5 }, { name: "glad", className: "alegre", type: 4 }, { name: "brother", className: "asusta", type: 3 }, { name: "sad", className: "triste", type: 2 }, { name: "angry", className: "molesto", type: 1 }],
+            dialog: false,
+            ready: true,
+            type: 8,
+            loading: false
+        };
+    },
+    computed: {
+        user: function user() {
+            return this.$store.state.user.user;
+        },
+        likes: function likes() {
+            var _this = this;
+
+            return this.$store.state.like.likes.filter(function (like) {
+                return like.likable_id === _this.article.id && like.type === _this.type && like.likable_type === _this.likableType;
+            });
+        },
+        end: function end() {
+            var _this2 = this;
+
+            return this.$store.state.query.queries.find(function (e) {
+                return e.name === "dialogLike" + _this2.name && !e.next && e.type === _this2.type && e.id === _this2.article.id;
+            });
+        },
+        query: function query() {
+            var _this3 = this;
+
+            return this.$store.state.query.queries.find(function (e) {
+                return e.name === "dialogLike" + _this3.name && e.type === _this3.type && e.id === _this3.article.id;
+            });
+        },
+        name: function name() {
+            return this.article.type ? this.article.type : 'article';
+        },
+        likableType: function likableType() {
+            return "App\\" + this.name[0].toUpperCase() + this.name.substring(1);
+        }
+    },
+    methods: {
+        loadMore: function loadMore(type) {
+            var _this4 = this;
+
+            if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 100) {
+                if (!this.end && this.ready) {
+                    this.ready = false;
+                    this.loading = true;
+                    this.$http.get(this.query.next).then(function (response) {
+                        if (_typeof(response.body) === "object") {
+                            var users = [];
+                            response.body.data.map(function (article) {
+                                users.push(article.user);
+                                delete article.user;
+                            });
+                            _this4.$store.dispatch("like/save", response.body.data);
+                            _this4.$store.dispatch("users/save", users);
+                            _this4.$store.dispatch("query/save", { name: 'dialogLike' + _this4.name, next: response.body.next_page_url, id: _this4.article.id, type: type });
+                        }
+                        _this4.ready = true;
+                        _this4.loading = false;
+                    });
+                }
+            }
+        },
+        load: function load(type) {
+            var _this5 = this;
+
+            this.type = type;
+            this.dialog = true;
+            if (!this.query && this.ready) {
+                this.ready = false;
+                this.loading = true;
+                this.$http.get('/user/' + this.name + '/' + this.article.id + '/likers/' + type).then(function (response) {
+                    if (Array.isArray(response.body.data)) {
+                        var users = [];
+                        response.body.data.map(function (like) {
+                            users.push(like.user);
+                            delete like.user;
+                        });
+                        _this5.$store.dispatch('like/save', response.body.data);
+                        _this5.$store.dispatch("users/save", users);
+                        _this5.$store.dispatch("query/save", { name: 'dialogLike' + _this5.name, next: response.body.next_page_url, id: _this5.article.id, type: type });
+                    }
+                    _this5.loading = false;
+                    _this5.ready = true;
+                });
+            }
+        }
+    },
+    mounted: function mounted() {
+        this.load(8);
+    },
+
+    watch: {
+        open: function open(data) {
+            if (data) this.dialog = true;
+        },
+        dialog: function dialog(data) {
+            if (!data) this.$emit('close');
+        }
+    }
+});
+
+/***/ }),
+/* 97 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+/* harmony default export */ __webpack_exports__["a"] = ({
+    props: {
+        like: Object
+    },
+    computed: {
+        liker: function liker() {
+            var _this = this;
+
+            return this.$store.state.users.users.find(function (user) {
+                return user.id === _this.like.user_id;
+            });
+        },
+        user: function user() {
+            return this.$store.state.user.user;
+        }
+    },
+    methods: {
+        follow: function follow(user) {
+            var _this2 = this;
+
+            this.$set(user, "loadingSubs", true);
+            if (user.followed) {
+                this.$http.delete("user/subscription/" + user.followed.id).then(function (response) {
+                    if (response.body.status === 1) {
+                        _this2.$set(user, "loadingSubs", false);
+                        _this2.$set(user, 'followed', null);
+                        _this2.$store.dispatch('users/removeFollowing', _this2.user);
+                    }
+                });
+            } else {
+                this.$http.post('user/subscription', { receiver_id: user.id }).then(function (response) {
+                    if (response.body.id) {
+                        _this2.$store.dispatch('users/addFollowing', _this2.user);
+                        _this2.$set(user, "loadingSubs", false);
+                        _this2.$set(user, 'followed', response.body);
+                    }
+                });
+            }
+        }
+    }
+});
+
+/***/ }),
+/* 98 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__CardFormEdit_vue__ = __webpack_require__(130);
+//
+//
+//
+//
+//
+//
+
+
+/* harmony default export */ __webpack_exports__["a"] = ({
+    components: { cardFormEdit: __WEBPACK_IMPORTED_MODULE_0__CardFormEdit_vue__["a" /* default */] },
+    props: {
+        open: Boolean,
+        article: Object
+    },
+    data: function data() {
+        return {
+            dialog: false
+        };
+    },
+    watch: {
+        open: function open(data) {
+            if (data) this.dialog = data;
+        },
+        dialog: function dialog(data) {
+            if (!data) this.$emit('close');
+        }
+    }
+});
+
+/***/ }),
+/* 99 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+/* harmony default export */ __webpack_exports__["a"] = ({
+    props: {
+        article: Object
+    },
+    data: function data() {
+        return {
+            box: null,
+            color: "background1",
+            hasColors: true,
+            file: null,
+            url: null,
+            loading: false
+        };
+    },
+    computed: {
+        user: function user() {
+            return this.$store.state.user.user;
+        },
+        darked: function darked() {
+            return this.$store.state.setting.darked;
+        },
+        emojiClass: function emojiClass() {
+            return [this.darked ? 'blockEmojionearea blackForm' : 'blockEmojionearea', !this.$vuetify.breakpoint.smAndUp ? ' noEmoji' : null].join(' ');
+        }
+    },
+    methods: {
+        preview: function preview(event) {
+            if (event.target.files[0]) {
+                this.file = event.target.files[0];
+                this.url = window.URL.createObjectURL(event.target.files[0]);
+            }
+        },
+        select: function select() {
+            this.$el.querySelector("#photo").click();
+        },
+        background: function background(className) {
+            var textarea = this.$el.querySelector(".emojionearea-editor");
+            this.box = textarea.parentNode;
+            this.color = className;
+        },
+        publish: function publish() {
+            var _this = this;
+
+            var text = this.parseText();
+            if (JSON.parse(text).length > 0 || this.file) {
+                var formdata = new FormData();
+                formdata.append("image", this.file);
+                if (JSON.parse(text).length > 0) formdata.append("message", text);
+                formdata.append("color", this.color);
+                this.loading = true;
+                this.$http.post("/user/article/" + this.article.id, formdata).then(function (response) {
+                    if (response.body.id) {
+                        _this.loading = false;
+                        var user = response.body.user;
+                        delete response.body.user;
+                        if (_this.file) response.body.image.path += "?" + new Date().getTime();
+                        _this.$store.dispatch('article/save', response.body);
+                        _this.$store.dispatch('users/save', user);
+                        _this.file = null;
+                    }
+                });
+            }
+        },
+        parseText: function parseText() {
+            var message = this.$el.querySelector("textarea").value.trim();
+            var tableau = [];
+            if (message.length > 0) {
+                var results = message.match(new RegExp("(<img .*? class=\"emojioneemoji\" src=\"https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/.*?\\.png\"/>)", "g"));
+                var texts = message.split(new RegExp('<img .*? class=\"emojioneemoji\" src=\"https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/.*?\\.png\"/>'));
+                texts.map(function (text, i) {
+                    if (text.length > 0) {
+                        tableau.push({ text: text });
+                    }
+                    if (results && results[i]) {
+                        tableau.push({ url: results[i].match(new RegExp('src="(.*?)"'))[1] });
+                    }
+                });
+            }
+            return JSON.stringify(tableau);
+        }
+    },
+    mounted: function mounted() {
+        var _this2 = this;
+
+        if (!this.$el.querySelector('.emojionearea').emojioneArea) {
+            $(this.$el.querySelector('.emojionearea')).emojioneArea({
+                pickerPosition: "right",
+                tonesStyle: "bullet",
+                searchPlaceholder: "Search emoji",
+                autocomplete: false,
+                placeholder: "What's up?",
+                saveEmojisAs: 'image'
+            });
+            if (this.article && this.article.id) {
+                this.url = this.article.image ? this.article.image.path : null;
+                if (this.url) this.hasColors = false;
+                this.background(this.article.color);
+                this.$nextTick(function () {
+                    _this2.$el.querySelector('.emojionearea-editor').innerHTML = _this2.$el.querySelector('#messageHtml').innerHTML;
+                });
+            }
+        }
+    },
+    destroyed: function destroyed() {
+        $(this.$el.querySelector(".emojionearea-editor")).unbind();
+    },
+
+    watch: {
+        color: function color(data, prevData) {
+            if (this.box && data) {
+                var textarea = this.box.querySelector('.emojionearea-editor');
+                textarea.classList.remove(prevData);
+                this.box.classList.remove(prevData);
+                textarea.classList.add(data);
+                this.box.classList.add(data);
+            }
+        },
+        file: function file(data) {
+            if (data) {
+                this.color = "background1";
+                this.hasColors = false;
+            } else {
+                this.hasColors = true;
+            }
+        }
+    }
+});
+
+/***/ }),
+/* 100 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__babel_loader_cacheDirectory_true_presets_env_modules_false_targets_browsers_2_uglify_true_env_modules_false_targets_browsers_last_2_versions_safari_7_debug_true_plugins_transform_object_rest_spread_transform_runtime_polyfill_false_helpers_false_syntax_dynamic_import_node_modules_vue_loader_lib_selector_type_script_index_0_Comments_vue__ = __webpack_require__(93);
+/* unused harmony namespace reexport */
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_3fa623db_hasScoped_true_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_Comments_vue__ = __webpack_require__(121);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__node_modules_vue_loader_lib_runtime_component_normalizer__ = __webpack_require__(3);
+var disposed = false
+function injectStyle (context) {
+  if (disposed) return
+  __webpack_require__(113)
+}
+/* script */
+
+
+/* template */
+
+/* template functional */
+var __vue_template_functional__ = false
+/* styles */
+var __vue_styles__ = injectStyle
+/* scopeId */
+var __vue_scopeId__ = "data-v-3fa623db"
+/* moduleIdentifier (server only) */
+var __vue_module_identifier__ = null
+
+var Component = Object(__WEBPACK_IMPORTED_MODULE_2__node_modules_vue_loader_lib_runtime_component_normalizer__["a" /* default */])(
+  __WEBPACK_IMPORTED_MODULE_0__babel_loader_cacheDirectory_true_presets_env_modules_false_targets_browsers_2_uglify_true_env_modules_false_targets_browsers_last_2_versions_safari_7_debug_true_plugins_transform_object_rest_spread_transform_runtime_polyfill_false_helpers_false_syntax_dynamic_import_node_modules_vue_loader_lib_selector_type_script_index_0_Comments_vue__["a" /* default */],
+  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_3fa623db_hasScoped_true_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_Comments_vue__["a" /* render */],
+  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_3fa623db_hasScoped_true_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_Comments_vue__["b" /* staticRenderFns */],
+  __vue_template_functional__,
+  __vue_styles__,
+  __vue_scopeId__,
+  __vue_module_identifier__
+)
+Component.options.__file = "resources/assets/js/components/comment/Comments.vue"
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-3fa623db", Component.options)
+  } else {
+    hotAPI.reload("data-v-3fa623db", Component.options)
+  }
+  module.hot.dispose(function (data) {
+    disposed = true
+  })
+})()}
+
+/* harmony default export */ __webpack_exports__["a"] = (Component.exports);
+
+
+/***/ }),
+/* 101 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__babel_loader_cacheDirectory_true_presets_env_modules_false_targets_browsers_2_uglify_true_env_modules_false_targets_browsers_last_2_versions_safari_7_debug_true_plugins_transform_object_rest_spread_transform_runtime_polyfill_false_helpers_false_syntax_dynamic_import_node_modules_vue_loader_lib_selector_type_script_index_0_CommentForm_vue__ = __webpack_require__(95);
+/* unused harmony namespace reexport */
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_0b6b5d2c_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_CommentForm_vue__ = __webpack_require__(124);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__node_modules_vue_loader_lib_runtime_component_normalizer__ = __webpack_require__(3);
+var disposed = false
+function injectStyle (context) {
+  if (disposed) return
+  __webpack_require__(122)
+}
+/* script */
+
+
+/* template */
+
+/* template functional */
+var __vue_template_functional__ = false
+/* styles */
+var __vue_styles__ = injectStyle
+/* scopeId */
+var __vue_scopeId__ = null
+/* moduleIdentifier (server only) */
+var __vue_module_identifier__ = null
+
+var Component = Object(__WEBPACK_IMPORTED_MODULE_2__node_modules_vue_loader_lib_runtime_component_normalizer__["a" /* default */])(
+  __WEBPACK_IMPORTED_MODULE_0__babel_loader_cacheDirectory_true_presets_env_modules_false_targets_browsers_2_uglify_true_env_modules_false_targets_browsers_last_2_versions_safari_7_debug_true_plugins_transform_object_rest_spread_transform_runtime_polyfill_false_helpers_false_syntax_dynamic_import_node_modules_vue_loader_lib_selector_type_script_index_0_CommentForm_vue__["a" /* default */],
+  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_0b6b5d2c_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_CommentForm_vue__["a" /* render */],
+  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_0b6b5d2c_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_CommentForm_vue__["b" /* staticRenderFns */],
+  __vue_template_functional__,
+  __vue_styles__,
+  __vue_scopeId__,
+  __vue_module_identifier__
+)
+Component.options.__file = "resources/assets/js/components/comment/CommentForm.vue"
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-0b6b5d2c", Component.options)
+  } else {
+    hotAPI.reload("data-v-0b6b5d2c", Component.options)
+  }
+  module.hot.dispose(function (data) {
+    disposed = true
+  })
+})()}
+
+/* harmony default export */ __webpack_exports__["a"] = (Component.exports);
+
+
+/***/ }),
+/* 102 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__babel_loader_cacheDirectory_true_presets_env_modules_false_targets_browsers_2_uglify_true_env_modules_false_targets_browsers_last_2_versions_safari_7_debug_true_plugins_transform_object_rest_spread_transform_runtime_polyfill_false_helpers_false_syntax_dynamic_import_node_modules_vue_loader_lib_selector_type_script_index_0_DialogLike_vue__ = __webpack_require__(96);
+/* unused harmony namespace reexport */
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_76898650_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_DialogLike_vue__ = __webpack_require__(129);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__node_modules_vue_loader_lib_runtime_component_normalizer__ = __webpack_require__(3);
+var disposed = false
+function injectStyle (context) {
+  if (disposed) return
+  __webpack_require__(125)
+}
+/* script */
+
+
+/* template */
+
+/* template functional */
+var __vue_template_functional__ = false
+/* styles */
+var __vue_styles__ = injectStyle
+/* scopeId */
+var __vue_scopeId__ = null
+/* moduleIdentifier (server only) */
+var __vue_module_identifier__ = null
+
+var Component = Object(__WEBPACK_IMPORTED_MODULE_2__node_modules_vue_loader_lib_runtime_component_normalizer__["a" /* default */])(
+  __WEBPACK_IMPORTED_MODULE_0__babel_loader_cacheDirectory_true_presets_env_modules_false_targets_browsers_2_uglify_true_env_modules_false_targets_browsers_last_2_versions_safari_7_debug_true_plugins_transform_object_rest_spread_transform_runtime_polyfill_false_helpers_false_syntax_dynamic_import_node_modules_vue_loader_lib_selector_type_script_index_0_DialogLike_vue__["a" /* default */],
+  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_76898650_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_DialogLike_vue__["a" /* render */],
+  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_76898650_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_DialogLike_vue__["b" /* staticRenderFns */],
+  __vue_template_functional__,
+  __vue_styles__,
+  __vue_scopeId__,
+  __vue_module_identifier__
+)
+Component.options.__file = "resources/assets/js/components/like/DialogLike.vue"
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-76898650", Component.options)
+  } else {
+    hotAPI.reload("data-v-76898650", Component.options)
+  }
+  module.hot.dispose(function (data) {
+    disposed = true
+  })
+})()}
+
+/* harmony default export */ __webpack_exports__["a"] = (Component.exports);
+
+
+/***/ }),
+/* 103 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__babel_loader_cacheDirectory_true_presets_env_modules_false_targets_browsers_2_uglify_true_env_modules_false_targets_browsers_last_2_versions_safari_7_debug_true_plugins_transform_object_rest_spread_transform_runtime_polyfill_false_helpers_false_syntax_dynamic_import_node_modules_vue_loader_lib_selector_type_script_index_0_DialogFormEdit_vue__ = __webpack_require__(98);
+/* unused harmony namespace reexport */
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_38312f8e_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_DialogFormEdit_vue__ = __webpack_require__(136);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__node_modules_vue_loader_lib_runtime_component_normalizer__ = __webpack_require__(3);
+var disposed = false
+/* script */
+
+
+/* template */
+
+/* template functional */
+var __vue_template_functional__ = false
+/* styles */
+var __vue_styles__ = null
+/* scopeId */
+var __vue_scopeId__ = null
+/* moduleIdentifier (server only) */
+var __vue_module_identifier__ = null
+
+var Component = Object(__WEBPACK_IMPORTED_MODULE_2__node_modules_vue_loader_lib_runtime_component_normalizer__["a" /* default */])(
+  __WEBPACK_IMPORTED_MODULE_0__babel_loader_cacheDirectory_true_presets_env_modules_false_targets_browsers_2_uglify_true_env_modules_false_targets_browsers_last_2_versions_safari_7_debug_true_plugins_transform_object_rest_spread_transform_runtime_polyfill_false_helpers_false_syntax_dynamic_import_node_modules_vue_loader_lib_selector_type_script_index_0_DialogFormEdit_vue__["a" /* default */],
+  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_38312f8e_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_DialogFormEdit_vue__["a" /* render */],
+  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_38312f8e_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_DialogFormEdit_vue__["b" /* staticRenderFns */],
+  __vue_template_functional__,
+  __vue_styles__,
+  __vue_scopeId__,
+  __vue_module_identifier__
+)
+Component.options.__file = "resources/assets/js/components/card/DialogFormEdit.vue"
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-38312f8e", Component.options)
+  } else {
+    hotAPI.reload("data-v-38312f8e", Component.options)
+  }
+  module.hot.dispose(function (data) {
+    disposed = true
+  })
+})()}
+
+/* harmony default export */ __webpack_exports__["a"] = (Component.exports);
+
+
+/***/ }),
+/* 104 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__ArticleBox_vue__ = __webpack_require__(106);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__CommentBox_vue__ = __webpack_require__(110);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__state__ = __webpack_require__(87);
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+
+
+
+/* harmony default export */ __webpack_exports__["a"] = ({
+    components: { articleBox: __WEBPACK_IMPORTED_MODULE_0__ArticleBox_vue__["a" /* default */], commentBox: __WEBPACK_IMPORTED_MODULE_1__CommentBox_vue__["a" /* default */] },
+    props: {
+        open: Boolean,
+        article: Object,
+        articles: Array
+    },
+    data: function data() {
+        return {
+            dialog: false,
+            index: -1,
+            store: __WEBPACK_IMPORTED_MODULE_2__state__["a" /* default */].state
+        };
+    },
+    computed: {
+        loading: function loading() {
+            return this.store.loading;
+        }
+    },
+    watch: {
+        open: function open(data) {
+            if (data) {
+                this.index = this.articles.indexOf(this.article);
+                this.dialog = data;
+            }
+        },
+        dialog: function dialog(data) {
+            if (!data) {
+                this.$emit('close');
+            }
+        },
+        article: function article(_article) {
+            this.index = this.articles.indexOf(_article);
+        },
+        index: function index(_index) {
+            this.$scrollTo('#article' + this.articles[_index].id, 10, { container: 'body' });
+        }
+    }
+});
+
+/***/ }),
+/* 105 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return render; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return staticRenderFns; });
 var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
   return _c(
-    "v-form",
+    "v-dialog",
     {
-      on: {
-        submit: function($event) {
-          $event.preventDefault()
-          _vm.save($event)
-        }
+      attrs: { "max-width": "290" },
+      model: {
+        value: _vm.dialog,
+        callback: function($$v) {
+          _vm.dialog = $$v
+        },
+        expression: "dialog"
       }
     },
     [
-      _c("v-text-field", {
-        directives: [
-          {
-            name: "validate",
-            rawName: "v-validate",
-            value: "required",
-            expression: "'required'"
-          }
-        ],
-        attrs: {
-          label: "Last Password",
-          type: "password",
-          "error-messages": _vm.errors.collect("lPassword"),
-          "data-vv-name": "lPassword",
-          "data-vv-as": "last password",
-          name: "lPassword"
-        },
-        model: {
-          value: _vm.data.lpassword,
-          callback: function($$v) {
-            _vm.$set(
-              _vm.data,
-              "lpassword",
-              typeof $$v === "string" ? $$v.trim() : $$v
-            )
-          },
-          expression: "data.lpassword"
-        }
-      }),
-      _vm._v(" "),
-      _c("v-text-field", {
-        directives: [
-          {
-            name: "validate",
-            rawName: "v-validate",
-            value: "required|min:6",
-            expression: "'required|min:6'"
-          }
-        ],
-        attrs: {
-          label: "New Password",
-          type: "password",
-          "append-icon": _vm.visibility ? "visibility" : "visibility_off",
-          "append-icon-cb": function() {
-            return (_vm.visibility = !_vm.visibility)
-          },
-          type: _vm.visibility ? "text" : "password",
-          "error-messages": _vm.errors.collect("password"),
-          "data-vv-name": "password",
-          "data-vv-as": "new password",
-          name: "password"
-        },
-        model: {
-          value: _vm.data.password,
-          callback: function($$v) {
-            _vm.$set(
-              _vm.data,
-              "password",
-              typeof $$v === "string" ? $$v.trim() : $$v
-            )
-          },
-          expression: "data.password"
-        }
-      }),
-      _vm._v(" "),
-      _c("v-text-field", {
-        directives: [
-          {
-            name: "validate",
-            rawName: "v-validate",
-            value: "required|confirmed:password",
-            expression: "'required|confirmed:password'"
-          }
-        ],
-        attrs: {
-          label: "New Password",
-          type: "password",
-          "error-messages": _vm.errors.collect("cPassword"),
-          "data-vv-name": "cPassword",
-          "data-vv-as": "new password"
-        },
-        model: {
-          value: _vm.data.cPassword,
-          callback: function($$v) {
-            _vm.$set(
-              _vm.data,
-              "cPassword",
-              typeof $$v === "string" ? $$v.trim() : $$v
-            )
-          },
-          expression: "data.cPassword"
-        }
-      }),
-      _vm._v(" "),
       _c(
-        "v-btn",
-        {
-          staticStyle: { margin: "0" },
-          attrs: { color: "primary", type: "submit" }
-        },
-        [_vm._v("Save")]
+        "v-card",
+        [
+          _c(
+            "v-card-title",
+            [
+              _vm._v("Share the publication "),
+              _c("v-spacer"),
+              _c(
+                "v-btn",
+                {
+                  attrs: { icon: "" },
+                  on: {
+                    click: function($event) {
+                      _vm.dialog = false
+                    }
+                  }
+                },
+                [_c("v-icon", [_vm._v("close")])],
+                1
+              )
+            ],
+            1
+          ),
+          _vm._v(" "),
+          _c("v-divider"),
+          _vm._v(" "),
+          _c(
+            "v-container",
+            { attrs: { "grid-list-lg": "", "text-xs-left": "", fluid: "" } },
+            [
+              _c(
+                "v-layout",
+                { attrs: { column: "" } },
+                [
+                  _c("v-flex", { attrs: { lg12: "" } }, [
+                    _c(
+                      "a",
+                      { on: { click: _vm.facebook } },
+                      [
+                        _c("v-avatar", { attrs: { size: "32" } }, [
+                          _c("img", {
+                            attrs: {
+                              src:
+                                "https://www.gstatic.com/kpui/social/fb_32x32.png"
+                            }
+                          })
+                        ]),
+                        _vm._v(" Facebook")
+                      ],
+                      1
+                    )
+                  ]),
+                  _vm._v(" "),
+                  _c("v-flex", { attrs: { lg12: "" } }, [
+                    _c(
+                      "a",
+                      { on: { click: _vm.twitter } },
+                      [
+                        _c("v-avatar", { attrs: { size: "32" } }, [
+                          _c("img", {
+                            attrs: {
+                              src:
+                                "https://www.gstatic.com/kpui/social/twitter_32x32.png"
+                            }
+                          })
+                        ]),
+                        _vm._v(" Twitter")
+                      ],
+                      1
+                    )
+                  ])
+                ],
+                1
+              )
+            ],
+            1
+          )
+        ],
+        1
       )
     ],
     1
@@ -7555,74 +1947,748 @@ var render = function() {
 }
 var staticRenderFns = []
 render._withStripped = true
-module.exports = { render: render, staticRenderFns: staticRenderFns }
+
 if (false) {
   module.hot.accept()
   if (module.hot.data) {
-    require("vue-hot-reload-api")      .rerender("data-v-4def62aa", module.exports)
+    require("vue-hot-reload-api")      .rerender("data-v-9ea2bec0", { render: render, staticRenderFns: staticRenderFns })
   }
 }
 
 /***/ }),
+/* 106 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
-/***/ 305:
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__babel_loader_cacheDirectory_true_presets_env_modules_false_targets_browsers_2_uglify_true_env_modules_false_targets_browsers_last_2_versions_safari_7_debug_true_plugins_transform_object_rest_spread_transform_runtime_polyfill_false_helpers_false_syntax_dynamic_import_node_modules_vue_loader_lib_selector_type_script_index_0_ArticleBox_vue__ = __webpack_require__(91);
+/* unused harmony namespace reexport */
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_004b529c_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_ArticleBox_vue__ = __webpack_require__(109);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__node_modules_vue_loader_lib_runtime_component_normalizer__ = __webpack_require__(3);
+var disposed = false
+function injectStyle (context) {
+  if (disposed) return
+  __webpack_require__(107)
+}
+/* script */
+
+
+/* template */
+
+/* template functional */
+var __vue_template_functional__ = false
+/* styles */
+var __vue_styles__ = injectStyle
+/* scopeId */
+var __vue_scopeId__ = null
+/* moduleIdentifier (server only) */
+var __vue_module_identifier__ = null
+
+var Component = Object(__WEBPACK_IMPORTED_MODULE_2__node_modules_vue_loader_lib_runtime_component_normalizer__["a" /* default */])(
+  __WEBPACK_IMPORTED_MODULE_0__babel_loader_cacheDirectory_true_presets_env_modules_false_targets_browsers_2_uglify_true_env_modules_false_targets_browsers_last_2_versions_safari_7_debug_true_plugins_transform_object_rest_spread_transform_runtime_polyfill_false_helpers_false_syntax_dynamic_import_node_modules_vue_loader_lib_selector_type_script_index_0_ArticleBox_vue__["a" /* default */],
+  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_004b529c_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_ArticleBox_vue__["a" /* render */],
+  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_004b529c_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_ArticleBox_vue__["b" /* staticRenderFns */],
+  __vue_template_functional__,
+  __vue_styles__,
+  __vue_scopeId__,
+  __vue_module_identifier__
+)
+Component.options.__file = "resources/assets/js/components/comment/ArticleBox.vue"
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-004b529c", Component.options)
+  } else {
+    hotAPI.reload("data-v-004b529c", Component.options)
+  }
+  module.hot.dispose(function (data) {
+    disposed = true
+  })
+})()}
+
+/* harmony default export */ __webpack_exports__["a"] = (Component.exports);
+
+
+/***/ }),
+/* 107 */
 /***/ (function(module, exports, __webpack_require__) {
 
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__(108);
+if(typeof content === 'string') content = [[module.i, content, '']];
+if(content.locals) module.exports = content.locals;
+// add the styles to the DOM
+var add = __webpack_require__(4).default
+var update = add("5f4f56b4", content, false, {});
+// Hot Module Replacement
+if(false) {
+ // When the styles change, update the <style> tags
+ if(!content.locals) {
+   module.hot.accept("!!../../../../../node_modules/css-loader/index.js!../../../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-004b529c\",\"scoped\":false,\"sourceMap\":false}!../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./ArticleBox.vue", function() {
+     var newContent = require("!!../../../../../node_modules/css-loader/index.js!../../../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-004b529c\",\"scoped\":false,\"sourceMap\":false}!../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./ArticleBox.vue");
+     if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+     update(newContent);
+   });
+ }
+ // When the module is disposed, remove the <style> tags
+ module.hot.dispose(function() { update(); });
+}
+
+/***/ }),
+/* 108 */
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(0)(undefined);
+// imports
+
+
+// module
+exports.push([module.i, "\n.articleBox .notSpace{\n    padding: 0;\n    margin: 0;\n}\n.articleBox .card__media__content{\n    margin: 0 !important;\n    padding: 10px;\n}\n.articleBox .card__media__content span{\n    word-wrap: break-word;\n}\n", ""]);
+
+// exports
+
+
+/***/ }),
+/* 109 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return render; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return staticRenderFns; });
 var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
   return _c(
     "div",
-    { staticStyle: { "margin-top": "20px" } },
+    { staticClass: "articleBox", staticStyle: { height: "600px" } },
     [
       _c(
-        "v-tabs",
-        { attrs: { centered: "" } },
+        "v-card-media",
+        {
+          staticClass: "notSpace",
+          class: _vm.article.image ? null : _vm.article.color,
+          attrs: {
+            src: _vm.article.image ? _vm.article.image.path : null,
+            height: "600px"
+          }
+        },
+        [
+          !_vm.article.image
+            ? _c(
+                "div",
+                {
+                  staticStyle: {
+                    width: "100%",
+                    "text-align": "center",
+                    overflow: "auto"
+                  }
+                },
+                _vm._l(JSON.parse(_vm.article.message), function(message, i) {
+                  return _c("span", { key: i }, [
+                    _vm._v(_vm._s(message.text)),
+                    message.url
+                      ? _c("a", [
+                          _c("img", {
+                            staticStyle: {
+                              "margin-bottom": "-5px",
+                              height: "30px",
+                              width: "30px"
+                            },
+                            attrs: { src: message.url }
+                          })
+                        ])
+                      : _vm._e()
+                  ])
+                })
+              )
+            : _vm._e()
+        ]
+      )
+    ],
+    1
+  )
+}
+var staticRenderFns = []
+render._withStripped = true
+
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+    require("vue-hot-reload-api")      .rerender("data-v-004b529c", { render: render, staticRenderFns: staticRenderFns })
+  }
+}
+
+/***/ }),
+/* 110 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__babel_loader_cacheDirectory_true_presets_env_modules_false_targets_browsers_2_uglify_true_env_modules_false_targets_browsers_last_2_versions_safari_7_debug_true_plugins_transform_object_rest_spread_transform_runtime_polyfill_false_helpers_false_syntax_dynamic_import_node_modules_vue_loader_lib_selector_type_script_index_0_CommentBox_vue__ = __webpack_require__(92);
+/* unused harmony namespace reexport */
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_3d827913_hasScoped_true_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_CommentBox_vue__ = __webpack_require__(137);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__node_modules_vue_loader_lib_runtime_component_normalizer__ = __webpack_require__(3);
+var disposed = false
+function injectStyle (context) {
+  if (disposed) return
+  __webpack_require__(111)
+}
+/* script */
+
+
+/* template */
+
+/* template functional */
+var __vue_template_functional__ = false
+/* styles */
+var __vue_styles__ = injectStyle
+/* scopeId */
+var __vue_scopeId__ = "data-v-3d827913"
+/* moduleIdentifier (server only) */
+var __vue_module_identifier__ = null
+
+var Component = Object(__WEBPACK_IMPORTED_MODULE_2__node_modules_vue_loader_lib_runtime_component_normalizer__["a" /* default */])(
+  __WEBPACK_IMPORTED_MODULE_0__babel_loader_cacheDirectory_true_presets_env_modules_false_targets_browsers_2_uglify_true_env_modules_false_targets_browsers_last_2_versions_safari_7_debug_true_plugins_transform_object_rest_spread_transform_runtime_polyfill_false_helpers_false_syntax_dynamic_import_node_modules_vue_loader_lib_selector_type_script_index_0_CommentBox_vue__["a" /* default */],
+  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_3d827913_hasScoped_true_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_CommentBox_vue__["a" /* render */],
+  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_3d827913_hasScoped_true_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_CommentBox_vue__["b" /* staticRenderFns */],
+  __vue_template_functional__,
+  __vue_styles__,
+  __vue_scopeId__,
+  __vue_module_identifier__
+)
+Component.options.__file = "resources/assets/js/components/comment/CommentBox.vue"
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-3d827913", Component.options)
+  } else {
+    hotAPI.reload("data-v-3d827913", Component.options)
+  }
+  module.hot.dispose(function (data) {
+    disposed = true
+  })
+})()}
+
+/* harmony default export */ __webpack_exports__["a"] = (Component.exports);
+
+
+/***/ }),
+/* 111 */
+/***/ (function(module, exports, __webpack_require__) {
+
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__(112);
+if(typeof content === 'string') content = [[module.i, content, '']];
+if(content.locals) module.exports = content.locals;
+// add the styles to the DOM
+var add = __webpack_require__(4).default
+var update = add("7e409dcf", content, false, {});
+// Hot Module Replacement
+if(false) {
+ // When the styles change, update the <style> tags
+ if(!content.locals) {
+   module.hot.accept("!!../../../../../node_modules/css-loader/index.js!../../../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-3d827913\",\"scoped\":true,\"sourceMap\":false}!../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./CommentBox.vue", function() {
+     var newContent = require("!!../../../../../node_modules/css-loader/index.js!../../../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-3d827913\",\"scoped\":true,\"sourceMap\":false}!../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./CommentBox.vue");
+     if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+     update(newContent);
+   });
+ }
+ // When the module is disposed, remove the <style> tags
+ module.hot.dispose(function() { update(); });
+}
+
+/***/ }),
+/* 112 */
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(0)(undefined);
+// imports
+
+
+// module
+exports.push([module.i, "\n.toolbar[data-v-3d827913]{\n    box-shadow: none;\n}\n", ""]);
+
+// exports
+
+
+/***/ }),
+/* 113 */
+/***/ (function(module, exports, __webpack_require__) {
+
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__(114);
+if(typeof content === 'string') content = [[module.i, content, '']];
+if(content.locals) module.exports = content.locals;
+// add the styles to the DOM
+var add = __webpack_require__(4).default
+var update = add("4a0a32b2", content, false, {});
+// Hot Module Replacement
+if(false) {
+ // When the styles change, update the <style> tags
+ if(!content.locals) {
+   module.hot.accept("!!../../../../../node_modules/css-loader/index.js!../../../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-3fa623db\",\"scoped\":true,\"sourceMap\":false}!../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./Comments.vue", function() {
+     var newContent = require("!!../../../../../node_modules/css-loader/index.js!../../../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-3fa623db\",\"scoped\":true,\"sourceMap\":false}!../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./Comments.vue");
+     if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+     update(newContent);
+   });
+ }
+ // When the module is disposed, remove the <style> tags
+ module.hot.dispose(function() { update(); });
+}
+
+/***/ }),
+/* 114 */
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(0)(undefined);
+// imports
+
+
+// module
+exports.push([module.i, "\n#showComment[data-v-3fa623db] {\n    padding-left: 10px;\n    margin-left: -10px;\n    border-left: 5px solid turquoise;\n}\n", ""]);
+
+// exports
+
+
+/***/ }),
+/* 115 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__babel_loader_cacheDirectory_true_presets_env_modules_false_targets_browsers_2_uglify_true_env_modules_false_targets_browsers_last_2_versions_safari_7_debug_true_plugins_transform_object_rest_spread_transform_runtime_polyfill_false_helpers_false_syntax_dynamic_import_node_modules_vue_loader_lib_selector_type_script_index_0_Comment_vue__ = __webpack_require__(94);
+/* unused harmony namespace reexport */
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_7dce4648_hasScoped_true_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_Comment_vue__ = __webpack_require__(120);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__node_modules_vue_loader_lib_runtime_component_normalizer__ = __webpack_require__(3);
+var disposed = false
+function injectStyle (context) {
+  if (disposed) return
+  __webpack_require__(116)
+  __webpack_require__(118)
+}
+/* script */
+
+
+/* template */
+
+/* template functional */
+var __vue_template_functional__ = false
+/* styles */
+var __vue_styles__ = injectStyle
+/* scopeId */
+var __vue_scopeId__ = "data-v-7dce4648"
+/* moduleIdentifier (server only) */
+var __vue_module_identifier__ = null
+
+var Component = Object(__WEBPACK_IMPORTED_MODULE_2__node_modules_vue_loader_lib_runtime_component_normalizer__["a" /* default */])(
+  __WEBPACK_IMPORTED_MODULE_0__babel_loader_cacheDirectory_true_presets_env_modules_false_targets_browsers_2_uglify_true_env_modules_false_targets_browsers_last_2_versions_safari_7_debug_true_plugins_transform_object_rest_spread_transform_runtime_polyfill_false_helpers_false_syntax_dynamic_import_node_modules_vue_loader_lib_selector_type_script_index_0_Comment_vue__["a" /* default */],
+  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_7dce4648_hasScoped_true_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_Comment_vue__["a" /* render */],
+  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_7dce4648_hasScoped_true_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_Comment_vue__["b" /* staticRenderFns */],
+  __vue_template_functional__,
+  __vue_styles__,
+  __vue_scopeId__,
+  __vue_module_identifier__
+)
+Component.options.__file = "resources/assets/js/components/comment/Comment.vue"
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-7dce4648", Component.options)
+  } else {
+    hotAPI.reload("data-v-7dce4648", Component.options)
+  }
+  module.hot.dispose(function (data) {
+    disposed = true
+  })
+})()}
+
+/* harmony default export */ __webpack_exports__["a"] = (Component.exports);
+
+
+/***/ }),
+/* 116 */
+/***/ (function(module, exports, __webpack_require__) {
+
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__(117);
+if(typeof content === 'string') content = [[module.i, content, '']];
+if(content.locals) module.exports = content.locals;
+// add the styles to the DOM
+var add = __webpack_require__(4).default
+var update = add("7659b6db", content, false, {});
+// Hot Module Replacement
+if(false) {
+ // When the styles change, update the <style> tags
+ if(!content.locals) {
+   module.hot.accept("!!../../../../../node_modules/css-loader/index.js!../../../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-7dce4648\",\"scoped\":true,\"sourceMap\":false}!../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./Comment.vue", function() {
+     var newContent = require("!!../../../../../node_modules/css-loader/index.js!../../../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-7dce4648\",\"scoped\":true,\"sourceMap\":false}!../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./Comment.vue");
+     if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+     update(newContent);
+   });
+ }
+ // When the module is disposed, remove the <style> tags
+ module.hot.dispose(function() { update(); });
+}
+
+/***/ }),
+/* 117 */
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(0)(undefined);
+// imports
+
+
+// module
+exports.push([module.i, "\n.icon[data-v-7dce4648]{\n    font-size: 18px;\n}\n", ""]);
+
+// exports
+
+
+/***/ }),
+/* 118 */
+/***/ (function(module, exports, __webpack_require__) {
+
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__(119);
+if(typeof content === 'string') content = [[module.i, content, '']];
+if(content.locals) module.exports = content.locals;
+// add the styles to the DOM
+var add = __webpack_require__(4).default
+var update = add("f7b42c76", content, false, {});
+// Hot Module Replacement
+if(false) {
+ // When the styles change, update the <style> tags
+ if(!content.locals) {
+   module.hot.accept("!!../../../../../node_modules/css-loader/index.js!../../../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-7dce4648\",\"scoped\":false,\"sourceMap\":false}!../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=1!./Comment.vue", function() {
+     var newContent = require("!!../../../../../node_modules/css-loader/index.js!../../../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-7dce4648\",\"scoped\":false,\"sourceMap\":false}!../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=1!./Comment.vue");
+     if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+     update(newContent);
+   });
+ }
+ // When the module is disposed, remove the <style> tags
+ module.hot.dispose(function() { update(); });
+}
+
+/***/ }),
+/* 119 */
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(0)(undefined);
+// imports
+
+
+// module
+exports.push([module.i, "\n.commentActions{\n    display:flex;\n    justify-content: space-between;\n    flex-wrap: wrap;\n    width: 80%;\n}\n.commentActions button{\n    margin: 0;\n}\n.chipComment{\n    height: 25px !important;\n}\n.chipComment .chip__content{\n    cursor: pointer !important;\n}\n.chipComment .avatar{\n    width: 25px !important;\n    height: 25px !important;\n    min-width: 25px !important;\n}\n", ""]);
+
+// exports
+
+
+/***/ }),
+/* 120 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return render; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return staticRenderFns; });
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c(
+    "div",
+    { staticStyle: { display: "flex", "flex-direction": "row" } },
+    [
+      _c(
+        "div",
         [
           _c(
-            "v-tabs-bar",
-            { staticClass: "cyan", attrs: { dark: "" } },
-            [
-              _c("v-tabs-slider", { staticClass: "yellow" }),
-              _vm._v(" "),
-              _c("v-tabs-item", { attrs: { href: "#profile" } }, [
-                _vm._v("\n                Edit Profile\n            ")
-              ]),
-              _vm._v(" "),
-              _c("v-tabs-item", { attrs: { href: "#password" } }, [
-                _vm._v("\n                Change Password\n            ")
-              ])
-            ],
-            1
-          ),
+            "v-avatar",
+            {
+              staticStyle: { "margin-right": "10px" },
+              attrs: { size: "40px" },
+              on: {
+                click: function($event) {
+                  _vm.$router.push("profile/" + _vm.comment.user_id)
+                }
+              }
+            },
+            [_c("img", { attrs: { src: _vm.owner.avatar, alt: "avatar" } })]
+          )
+        ],
+        1
+      ),
+      _vm._v(" "),
+      _c(
+        "div",
+        {
+          staticStyle: {
+            display: "flex",
+            "flex-direction": "column",
+            width: "80%",
+            "word-wrap": "break-word"
+          }
+        },
+        [
+          _c("div", [
+            _vm._v(
+              "\n            " +
+                _vm._s(_vm.owner.name + " " + _vm.owner.forename) +
+                "\n        "
+            )
+          ]),
+          _vm._v(" "),
+          _c("div", [
+            _c(
+              "div",
+              {
+                staticStyle: {
+                  width: "100%",
+                  "text-align": "left",
+                  "word-wrap": "break-word"
+                }
+              },
+              _vm._l(JSON.parse(_vm.comment.message), function(message, i) {
+                return _c("span", { key: i }, [
+                  _vm.comment.comment_id && i === 0
+                    ? _c(
+                        "span",
+                        {
+                          staticClass: "text-xs-center",
+                          on: {
+                            click: function($event) {
+                              _vm.$router.push(
+                                "profile/" + _vm.comment.comment_id
+                              )
+                            }
+                          }
+                        },
+                        [
+                          _c(
+                            "v-chip",
+                            { staticClass: "chipComment" },
+                            [
+                              _c(
+                                "v-avatar",
+                                {
+                                  staticStyle: {
+                                    height: "25px !important",
+                                    width: "25px !important",
+                                    "min-width": "25px !important"
+                                  }
+                                },
+                                [
+                                  _c("img", {
+                                    attrs: {
+                                      src: _vm.replyed_user.avatar,
+                                      alt: "avatar"
+                                    }
+                                  })
+                                ]
+                              ),
+                              _vm._v(
+                                "\n                        " +
+                                  _vm._s(
+                                    _vm.replyed_user.name +
+                                      " " +
+                                      _vm.replyed_user.forename
+                                  ) +
+                                  "\n                      "
+                              )
+                            ],
+                            1
+                          )
+                        ],
+                        1
+                      )
+                    : _vm._e(),
+                  _vm._v(
+                    "\n                    " +
+                      _vm._s(message.text) +
+                      "\n                    "
+                  ),
+                  message.url
+                    ? _c("span", [
+                        _c("img", {
+                          staticStyle: {
+                            "margin-bottom": "-5px",
+                            height: "20px",
+                            width: "20px"
+                          },
+                          attrs: { src: message.url }
+                        })
+                      ])
+                    : _vm._e()
+                ])
+              })
+            )
+          ]),
           _vm._v(" "),
           _c(
-            "v-tabs-items",
+            "div",
+            { staticClass: "commentActions" },
             [
               _c(
-                "v-tabs-content",
-                { attrs: { id: "profile" } },
+                "div",
                 [
-                  _c(
-                    "v-card",
-                    { attrs: { flat: "" } },
-                    [_c("v-card-text", [_c("edit-profile")], 1)],
-                    1
-                  )
+                  _vm._v(
+                    "\n                " +
+                      _vm._s(_vm.comment.likes_count) +
+                      "\n                "
+                  ),
+                  _vm.comment.liked
+                    ? _c(
+                        "v-btn",
+                        {
+                          staticStyle: { color: "red" },
+                          attrs: { icon: "", flat: "" },
+                          nativeOn: {
+                            click: function($event) {
+                              _vm.deleteLike($event)
+                            }
+                          }
+                        },
+                        [_c("v-icon", [_vm._v("favorite")])],
+                        1
+                      )
+                    : _c(
+                        "v-btn",
+                        {
+                          attrs: { icon: "", flat: "" },
+                          nativeOn: {
+                            click: function($event) {
+                              _vm.like($event)
+                            }
+                          }
+                        },
+                        [_c("v-icon", [_vm._v("favorite_border")])],
+                        1
+                      )
                 ],
                 1
               ),
               _vm._v(" "),
               _c(
-                "v-tabs-content",
-                { attrs: { id: "password" } },
-                [
-                  _c(
-                    "v-card",
-                    { attrs: { flat: "" } },
-                    [_c("v-card-text", [_c("change-password")], 1)],
+                "v-btn",
+                {
+                  attrs: { icon: "", flat: "" },
+                  nativeOn: {
+                    click: function($event) {
+                      _vm.reply($event)
+                    }
+                  }
+                },
+                [_c("v-icon", [_vm._v("reply")])],
+                1
+              ),
+              _vm._v(" "),
+              _vm.user.id === _vm.comment.user_id
+                ? _c(
+                    "v-btn",
+                    {
+                      attrs: { icon: "", flat: "" },
+                      nativeOn: {
+                        click: function($event) {
+                          _vm.commentDelete = true
+                        }
+                      }
+                    },
+                    [_c("v-icon", [_vm._v("delete")])],
                     1
+                  )
+                : _vm._e()
+            ],
+            1
+          )
+        ]
+      ),
+      _vm._v(" "),
+      _c(
+        "v-dialog",
+        {
+          attrs: { "max-width": "290" },
+          model: {
+            value: _vm.commentDelete,
+            callback: function($$v) {
+              _vm.commentDelete = $$v
+            },
+            expression: "commentDelete"
+          }
+        },
+        [
+          _c(
+            "v-card",
+            [
+              _vm.loading
+                ? _c("v-progress-linear", {
+                    staticStyle: { margin: "0" },
+                    attrs: { indeterminate: true }
+                  })
+                : _vm._e(),
+              _vm._v(" "),
+              _c("v-card-title", { staticClass: "headline" }, [
+                _vm._v("Deleting the comment")
+              ]),
+              _vm._v(" "),
+              _c("v-divider"),
+              _vm._v(" "),
+              _c("v-card-text", [
+                _vm._v(
+                  "\n                Are you sure you want to delete this comment?\n            "
+                )
+              ]),
+              _vm._v(" "),
+              _c(
+                "v-card-actions",
+                [
+                  _c("v-spacer"),
+                  _vm._v(" "),
+                  _c(
+                    "v-btn",
+                    {
+                      attrs: { flat: "flat" },
+                      nativeOn: {
+                        click: function($event) {
+                          _vm.commentDelete = false
+                        }
+                      }
+                    },
+                    [_vm._v("Cancel")]
+                  ),
+                  _vm._v(" "),
+                  _c(
+                    "v-btn",
+                    {
+                      attrs: { color: "primary", flat: "flat" },
+                      nativeOn: {
+                        click: function($event) {
+                          _vm.destroy($event)
+                        }
+                      }
+                    },
+                    [_vm._v("Confirm")]
                   )
                 ],
                 1
@@ -7639,25 +2705,230 @@ var render = function() {
 }
 var staticRenderFns = []
 render._withStripped = true
-module.exports = { render: render, staticRenderFns: staticRenderFns }
+
 if (false) {
   module.hot.accept()
   if (module.hot.data) {
-    require("vue-hot-reload-api")      .rerender("data-v-00ea10e0", module.exports)
+    require("vue-hot-reload-api")      .rerender("data-v-7dce4648", { render: render, staticRenderFns: staticRenderFns })
   }
 }
 
 /***/ }),
+/* 121 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
-/***/ 76:
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return render; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return staticRenderFns; });
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c(
+    "div",
+    [
+      !_vm.end &&
+      _vm.article.comments_count !== 0 &&
+      _vm.$vuetify.breakpoint.smAndUp
+        ? _c("span", [
+            _c("a", { on: { click: _vm.loadMore } }, [
+              _vm._v("Load more comments")
+            ]),
+            _c("br"),
+            _c("br")
+          ])
+        : _vm._e(),
+      _vm._v(" "),
+      _vm._l(_vm.comments, function(comment, i) {
+        return _c(
+          "blockquote",
+          {
+            key: i,
+            attrs: {
+              id: comment.user_id !== _vm.user.id ? comment.idName : null
+            }
+          },
+          [
+            _c("comment", { attrs: { comment: comment, article: _vm.article } })
+          ],
+          1
+        )
+      }),
+      _vm._v(" "),
+      !_vm.end &&
+      _vm.article.comments_count !== 0 &&
+      !_vm.$vuetify.breakpoint.smAndUp
+        ? _c("span", [
+            _c("a", { on: { click: _vm.loadMore } }, [
+              _vm._v("Load more comments")
+            ]),
+            _c("br"),
+            _c("br")
+          ])
+        : _vm._e()
+    ],
+    2
+  )
+}
+var staticRenderFns = []
+render._withStripped = true
+
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+    require("vue-hot-reload-api")      .rerender("data-v-3fa623db", { render: render, staticRenderFns: staticRenderFns })
+  }
+}
+
+/***/ }),
+/* 122 */
 /***/ (function(module, exports, __webpack_require__) {
 
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__(123);
+if(typeof content === 'string') content = [[module.i, content, '']];
+if(content.locals) module.exports = content.locals;
+// add the styles to the DOM
+var add = __webpack_require__(4).default
+var update = add("30b729e2", content, false, {});
+// Hot Module Replacement
+if(false) {
+ // When the styles change, update the <style> tags
+ if(!content.locals) {
+   module.hot.accept("!!../../../../../node_modules/css-loader/index.js!../../../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-0b6b5d2c\",\"scoped\":false,\"sourceMap\":false}!../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./CommentForm.vue", function() {
+     var newContent = require("!!../../../../../node_modules/css-loader/index.js!../../../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-0b6b5d2c\",\"scoped\":false,\"sourceMap\":false}!../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./CommentForm.vue");
+     if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+     update(newContent);
+   });
+ }
+ // When the module is disposed, remove the <style> tags
+ module.hot.dispose(function() { update(); });
+}
+
+/***/ }),
+/* 123 */
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(0)(undefined);
+// imports
+
+
+// module
+exports.push([module.i, "\n.enlargeCmt .emojionearea{\n    min-height: 50px;\n}\n.commentForm .emojionearea .emojionearea-editor{\n    text-align: left;\n    font-size: 18px;\n    color: black;\n    font-family: monospace;\n    min-height: inherit !important;\n    max-height: 200px !important;\n    background: transparent !important;\n    border-radius: 0;\n}\n.commentForm .emojionearea{\n    position: absolute !important;\n    bottom: -40px;\n    border-radius: 0;\n}\n.commentForm{\n    position: relative;\n}\n.commentForm .emojionearea-picker{\n    right: 0 !important;\n    border: none;\n    box-shadow: none;\n}\n.emojionearea-editor:focus {\n    border: none !important;\n    border-color: none !important;\n    box-shadow: none !important;\n    outline: 0px solid transparent !important;\n}\n", ""]);
+
+// exports
+
+
+/***/ }),
+/* 124 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return render; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return staticRenderFns; });
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c(
+    "v-layout",
+    [
+      _c("v-flex", { attrs: { xs10: "", lg12: "" } }, [
+        _c("div", { class: _vm.emojiClass }, [
+          _c("textarea", { staticClass: "emojionearea" })
+        ])
+      ]),
+      _vm._v(" "),
+      !_vm.$vuetify.breakpoint.smAndUp
+        ? _c(
+            "v-flex",
+            { attrs: { xs2: "", lg0: "" } },
+            [
+              _c(
+                "v-icon",
+                {
+                  staticStyle: { "margin-left": "11px" },
+                  attrs: { color: "primary" },
+                  on: { click: _vm.publish }
+                },
+                [_vm._v("send")]
+              )
+            ],
+            1
+          )
+        : _vm._e()
+    ],
+    1
+  )
+}
+var staticRenderFns = []
+render._withStripped = true
+
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+    require("vue-hot-reload-api")      .rerender("data-v-0b6b5d2c", { render: render, staticRenderFns: staticRenderFns })
+  }
+}
+
+/***/ }),
+/* 125 */
+/***/ (function(module, exports, __webpack_require__) {
+
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__(126);
+if(typeof content === 'string') content = [[module.i, content, '']];
+if(content.locals) module.exports = content.locals;
+// add the styles to the DOM
+var add = __webpack_require__(4).default
+var update = add("1d93df58", content, false, {});
+// Hot Module Replacement
+if(false) {
+ // When the styles change, update the <style> tags
+ if(!content.locals) {
+   module.hot.accept("!!../../../../../node_modules/css-loader/index.js!../../../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-76898650\",\"scoped\":false,\"sourceMap\":false}!../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./DialogLike.vue", function() {
+     var newContent = require("!!../../../../../node_modules/css-loader/index.js!../../../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-76898650\",\"scoped\":false,\"sourceMap\":false}!../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./DialogLike.vue");
+     if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+     update(newContent);
+   });
+ }
+ // When the module is disposed, remove the <style> tags
+ module.hot.dispose(function() { update(); });
+}
+
+/***/ }),
+/* 126 */
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(0)(undefined);
+// imports
+
+
+// module
+exports.push([module.i, "\n.tabs__like .tabs__wrapper, .tabs__bar{\n    overflow: hidden;\n    height: 55px;\n}\n.tabs__like .tabs__container{\n    display: -webkit-box;\n}\n.tabs__like .tabs__items{\n    overflow-y: auto !important;\n    height: 490px !important;\n}\n.tabs__like li{\n    justify-content: flex-start !important;\n}\n.tabs__like li a{\n    width: 100%;\n}\n.dialogLiketoolbar .toolbar__content{\n    height: auto !important;\n}\n", ""]);
+
+// exports
+
+
+/***/ }),
+/* 127 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__babel_loader_cacheDirectory_true_presets_env_modules_false_targets_browsers_2_uglify_true_env_modules_false_targets_browsers_last_2_versions_safari_7_debug_true_plugins_transform_object_rest_spread_transform_runtime_polyfill_false_helpers_false_syntax_dynamic_import_node_modules_vue_loader_lib_selector_type_script_index_0_Liker_vue__ = __webpack_require__(97);
+/* unused harmony namespace reexport */
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_71dab2fa_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_Liker_vue__ = __webpack_require__(128);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__node_modules_vue_loader_lib_runtime_component_normalizer__ = __webpack_require__(3);
 var disposed = false
-var normalizeComponent = __webpack_require__(1)
 /* script */
-var __vue_script__ = __webpack_require__(298)
+
+
 /* template */
-var __vue_template__ = __webpack_require__(305)
+
 /* template functional */
 var __vue_template_functional__ = false
 /* styles */
@@ -7666,15 +2937,17 @@ var __vue_styles__ = null
 var __vue_scopeId__ = null
 /* moduleIdentifier (server only) */
 var __vue_module_identifier__ = null
-var Component = normalizeComponent(
-  __vue_script__,
-  __vue_template__,
+
+var Component = Object(__WEBPACK_IMPORTED_MODULE_2__node_modules_vue_loader_lib_runtime_component_normalizer__["a" /* default */])(
+  __WEBPACK_IMPORTED_MODULE_0__babel_loader_cacheDirectory_true_presets_env_modules_false_targets_browsers_2_uglify_true_env_modules_false_targets_browsers_last_2_versions_safari_7_debug_true_plugins_transform_object_rest_spread_transform_runtime_polyfill_false_helpers_false_syntax_dynamic_import_node_modules_vue_loader_lib_selector_type_script_index_0_Liker_vue__["a" /* default */],
+  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_71dab2fa_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_Liker_vue__["a" /* render */],
+  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_71dab2fa_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_Liker_vue__["b" /* staticRenderFns */],
   __vue_template_functional__,
   __vue_styles__,
   __vue_scopeId__,
   __vue_module_identifier__
 )
-Component.options.__file = "resources/assets/js/components/user/Account.vue"
+Component.options.__file = "resources/assets/js/components/like/Liker.vue"
 
 /* hot reload */
 if (false) {(function () {
@@ -7683,18 +2956,5293 @@ if (false) {(function () {
   if (!hotAPI.compatible) return
   module.hot.accept()
   if (!module.hot.data) {
-    hotAPI.createRecord("data-v-00ea10e0", Component.options)
+    hotAPI.createRecord("data-v-71dab2fa", Component.options)
   } else {
-    hotAPI.reload("data-v-00ea10e0", Component.options)
+    hotAPI.reload("data-v-71dab2fa", Component.options)
   }
   module.hot.dispose(function (data) {
     disposed = true
   })
 })()}
 
-module.exports = Component.exports
+/* harmony default export */ __webpack_exports__["a"] = (Component.exports);
 
+
+/***/ }),
+/* 128 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return render; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return staticRenderFns; });
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c(
+    "v-list-tile",
+    {
+      staticStyle: {
+        display: "flex",
+        "flex-wrap": "wrap",
+        "justify-content": "center"
+      },
+      attrs: { to: "/user/profile/" + _vm.liker.id, avatar: "" }
+    },
+    [
+      _c("v-list-tile-avatar", [
+        _c("img", { attrs: { src: _vm.liker.avatar } })
+      ]),
+      _vm._v(" "),
+      _c("v-list-tile-content", [
+        _vm._v(
+          "\n        " +
+            _vm._s(_vm.liker.name + " " + _vm.liker.forename) +
+            "\n    "
+        )
+      ]),
+      _vm._v(" "),
+      _c(
+        "v-list-tile-action",
+        [
+          _vm.user.id !== _vm.liker.id
+            ? _c(
+                "v-btn",
+                {
+                  staticStyle: { width: "113px" },
+                  attrs: {
+                    slot: "activator",
+                    loading: _vm.liker.loadingSubs,
+                    color: _vm.liker.followed ? null : "primary",
+                    outline: ""
+                  },
+                  on: {
+                    click: function($event) {
+                      $event.stopPropagation()
+                      $event.preventDefault()
+                      _vm.follow(_vm.liker)
+                    }
+                  },
+                  slot: "activator"
+                },
+                [
+                  !_vm.liker.followed
+                    ? _c("v-icon", [_vm._v("person_add")])
+                    : _vm._e(),
+                  _vm._v(
+                    _vm._s(_vm.liker.followed ? "Unfollow" : "Follow") +
+                      "\n        "
+                  )
+                ],
+                1
+              )
+            : _vm._e()
+        ],
+        1
+      )
+    ],
+    1
+  )
+}
+var staticRenderFns = []
+render._withStripped = true
+
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+    require("vue-hot-reload-api")      .rerender("data-v-71dab2fa", { render: render, staticRenderFns: staticRenderFns })
+  }
+}
+
+/***/ }),
+/* 129 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return render; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return staticRenderFns; });
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c(
+    "v-dialog",
+    {
+      attrs: { scrollable: "", "max-width": "510px" },
+      model: {
+        value: _vm.dialog,
+        callback: function($$v) {
+          _vm.dialog = $$v
+        },
+        expression: "dialog"
+      }
+    },
+    [
+      _c(
+        "v-card",
+        [
+          _c(
+            "v-toolbar",
+            {
+              staticClass: "dialogLiketoolbar",
+              attrs: { dark: "", card: "", prominent: "" }
+            },
+            [
+              _vm.loading
+                ? _c("v-progress-linear", {
+                    staticStyle: { margin: "0" },
+                    attrs: { indeterminate: true }
+                  })
+                : _vm._e()
+            ],
+            1
+          ),
+          _vm._v(" "),
+          _c(
+            "v-card-title",
+            [
+              _vm._v("Reactions "),
+              _c("v-spacer"),
+              _c(
+                "v-btn",
+                {
+                  attrs: { icon: "" },
+                  on: {
+                    click: function($event) {
+                      _vm.dialog = false
+                    }
+                  }
+                },
+                [_c("v-icon", [_vm._v("close")])],
+                1
+              )
+            ],
+            1
+          ),
+          _vm._v(" "),
+          _c("v-divider"),
+          _vm._v(" "),
+          _c(
+            "div",
+            [
+              _c(
+                "v-tabs",
+                {
+                  staticClass: "tabs__like",
+                  attrs: { fixed: "", centered: "" }
+                },
+                [
+                  _c(
+                    "v-tabs-bar",
+                    { staticClass: "cyan", attrs: { dark: "" } },
+                    [
+                      _vm._l(_vm.reactions, function(reaction, i) {
+                        return _c(
+                          "v-tabs-item",
+                          {
+                            key: i,
+                            attrs: { href: "#" + reaction.name, ripple: "" },
+                            on: {
+                              click: function($event) {
+                                _vm.load(reaction.type)
+                              }
+                            }
+                          },
+                          [
+                            _c("div", {
+                              class: reaction.className,
+                              staticStyle: { width: "48px", height: "48px" }
+                            }),
+                            _vm._v(
+                              "\n                         " +
+                                _vm._s(
+                                  _vm.article[
+                                    "likes_" + reaction.name + "_count"
+                                  ]
+                                ) +
+                                "\n                    "
+                            )
+                          ]
+                        )
+                      }),
+                      _vm._v(" "),
+                      _c("v-tabs-slider", { attrs: { color: "yellow" } })
+                    ],
+                    2
+                  ),
+                  _vm._v(" "),
+                  _c(
+                    "v-tabs-items",
+                    {
+                      directives: [
+                        {
+                          name: "scroll",
+                          rawName: "v-scroll",
+                          value: { callback: this.loadMore },
+                          expression: "{callback: this.loadMore}"
+                        }
+                      ],
+                      staticClass: "overflow",
+                      style:
+                        _vm.$vuetify.breakpoint.smAndUp ||
+                        "height:230px !important"
+                    },
+                    _vm._l(_vm.reactions, function(reaction, i) {
+                      return _c(
+                        "v-tabs-content",
+                        { key: i, attrs: { id: reaction.name } },
+                        [
+                          _c(
+                            "v-card",
+                            { attrs: { flat: "" } },
+                            [
+                              _c(
+                                "v-card-text",
+                                [
+                                  _c(
+                                    "v-list",
+                                    _vm._l(_vm.likes, function(like, i) {
+                                      return _c("liker", {
+                                        key: i,
+                                        attrs: { like: like }
+                                      })
+                                    })
+                                  )
+                                ],
+                                1
+                              )
+                            ],
+                            1
+                          )
+                        ],
+                        1
+                      )
+                    })
+                  )
+                ],
+                1
+              )
+            ],
+            1
+          )
+        ],
+        1
+      )
+    ],
+    1
+  )
+}
+var staticRenderFns = []
+render._withStripped = true
+
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+    require("vue-hot-reload-api")      .rerender("data-v-76898650", { render: render, staticRenderFns: staticRenderFns })
+  }
+}
+
+/***/ }),
+/* 130 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__babel_loader_cacheDirectory_true_presets_env_modules_false_targets_browsers_2_uglify_true_env_modules_false_targets_browsers_last_2_versions_safari_7_debug_true_plugins_transform_object_rest_spread_transform_runtime_polyfill_false_helpers_false_syntax_dynamic_import_node_modules_vue_loader_lib_selector_type_script_index_0_CardFormEdit_vue__ = __webpack_require__(99);
+/* unused harmony namespace reexport */
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_7431ad54_hasScoped_true_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_CardFormEdit_vue__ = __webpack_require__(135);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__node_modules_vue_loader_lib_runtime_component_normalizer__ = __webpack_require__(3);
+var disposed = false
+function injectStyle (context) {
+  if (disposed) return
+  __webpack_require__(131)
+  __webpack_require__(133)
+}
+/* script */
+
+
+/* template */
+
+/* template functional */
+var __vue_template_functional__ = false
+/* styles */
+var __vue_styles__ = injectStyle
+/* scopeId */
+var __vue_scopeId__ = "data-v-7431ad54"
+/* moduleIdentifier (server only) */
+var __vue_module_identifier__ = null
+
+var Component = Object(__WEBPACK_IMPORTED_MODULE_2__node_modules_vue_loader_lib_runtime_component_normalizer__["a" /* default */])(
+  __WEBPACK_IMPORTED_MODULE_0__babel_loader_cacheDirectory_true_presets_env_modules_false_targets_browsers_2_uglify_true_env_modules_false_targets_browsers_last_2_versions_safari_7_debug_true_plugins_transform_object_rest_spread_transform_runtime_polyfill_false_helpers_false_syntax_dynamic_import_node_modules_vue_loader_lib_selector_type_script_index_0_CardFormEdit_vue__["a" /* default */],
+  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_7431ad54_hasScoped_true_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_CardFormEdit_vue__["a" /* render */],
+  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_7431ad54_hasScoped_true_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_CardFormEdit_vue__["b" /* staticRenderFns */],
+  __vue_template_functional__,
+  __vue_styles__,
+  __vue_scopeId__,
+  __vue_module_identifier__
+)
+Component.options.__file = "resources/assets/js/components/card/CardFormEdit.vue"
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-7431ad54", Component.options)
+  } else {
+    hotAPI.reload("data-v-7431ad54", Component.options)
+  }
+  module.hot.dispose(function (data) {
+    disposed = true
+  })
+})()}
+
+/* harmony default export */ __webpack_exports__["a"] = (Component.exports);
+
+
+/***/ }),
+/* 131 */
+/***/ (function(module, exports, __webpack_require__) {
+
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__(132);
+if(typeof content === 'string') content = [[module.i, content, '']];
+if(content.locals) module.exports = content.locals;
+// add the styles to the DOM
+var add = __webpack_require__(4).default
+var update = add("d9d1824a", content, false, {});
+// Hot Module Replacement
+if(false) {
+ // When the styles change, update the <style> tags
+ if(!content.locals) {
+   module.hot.accept("!!../../../../../node_modules/css-loader/index.js!../../../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-7431ad54\",\"scoped\":false,\"sourceMap\":false}!../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./CardFormEdit.vue", function() {
+     var newContent = require("!!../../../../../node_modules/css-loader/index.js!../../../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-7431ad54\",\"scoped\":false,\"sourceMap\":false}!../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./CardFormEdit.vue");
+     if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+     update(newContent);
+   });
+ }
+ // When the module is disposed, remove the <style> tags
+ module.hot.dispose(function() { update(); });
+}
+
+/***/ }),
+/* 132 */
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(0)(undefined);
+// imports
+
+
+// module
+exports.push([module.i, "\n.noEmoji .emojionearea-button{\n    display: none;\n}\n.cardPublicationForm .emojionearea .emojionearea-editor{\n    text-align: left;\n    font-size: 30px;\n    color: black;\n    font-family: monospace;\n    min-height: 50px !important;\n    max-height: 300px !important;\n    background: transparent !important;\n    width:100%;\n    transition: font-size 1s;\n}\n.cardPublicationForm .emojionearea .emojionearea-button, .emojionearea-picker{\n    z-index: 1 !important;\n}\n.cardPublicationForm .card__text .emojionearea{\n    display: flex;\n    min-height: 50px !important;\n    font-size: 15px !important;\n    background-color: transparent;\n}\n.menuBloc .buttonColor{\n    cursor: pointer;\n    transition: transform .5s;\n    border-radius: 50%\n}\n.menuBloc .buttonColor:hover{\n    transform: scale(1.5)\n}\n.menuColor{\n    min-width: 250px !important;\n}\n", ""]);
+
+// exports
+
+
+/***/ }),
+/* 133 */
+/***/ (function(module, exports, __webpack_require__) {
+
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__(134);
+if(typeof content === 'string') content = [[module.i, content, '']];
+if(content.locals) module.exports = content.locals;
+// add the styles to the DOM
+var add = __webpack_require__(4).default
+var update = add("cdd3e9d2", content, false, {});
+// Hot Module Replacement
+if(false) {
+ // When the styles change, update the <style> tags
+ if(!content.locals) {
+   module.hot.accept("!!../../../../../node_modules/css-loader/index.js!../../../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-7431ad54\",\"scoped\":true,\"sourceMap\":false}!../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=1!./CardFormEdit.vue", function() {
+     var newContent = require("!!../../../../../node_modules/css-loader/index.js!../../../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-7431ad54\",\"scoped\":true,\"sourceMap\":false}!../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=1!./CardFormEdit.vue");
+     if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+     update(newContent);
+   });
+ }
+ // When the module is disposed, remove the <style> tags
+ module.hot.dispose(function() { update(); });
+}
+
+/***/ }),
+/* 134 */
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(0)(undefined);
+// imports
+
+
+// module
+exports.push([module.i, "\n.nbr-photos[data-v-7431ad54]{\n    position:absolute;\n    width: 100%;\n    height: 100%;\n    display:none;\n    background-color: rgba(0, 0, 0, .4);\n    text-align: center;\n    padding-top: 35%;\n    color: #fff;\n    border-radius: 4px;\n    font-size: 18px;\n}\ndiv:hover > .nbr-photos[data-v-7431ad54]{\n    display: block\n}\n.nbr-photos[data-v-7431ad54]:hover{\n    display: block\n}\n", ""]);
+
+// exports
+
+
+/***/ }),
+/* 135 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return render; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return staticRenderFns; });
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c(
+    "div",
+    { staticClass: "cardPublicationForm" },
+    [
+      _c(
+        "v-card",
+        { attrs: { height: "100%" } },
+        [
+          _vm.loading
+            ? _c("v-progress-linear", {
+                staticStyle: { margin: "0" },
+                attrs: { indeterminate: true }
+              })
+            : _vm._e(),
+          _vm._v(" "),
+          _c(
+            "v-card-title",
+            [
+              _vm._v("Edit the Publication "),
+              _c("v-spacer"),
+              _c(
+                "v-icon",
+                {
+                  on: {
+                    click: function($event) {
+                      _vm.$emit("switchDialog")
+                    }
+                  }
+                },
+                [_vm._v("close")]
+              )
+            ],
+            1
+          ),
+          _vm._v(" "),
+          _c("v-divider"),
+          _vm._v(" "),
+          _c(
+            "v-card-title",
+            { attrs: { "primary-title": "" } },
+            [
+              _c(
+                "v-layout",
+                { attrs: { row: "", wrap: "" } },
+                [
+                  _c(
+                    "v-flex",
+                    { staticStyle: { width: "100px" }, attrs: { lg12: "" } },
+                    [
+                      _c("v-card-text", [
+                        _c("div", { class: _vm.emojiClass }, [
+                          _c("textarea", { staticClass: "emojionearea" })
+                        ])
+                      ])
+                    ],
+                    1
+                  )
+                ],
+                1
+              )
+            ],
+            1
+          ),
+          _vm._v(" "),
+          _c(
+            "v-card-text",
+            [
+              _c(
+                "v-card-actions",
+                [
+                  _vm.$vuetify.breakpoint.smAndUp
+                    ? _c(
+                        "v-btn",
+                        {
+                          attrs: { flat: "", color: "primary" },
+                          nativeOn: {
+                            click: function($event) {
+                              _vm.select($event)
+                            }
+                          }
+                        },
+                        [
+                          _c("v-icon", [_vm._v("insert_photo")]),
+                          _vm._v("Picture")
+                        ],
+                        1
+                      )
+                    : _vm._e(),
+                  _vm._v(" "),
+                  _vm.hasColors
+                    ? _c(
+                        "v-menu",
+                        {
+                          attrs: {
+                            "offset-x": "",
+                            "close-on-content-click": false,
+                            "nudge-width": 200
+                          }
+                        },
+                        [
+                          _c(
+                            "v-btn",
+                            {
+                              attrs: {
+                                slot: "activator",
+                                flat: "",
+                                color: "primary",
+                                dark: ""
+                              },
+                              slot: "activator"
+                            },
+                            [
+                              _c("v-icon", [_vm._v("color_lens")]),
+                              _vm._v("Color")
+                            ],
+                            1
+                          ),
+                          _vm._v(" "),
+                          _c(
+                            "div",
+                            { staticClass: "menuColor" },
+                            [
+                              _c(
+                                "v-card",
+                                [
+                                  _c(
+                                    "v-card-text",
+                                    [
+                                      _c("h3", [_vm._v("Custom colors")]),
+                                      _vm._v(" "),
+                                      _c(
+                                        "v-layout",
+                                        {
+                                          staticStyle: { height: "25px" },
+                                          attrs: {
+                                            "justify-space-between": "",
+                                            wrap: ""
+                                          }
+                                        },
+                                        _vm._l(9, function(n) {
+                                          return _c("v-flex", {
+                                            key: n,
+                                            class:
+                                              n === 9
+                                                ? "buttonColor backgroundSmall" +
+                                                  n
+                                                : "buttonColor background" + n,
+                                            style:
+                                              n === 1
+                                                ? "cursor:pointer;border-radius:50%;background-color:#ddd !important"
+                                                : "cursor:pointer;border-radius:50%;",
+                                            attrs: { lg1: "" },
+                                            on: {
+                                              click: function($event) {
+                                                _vm.background("background" + n)
+                                              }
+                                            }
+                                          })
+                                        })
+                                      )
+                                    ],
+                                    1
+                                  )
+                                ],
+                                1
+                              )
+                            ],
+                            1
+                          )
+                        ],
+                        1
+                      )
+                    : _vm._e(),
+                  _vm._v(" "),
+                  _c("v-spacer"),
+                  _vm._v(" "),
+                  _c(
+                    "v-btn",
+                    {
+                      attrs: { flat: "", color: "orange" },
+                      nativeOn: {
+                        click: function($event) {
+                          _vm.publish($event)
+                        }
+                      }
+                    },
+                    [_vm._v("Edit")]
+                  )
+                ],
+                1
+              ),
+              _vm._v(" "),
+              !_vm.$vuetify.breakpoint.smAndUp
+                ? _c(
+                    "v-btn",
+                    {
+                      attrs: { flat: "", color: "primary" },
+                      nativeOn: {
+                        click: function($event) {
+                          _vm.select($event)
+                        }
+                      }
+                    },
+                    [_c("v-icon", [_vm._v("insert_photo")]), _vm._v("Picture")],
+                    1
+                  )
+                : _vm._e(),
+              _vm._v(" "),
+              _vm.url
+                ? _c(
+                    "v-avatar",
+                    {
+                      staticStyle: { position: "relative" },
+                      attrs: { size: "200px", tile: true }
+                    },
+                    [
+                      _c("img", { attrs: { src: _vm.url, alt: "image" } }),
+                      _vm._v(" "),
+                      _c(
+                        "div",
+                        { staticClass: "nbr-photos" },
+                        [
+                          _c(
+                            "v-btn",
+                            {
+                              attrs: { color: "primary", icon: "" },
+                              on: {
+                                click: function($event) {
+                                  _vm.file = null
+                                  _vm.url = null
+                                }
+                              }
+                            },
+                            [_c("v-icon", [_vm._v("close")])],
+                            1
+                          )
+                        ],
+                        1
+                      )
+                    ]
+                  )
+                : _vm._e()
+            ],
+            1
+          ),
+          _vm._v(" "),
+          _c("input", {
+            staticStyle: { display: "none" },
+            attrs: { type: "file", id: "photo", name: "avatar" },
+            on: { change: _vm.preview }
+          })
+        ],
+        1
+      ),
+      _vm._v(" "),
+      _vm.article.message
+        ? _c(
+            "div",
+            {
+              directives: [
+                {
+                  name: "show",
+                  rawName: "v-show",
+                  value: false,
+                  expression: "false"
+                }
+              ],
+              attrs: { id: "messageHtml" }
+            },
+            _vm._l(JSON.parse(_vm.article.message), function(message, i) {
+              return _c("span", { key: i }, [
+                _vm._v(_vm._s(message.text)),
+                message.url
+                  ? _c("span", [
+                      _c("img", {
+                        staticStyle: {
+                          "margin-bottom": "-5px",
+                          height: "25px",
+                          width: "25px"
+                        },
+                        attrs: { src: message.url }
+                      })
+                    ])
+                  : _vm._e()
+              ])
+            })
+          )
+        : _vm._e()
+    ],
+    1
+  )
+}
+var staticRenderFns = []
+render._withStripped = true
+
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+    require("vue-hot-reload-api")      .rerender("data-v-7431ad54", { render: render, staticRenderFns: staticRenderFns })
+  }
+}
+
+/***/ }),
+/* 136 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return render; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return staticRenderFns; });
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c(
+    "v-dialog",
+    {
+      attrs: {
+        width: _vm.$vuetify.breakpoint.smAndUp ? "50%" : "90%",
+        "content-class": "overflow"
+      },
+      model: {
+        value: _vm.dialog,
+        callback: function($$v) {
+          _vm.dialog = $$v
+        },
+        expression: "dialog"
+      }
+    },
+    [
+      _vm.dialog
+        ? _c("card-form-edit", {
+            attrs: { article: _vm.article },
+            on: {
+              switchDialog: function($event) {
+                _vm.dialog = false
+              }
+            }
+          })
+        : _vm._e()
+    ],
+    1
+  )
+}
+var staticRenderFns = []
+render._withStripped = true
+
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+    require("vue-hot-reload-api")      .rerender("data-v-38312f8e", { render: render, staticRenderFns: staticRenderFns })
+  }
+}
+
+/***/ }),
+/* 137 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return render; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return staticRenderFns; });
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c(
+    "v-layout",
+    { attrs: { column: "" } },
+    [
+      _c(
+        "v-flex",
+        [
+          _c(
+            "v-card",
+            [
+              _c(
+                "v-toolbar",
+                { attrs: { color: !_vm.darked ? "white" : "theme--dark" } },
+                [
+                  _c(
+                    "v-avatar",
+                    {
+                      staticStyle: {
+                        cursor: "pointer",
+                        "margin-left": "10px",
+                        "margin-right": "10px"
+                      },
+                      attrs: { size: "40px" },
+                      on: {
+                        click: function($event) {
+                          _vm.$router.push("profile/" + _vm.owner.id)
+                        }
+                      }
+                    },
+                    [
+                      _c("img", {
+                        attrs: { src: _vm.owner.avatar, alt: "avatar" }
+                      })
+                    ]
+                  ),
+                  _vm._v(" "),
+                  _c("div", [
+                    _vm._v(
+                      "\n                    " +
+                        _vm._s(
+                          "  " +
+                            _vm.owner.name +
+                            " " +
+                            _vm.owner.forename +
+                            "  "
+                        ) +
+                        "\n                "
+                    )
+                  ]),
+                  _vm._v(" "),
+                  _c("v-spacer"),
+                  _vm._v(" "),
+                  _vm.user.id !== _vm.owner.id
+                    ? _c(
+                        "v-btn",
+                        {
+                          attrs: {
+                            loading: _vm.owner.loadingSubs,
+                            color: _vm.owner.followed ? null : "primary",
+                            outline: ""
+                          },
+                          on: {
+                            click: function($event) {
+                              $event.stopPropagation()
+                              $event.preventDefault()
+                              _vm.follow(_vm.owner)
+                            }
+                          }
+                        },
+                        [
+                          !_vm.owner.followed
+                            ? _c("v-icon", [_vm._v("person_add")])
+                            : _vm._e(),
+                          _vm._v(
+                            _vm._s(_vm.owner.followed ? "Unfollow" : "Follow") +
+                              "\n                "
+                          )
+                        ],
+                        1
+                      )
+                    : _vm._e(),
+                  _vm._v(" "),
+                  _c(
+                    "v-menu",
+                    [
+                      _c(
+                        "v-btn",
+                        {
+                          attrs: { slot: "activator", flat: "", icon: "" },
+                          slot: "activator"
+                        },
+                        [_c("v-icon", [_vm._v("more_vert")])],
+                        1
+                      ),
+                      _vm._v(" "),
+                      _c(
+                        "v-list",
+                        [
+                          _c(
+                            "v-list-tile",
+                            { on: { click: _vm.copie } },
+                            [
+                              _c(
+                                "v-list-tile-action",
+                                [_c("v-icon", [_vm._v("link")])],
+                                1
+                              ),
+                              _vm._v(" "),
+                              _c(
+                                "v-list-tile-content",
+                                [
+                                  _c("v-list-tile-title", [
+                                    _vm._v("copie the link")
+                                  ])
+                                ],
+                                1
+                              )
+                            ],
+                            1
+                          ),
+                          _vm._v(" "),
+                          _c(
+                            "v-list-tile",
+                            {
+                              on: {
+                                click: function($event) {
+                                  _vm.openDialogShare = true
+                                }
+                              }
+                            },
+                            [
+                              _c(
+                                "v-list-tile-action",
+                                [_c("v-icon", [_vm._v("share")])],
+                                1
+                              ),
+                              _vm._v(" "),
+                              _c(
+                                "v-list-tile-content",
+                                [_c("v-list-tile-title", [_vm._v("Share")])],
+                                1
+                              )
+                            ],
+                            1
+                          ),
+                          _vm._v(" "),
+                          _vm.user.id === _vm.owner.id
+                            ? _c(
+                                "v-list-tile",
+                                {
+                                  on: {
+                                    click: function($event) {
+                                      _vm.dialogFormEdit = true
+                                    }
+                                  }
+                                },
+                                [
+                                  _c(
+                                    "v-list-tile-action",
+                                    [_c("v-icon", [_vm._v("edit")])],
+                                    1
+                                  ),
+                                  _vm._v(" "),
+                                  _c(
+                                    "v-list-tile-content",
+                                    [_c("v-list-tile-title", [_vm._v("Edit")])],
+                                    1
+                                  )
+                                ],
+                                1
+                              )
+                            : _vm._e(),
+                          _vm._v(" "),
+                          _c(
+                            "v-list-tile",
+                            { on: { click: _vm.masquer } },
+                            [
+                              _c(
+                                "v-list-tile-action",
+                                [_c("v-icon", [_vm._v("cancel")])],
+                                1
+                              ),
+                              _vm._v(" "),
+                              _c(
+                                "v-list-tile-content",
+                                [_c("v-list-tile-title", [_vm._v("Hide")])],
+                                1
+                              )
+                            ],
+                            1
+                          ),
+                          _vm._v(" "),
+                          _c(
+                            "v-list-tile",
+                            { on: { click: function($event) {} } },
+                            [
+                              _c(
+                                "v-list-tile-action",
+                                [_c("v-icon", [_vm._v("info")])],
+                                1
+                              ),
+                              _vm._v(" "),
+                              _c(
+                                "v-list-tile-content",
+                                [_c("v-list-tile-title", [_vm._v("Signal")])],
+                                1
+                              )
+                            ],
+                            1
+                          ),
+                          _vm._v(" "),
+                          _vm.user.id === _vm.owner.id
+                            ? _c(
+                                "v-list-tile",
+                                { on: { click: _vm.destroy } },
+                                [
+                                  _c(
+                                    "v-list-tile-action",
+                                    [_c("v-icon", [_vm._v("delete")])],
+                                    1
+                                  ),
+                                  _vm._v(" "),
+                                  _c(
+                                    "v-list-tile-content",
+                                    [
+                                      _c("v-list-tile-title", [
+                                        _vm._v("Delete")
+                                      ])
+                                    ],
+                                    1
+                                  )
+                                ],
+                                1
+                              )
+                            : _vm._e()
+                        ],
+                        1
+                      )
+                    ],
+                    1
+                  )
+                ],
+                1
+              ),
+              _vm._v(" "),
+              _c("v-divider"),
+              _vm._v(" "),
+              _c(
+                "div",
+                {
+                  staticStyle: {
+                    padding: "10px",
+                    "overflow-x": "hidden",
+                    "overflow-y": "auto",
+                    height: "410px"
+                  },
+                  attrs: { id: "comments" }
+                },
+                [
+                  _c("div", { staticStyle: { "margin-bottom": "10px" } }, [
+                    _vm.article.image && _vm.article.type === "actuality"
+                      ? _c(
+                          "div",
+                          {
+                            staticStyle: {
+                              width: "100%",
+                              "text-align": "left",
+                              color: "rgb(97, 97, 97)"
+                            }
+                          },
+                          [
+                            _c("b", { staticStyle: { color: "black" } }, [
+                              _vm._v(
+                                _vm._s(
+                                  _vm.owner.name + " " + _vm.owner.forename
+                                )
+                              )
+                            ]),
+                            _vm._v(" "),
+                            _vm._l(JSON.parse(_vm.article.message), function(
+                              message,
+                              i
+                            ) {
+                              return _c("span", { key: i }, [
+                                _vm._v(_vm._s(message.text)),
+                                message.url
+                                  ? _c("span", [
+                                      _c("img", {
+                                        staticStyle: {
+                                          "margin-bottom": "-5px",
+                                          height: "30px",
+                                          width: "30px"
+                                        },
+                                        attrs: { src: message.url }
+                                      })
+                                    ])
+                                  : _vm._e()
+                              ])
+                            })
+                          ],
+                          2
+                        )
+                      : _c(
+                          "div",
+                          {
+                            staticStyle: {
+                              width: "100%",
+                              "text-align": "left",
+                              color: "rgb(97, 97, 97)"
+                            }
+                          },
+                          [
+                            _c("b", { staticStyle: { color: "black" } }, [
+                              _vm._v(
+                                _vm._s(
+                                  _vm.owner.name + " " + _vm.owner.forename
+                                )
+                              )
+                            ]),
+                            _vm._v(" "),
+                            _c("span", [_vm._v(_vm._s(_vm.article.title))])
+                          ]
+                        )
+                  ]),
+                  _vm._v(" "),
+                  _c("comments", {
+                    attrs: { article: _vm.article, open: _vm.open }
+                  })
+                ],
+                1
+              )
+            ],
+            1
+          )
+        ],
+        1
+      ),
+      _vm._v(" "),
+      _c("v-flex", [
+        _c(
+          "div",
+          {
+            staticStyle: {
+              display: "flex",
+              "justify-content": "space-between",
+              "align-items": "center"
+            }
+          },
+          [
+            _c(
+              "v-menu",
+              {
+                staticStyle: { "font-size": "16px" },
+                attrs: {
+                  "open-on-hover": true,
+                  "close-on-content-click": true,
+                  "nudge-left": 133,
+                  "nudge-top": 103,
+                  origin: "center center",
+                  transition: "scale-transition",
+                  "offset-y": "",
+                  "offset-x": "",
+                  dark: true
+                }
+              },
+              [
+                _c(
+                  "div",
+                  {
+                    staticStyle: { display: "flex", "align-items": "center" },
+                    attrs: { slot: "activator" },
+                    slot: "activator"
+                  },
+                  [
+                    _vm.facemotion
+                      ? _c(
+                          "v-btn",
+                          {
+                            attrs: { icon: "" },
+                            nativeOn: {
+                              click: function($event) {
+                                _vm.deleteLike($event)
+                              }
+                            }
+                          },
+                          [
+                            _c("div", {
+                              class: "Selector selectorFace " + _vm.facemotion,
+                              attrs: {
+                                "dato-descripcion": "alegre",
+                                "id-referencia": "1513812312742"
+                              }
+                            })
+                          ]
+                        )
+                      : _vm._e(),
+                    _vm._v(" "),
+                    !_vm.facemotion
+                      ? _c(
+                          "v-btn",
+                          {
+                            attrs: { flat: "", icon: "" },
+                            nativeOn: {
+                              click: function($event) {
+                                _vm.like($event, "amo")
+                              }
+                            }
+                          },
+                          [_c("v-icon", [_vm._v("favorite_border")])],
+                          1
+                        )
+                      : _vm._e(),
+                    _vm._v("   "),
+                    _c("a", [
+                      _vm._v(_vm._s(_vm.text ? _vm.text : "Love") + " ")
+                    ])
+                  ],
+                  1
+                ),
+                _vm._v(" "),
+                _c(
+                  "div",
+                  { staticClass: "faceMocion", on: { click: _vm.like } },
+                  [
+                    _c("div", {
+                      staticClass: "amo",
+                      attrs: { "dato-descripcion": "Love" }
+                    }),
+                    _vm._v(" "),
+                    _c("div", {
+                      staticClass: "gusta",
+                      attrs: { "dato-descripcion": "Like" }
+                    }),
+                    _vm._v(" "),
+                    _c("div", {
+                      staticClass: "divierte",
+                      attrs: { "dato-descripcion": "Haha" }
+                    }),
+                    _vm._v(" "),
+                    _c("div", {
+                      staticClass: "asombro",
+                      attrs: { "dato-descripcion": "Wow" }
+                    }),
+                    _vm._v(" "),
+                    _c("div", {
+                      staticClass: "alegre",
+                      attrs: { "dato-descripcion": "Glad" }
+                    }),
+                    _vm._v(" "),
+                    _c("div", {
+                      staticClass: "asusta",
+                      attrs: { "dato-descripcion": "Bother" }
+                    }),
+                    _vm._v(" "),
+                    _c("div", {
+                      staticClass: "triste",
+                      attrs: { "dato-descripcion": "Sad" }
+                    }),
+                    _vm._v(" "),
+                    _c("div", {
+                      staticClass: "molesto",
+                      attrs: { "dato-descripcion": "Angry" }
+                    })
+                  ]
+                )
+              ]
+            ),
+            _vm._v(" "),
+            _c(
+              "div",
+              { staticStyle: { "margin-right": "10px" } },
+              [
+                _c("timeago", {
+                  attrs: {
+                    since: _vm.article.created_at,
+                    "auto-update": 61,
+                    "max-time": 86400 * 365
+                  }
+                })
+              ],
+              1
+            )
+          ],
+          1
+        ),
+        _vm._v(" "),
+        _c(
+          "div",
+          {
+            staticStyle: {
+              display: "flex",
+              "justify-content": "space-between",
+              "margin-left": "10px",
+              "margin-right": "10px"
+            }
+          },
+          [
+            _c("div", [
+              _vm._v(_vm._s(_vm.article.likes_count) + " "),
+              _c(
+                "a",
+                {
+                  on: {
+                    click: function($event) {
+                      _vm.openDialogLike = true
+                    }
+                  }
+                },
+                [
+                  _vm._v(
+                    _vm._s(_vm.plural("Reaction", _vm.article.likes_count))
+                  )
+                ]
+              )
+            ]),
+            _c("div", [
+              _vm._v(_vm._s(_vm.article.comments_count) + " "),
+              _c("a", [
+                _vm._v(
+                  _vm._s(_vm.plural("Comment", _vm.article.comments_count))
+                )
+              ])
+            ])
+          ]
+        )
+      ]),
+      _vm._v(" "),
+      _c(
+        "v-flex",
+        [_c("comment-form", { attrs: { article: _vm.article } })],
+        1
+      ),
+      _vm._v(" "),
+      _c("dialog-share", {
+        attrs: {
+          open: _vm.openDialogShare,
+          url: _vm.urlArticle(_vm.article.id, _vm.article.user_id)
+        },
+        on: {
+          close: function($event) {
+            _vm.openDialogShare = false
+          }
+        }
+      }),
+      _vm._v(" "),
+      _vm.openDialogLike
+        ? _c("dialog-like", {
+            attrs: { open: _vm.openDialogLike, article: _vm.article },
+            on: {
+              close: function($event) {
+                _vm.openDialogLike = !_vm.openDialogLike
+              }
+            }
+          })
+        : _vm._e(),
+      _vm._v(" "),
+      _c("dialog-form-edit", {
+        attrs: { article: _vm.article, open: _vm.dialogFormEdit },
+        on: {
+          close: function($event) {
+            _vm.dialogFormEdit = false
+          }
+        }
+      })
+    ],
+    1
+  )
+}
+var staticRenderFns = []
+render._withStripped = true
+
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+    require("vue-hot-reload-api")      .rerender("data-v-3d827913", { render: render, staticRenderFns: staticRenderFns })
+  }
+}
+
+/***/ }),
+/* 138 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__CardPublicationForm_vue__ = __webpack_require__(148);
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+
+/* harmony default export */ __webpack_exports__["a"] = ({
+    components: { "CardPublicationForm": __WEBPACK_IMPORTED_MODULE_0__CardPublicationForm_vue__["a" /* default */] },
+    props: {
+        open: Boolean,
+        onlyDialog: Boolean
+    },
+    data: function data() {
+        return {
+            dialog: false
+        };
+    },
+    methods: {
+        switchDialog: function switchDialog() {
+            this.dialog = !this.dialog;
+        }
+    },
+    watch: {
+        open: function open(data) {
+            if (data) this.dialog = data;
+        },
+        dialog: function dialog(data) {
+            if (!data) this.$emit('close');
+        }
+    }
+});
+
+/***/ }),
+/* 139 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+/* harmony default export */ __webpack_exports__["a"] = ({
+    props: {
+        dialog: Boolean
+    },
+    data: function data() {
+        return {
+            box: null,
+            color: "background1",
+            hasColors: true,
+            file: null,
+            url: null,
+            loading: false
+        };
+    },
+    computed: {
+        user: function user() {
+            return this.$store.state.user.user;
+        },
+        darked: function darked() {
+            return this.$store.state.setting.darked;
+        },
+        emojiClass: function emojiClass() {
+            return [this.darked ? 'blockEmojionearea blackForm' : 'blockEmojionearea', !this.$vuetify.breakpoint.smAndUp ? ' noEmoji' : null].join(' ');
+        }
+    },
+    methods: {
+        preview: function preview(event) {
+            if (event.target.files[0]) {
+                this.file = event.target.files[0];
+                this.url = window.URL.createObjectURL(event.target.files[0]);
+            }
+        },
+        select: function select() {
+            this.$el.querySelector("#photo").click();
+        },
+        background: function background(className) {
+            var textarea = this.$el.querySelector(".emojionearea-editor");
+            this.box = textarea.parentNode;
+            this.color = className;
+        },
+        publish: function publish() {
+            var _this = this;
+
+            var text = this.parseText();
+            if (JSON.parse(text).length > 0 || this.file) {
+                var formdata = new FormData();
+                formdata.append("image", this.file);
+                formdata.append("message", text);
+                formdata.append("color", this.color);
+                this.loading = true;
+                this.$http.post("/user/article", formdata).then(function (response) {
+                    if (response.body.id) {
+                        _this.loading = false;
+                        response.body.comments_count = 0;
+                        response.body.likes_count = 0;
+                        response.body.liked = null;
+                        if (_this.url) response.body.image = { path: _this.url };
+                        _this.$store.dispatch('article/save', response.body);
+                        _this.$store.dispatch('users/save', _this.user);
+                        _this.clear();
+                    }
+                });
+            }
+        },
+        clear: function clear() {
+            this.file = null;
+            this.url = null;
+            this.color = "background1";
+            this.$el.querySelector("textarea").value = "";
+            this.$el.querySelector(".emojionearea-editor").innerHTML = "";
+            document.querySelector('#photo').value = "";
+        },
+        parseText: function parseText() {
+            var message = this.$el.querySelector("textarea").value.trim();
+            var tableau = [];
+            if (message.length > 0) {
+                var results = message.match(new RegExp("(<img .*? class=\"emojioneemoji\" src=\"https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/.*?\\.png\"/>)", "g"));
+                var texts = message.split(new RegExp('<img .*? class=\"emojioneemoji\" src=\"https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/.*?\\.png\"/>'));
+                texts.map(function (text, i) {
+                    if (text.length > 0) {
+                        tableau.push({ text: text });
+                    }
+                    if (results && results[i]) {
+                        tableau.push({ url: results[i].match(new RegExp('src="(.*?)"'))[1] });
+                    }
+                });
+            }
+            return JSON.stringify(tableau);
+        }
+    },
+    mounted: function mounted() {
+        if (!this.$el.querySelector('.emojionearea').emojioneArea) {
+            $(this.$el.querySelector('.emojionearea')).emojioneArea({
+                pickerPosition: "right",
+                tonesStyle: "bullet",
+                searchPlaceholder: "Search emoji",
+                placeholder: "What's up?",
+                autocomplete: false,
+                saveEmojisAs: 'image'
+            });
+        }
+    },
+    destroyed: function destroyed() {
+        $(this.$el.querySelector(".emojionearea-editor")).unbind();
+    },
+
+    watch: {
+        color: function color(data, prevData) {
+            if (this.box && data) {
+                var textarea = this.box.querySelector('.emojionearea-editor');
+                textarea.classList.remove(prevData);
+                this.box.classList.remove(prevData);
+                textarea.classList.add(data);
+                this.box.classList.add(data);
+            }
+        },
+        file: function file(data) {
+            if (data) {
+                this.color = "background1";
+                this.hasColors = false;
+            } else {
+                this.hasColors = true;
+                this.url = null;
+            }
+        }
+    }
+});
+
+/***/ }),
+/* 140 */,
+/* 141 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__babel_loader_cacheDirectory_true_presets_env_modules_false_targets_browsers_2_uglify_true_env_modules_false_targets_browsers_last_2_versions_safari_7_debug_true_plugins_transform_object_rest_spread_transform_runtime_polyfill_false_helpers_false_syntax_dynamic_import_node_modules_vue_loader_lib_selector_type_script_index_0_DialogComment_vue__ = __webpack_require__(104);
+/* unused harmony namespace reexport */
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_1e39b320_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_DialogComment_vue__ = __webpack_require__(144);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__node_modules_vue_loader_lib_runtime_component_normalizer__ = __webpack_require__(3);
+var disposed = false
+function injectStyle (context) {
+  if (disposed) return
+  __webpack_require__(142)
+}
+/* script */
+
+
+/* template */
+
+/* template functional */
+var __vue_template_functional__ = false
+/* styles */
+var __vue_styles__ = injectStyle
+/* scopeId */
+var __vue_scopeId__ = null
+/* moduleIdentifier (server only) */
+var __vue_module_identifier__ = null
+
+var Component = Object(__WEBPACK_IMPORTED_MODULE_2__node_modules_vue_loader_lib_runtime_component_normalizer__["a" /* default */])(
+  __WEBPACK_IMPORTED_MODULE_0__babel_loader_cacheDirectory_true_presets_env_modules_false_targets_browsers_2_uglify_true_env_modules_false_targets_browsers_last_2_versions_safari_7_debug_true_plugins_transform_object_rest_spread_transform_runtime_polyfill_false_helpers_false_syntax_dynamic_import_node_modules_vue_loader_lib_selector_type_script_index_0_DialogComment_vue__["a" /* default */],
+  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_1e39b320_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_DialogComment_vue__["a" /* render */],
+  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_1e39b320_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_DialogComment_vue__["b" /* staticRenderFns */],
+  __vue_template_functional__,
+  __vue_styles__,
+  __vue_scopeId__,
+  __vue_module_identifier__
+)
+Component.options.__file = "resources/assets/js/components/comment/DialogComment.vue"
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-1e39b320", Component.options)
+  } else {
+    hotAPI.reload("data-v-1e39b320", Component.options)
+  }
+  module.hot.dispose(function (data) {
+    disposed = true
+  })
+})()}
+
+/* harmony default export */ __webpack_exports__["a"] = (Component.exports);
+
+
+/***/ }),
+/* 142 */
+/***/ (function(module, exports, __webpack_require__) {
+
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__(143);
+if(typeof content === 'string') content = [[module.i, content, '']];
+if(content.locals) module.exports = content.locals;
+// add the styles to the DOM
+var add = __webpack_require__(4).default
+var update = add("5468547a", content, false, {});
+// Hot Module Replacement
+if(false) {
+ // When the styles change, update the <style> tags
+ if(!content.locals) {
+   module.hot.accept("!!../../../../../node_modules/css-loader/index.js!../../../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-1e39b320\",\"scoped\":false,\"sourceMap\":false}!../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./DialogComment.vue", function() {
+     var newContent = require("!!../../../../../node_modules/css-loader/index.js!../../../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-1e39b320\",\"scoped\":false,\"sourceMap\":false}!../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./DialogComment.vue");
+     if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+     update(newContent);
+   });
+ }
+ // When the module is disposed, remove the <style> tags
+ module.hot.dispose(function() { update(); });
+}
+
+/***/ }),
+/* 143 */
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(0)(undefined);
+// imports
+
+
+// module
+exports.push([module.i, "\n.notSpace{\n    padding: 0 !important;\n    margin: 0 !important;\n}\n.dialog--active{\n    overflow: hidden;\n}\n.carousel_item{\n    position: relative !important\n}\n", ""]);
+
+// exports
+
+
+/***/ }),
+/* 144 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return render; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return staticRenderFns; });
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _vm.open
+    ? _c(
+        "v-layout",
+        { attrs: { row: "", "justify-center": "" } },
+        [
+          _c(
+            "v-dialog",
+            {
+              attrs: { width: "935px" },
+              model: {
+                value: _vm.dialog,
+                callback: function($$v) {
+                  _vm.dialog = $$v
+                },
+                expression: "dialog"
+              }
+            },
+            [
+              _vm.loading
+                ? _c("v-progress-linear", {
+                    staticStyle: { margin: "0" },
+                    attrs: { indeterminate: true }
+                  })
+                : _vm._e(),
+              _vm._v(" "),
+              _c(
+                "v-carousel",
+                {
+                  staticStyle: {
+                    position: "inherit",
+                    height: "597px",
+                    background: "transparent"
+                  },
+                  attrs: {
+                    cycle: false,
+                    "hide-controls": _vm.articles.length < 2,
+                    "hide-delimiters": ""
+                  },
+                  model: {
+                    value: _vm.index,
+                    callback: function($$v) {
+                      _vm.index = $$v
+                    },
+                    expression: "index"
+                  }
+                },
+                _vm._l(_vm.articles, function(article, i) {
+                  return _c(
+                    "v-carousel-item",
+                    {
+                      key: i,
+                      staticClass: "carousel_item",
+                      attrs: { src: " " }
+                    },
+                    [
+                      i === _vm.index
+                        ? _c(
+                            "v-card",
+                            {
+                              staticStyle: { width: "935px" },
+                              attrs: { height: "600px" }
+                            },
+                            [
+                              _c(
+                                "v-container",
+                                {
+                                  staticClass: "notSpace",
+                                  staticStyle: { overflow: "hidden" },
+                                  attrs: { "grid-list-md": "" }
+                                },
+                                [
+                                  _c(
+                                    "v-layout",
+                                    {
+                                      staticClass: "notSpace",
+                                      attrs: { row: "" }
+                                    },
+                                    [
+                                      _c(
+                                        "v-flex",
+                                        {
+                                          staticClass: "notSpace",
+                                          attrs: { lg7: "" }
+                                        },
+                                        [
+                                          _c("article-box", {
+                                            attrs: { article: article }
+                                          })
+                                        ],
+                                        1
+                                      ),
+                                      _vm._v(" "),
+                                      _c(
+                                        "v-flex",
+                                        {
+                                          staticClass: "notSpace",
+                                          attrs: { lg5: "" }
+                                        },
+                                        [
+                                          _c("comment-box", {
+                                            attrs: {
+                                              open: _vm.open,
+                                              article: article
+                                            }
+                                          })
+                                        ],
+                                        1
+                                      )
+                                    ],
+                                    1
+                                  )
+                                ],
+                                1
+                              )
+                            ],
+                            1
+                          )
+                        : _vm._e()
+                    ],
+                    1
+                  )
+                })
+              )
+            ],
+            1
+          )
+        ],
+        1
+      )
+    : _vm._e()
+}
+var staticRenderFns = []
+render._withStripped = true
+
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+    require("vue-hot-reload-api")      .rerender("data-v-1e39b320", { render: render, staticRenderFns: staticRenderFns })
+  }
+}
+
+/***/ }),
+/* 145 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__babel_loader_cacheDirectory_true_presets_env_modules_false_targets_browsers_2_uglify_true_env_modules_false_targets_browsers_last_2_versions_safari_7_debug_true_plugins_transform_object_rest_spread_transform_runtime_polyfill_false_helpers_false_syntax_dynamic_import_node_modules_vue_loader_lib_selector_type_script_index_0_CardPublication_vue__ = __webpack_require__(138);
+/* unused harmony namespace reexport */
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_e8738818_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_CardPublication_vue__ = __webpack_require__(154);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__node_modules_vue_loader_lib_runtime_component_normalizer__ = __webpack_require__(3);
+var disposed = false
+function injectStyle (context) {
+  if (disposed) return
+  __webpack_require__(146)
+}
+/* script */
+
+
+/* template */
+
+/* template functional */
+var __vue_template_functional__ = false
+/* styles */
+var __vue_styles__ = injectStyle
+/* scopeId */
+var __vue_scopeId__ = null
+/* moduleIdentifier (server only) */
+var __vue_module_identifier__ = null
+
+var Component = Object(__WEBPACK_IMPORTED_MODULE_2__node_modules_vue_loader_lib_runtime_component_normalizer__["a" /* default */])(
+  __WEBPACK_IMPORTED_MODULE_0__babel_loader_cacheDirectory_true_presets_env_modules_false_targets_browsers_2_uglify_true_env_modules_false_targets_browsers_last_2_versions_safari_7_debug_true_plugins_transform_object_rest_spread_transform_runtime_polyfill_false_helpers_false_syntax_dynamic_import_node_modules_vue_loader_lib_selector_type_script_index_0_CardPublication_vue__["a" /* default */],
+  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_e8738818_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_CardPublication_vue__["a" /* render */],
+  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_e8738818_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_CardPublication_vue__["b" /* staticRenderFns */],
+  __vue_template_functional__,
+  __vue_styles__,
+  __vue_scopeId__,
+  __vue_module_identifier__
+)
+Component.options.__file = "resources/assets/js/components/card/CardPublication.vue"
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-e8738818", Component.options)
+  } else {
+    hotAPI.reload("data-v-e8738818", Component.options)
+  }
+  module.hot.dispose(function (data) {
+    disposed = true
+  })
+})()}
+
+/* harmony default export */ __webpack_exports__["a"] = (Component.exports);
+
+
+/***/ }),
+/* 146 */
+/***/ (function(module, exports, __webpack_require__) {
+
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__(147);
+if(typeof content === 'string') content = [[module.i, content, '']];
+if(content.locals) module.exports = content.locals;
+// add the styles to the DOM
+var add = __webpack_require__(4).default
+var update = add("3058d252", content, false, {});
+// Hot Module Replacement
+if(false) {
+ // When the styles change, update the <style> tags
+ if(!content.locals) {
+   module.hot.accept("!!../../../../../node_modules/css-loader/index.js!../../../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-e8738818\",\"scoped\":false,\"sourceMap\":false}!../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./CardPublication.vue", function() {
+     var newContent = require("!!../../../../../node_modules/css-loader/index.js!../../../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-e8738818\",\"scoped\":false,\"sourceMap\":false}!../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./CardPublication.vue");
+     if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+     update(newContent);
+   });
+ }
+ // When the module is disposed, remove the <style> tags
+ module.hot.dispose(function() { update(); });
+}
+
+/***/ }),
+/* 147 */
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(0)(undefined);
+// imports
+
+
+// module
+exports.push([module.i, "\n.notOverflow{\n    overflow: initial !important\n}\n", ""]);
+
+// exports
+
+
+/***/ }),
+/* 148 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__babel_loader_cacheDirectory_true_presets_env_modules_false_targets_browsers_2_uglify_true_env_modules_false_targets_browsers_last_2_versions_safari_7_debug_true_plugins_transform_object_rest_spread_transform_runtime_polyfill_false_helpers_false_syntax_dynamic_import_node_modules_vue_loader_lib_selector_type_script_index_0_CardPublicationForm_vue__ = __webpack_require__(139);
+/* unused harmony namespace reexport */
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_684ec650_hasScoped_true_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_CardPublicationForm_vue__ = __webpack_require__(153);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__node_modules_vue_loader_lib_runtime_component_normalizer__ = __webpack_require__(3);
+var disposed = false
+function injectStyle (context) {
+  if (disposed) return
+  __webpack_require__(149)
+  __webpack_require__(151)
+}
+/* script */
+
+
+/* template */
+
+/* template functional */
+var __vue_template_functional__ = false
+/* styles */
+var __vue_styles__ = injectStyle
+/* scopeId */
+var __vue_scopeId__ = "data-v-684ec650"
+/* moduleIdentifier (server only) */
+var __vue_module_identifier__ = null
+
+var Component = Object(__WEBPACK_IMPORTED_MODULE_2__node_modules_vue_loader_lib_runtime_component_normalizer__["a" /* default */])(
+  __WEBPACK_IMPORTED_MODULE_0__babel_loader_cacheDirectory_true_presets_env_modules_false_targets_browsers_2_uglify_true_env_modules_false_targets_browsers_last_2_versions_safari_7_debug_true_plugins_transform_object_rest_spread_transform_runtime_polyfill_false_helpers_false_syntax_dynamic_import_node_modules_vue_loader_lib_selector_type_script_index_0_CardPublicationForm_vue__["a" /* default */],
+  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_684ec650_hasScoped_true_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_CardPublicationForm_vue__["a" /* render */],
+  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_684ec650_hasScoped_true_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_CardPublicationForm_vue__["b" /* staticRenderFns */],
+  __vue_template_functional__,
+  __vue_styles__,
+  __vue_scopeId__,
+  __vue_module_identifier__
+)
+Component.options.__file = "resources/assets/js/components/card/CardPublicationForm.vue"
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-684ec650", Component.options)
+  } else {
+    hotAPI.reload("data-v-684ec650", Component.options)
+  }
+  module.hot.dispose(function (data) {
+    disposed = true
+  })
+})()}
+
+/* harmony default export */ __webpack_exports__["a"] = (Component.exports);
+
+
+/***/ }),
+/* 149 */
+/***/ (function(module, exports, __webpack_require__) {
+
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__(150);
+if(typeof content === 'string') content = [[module.i, content, '']];
+if(content.locals) module.exports = content.locals;
+// add the styles to the DOM
+var add = __webpack_require__(4).default
+var update = add("77381722", content, false, {});
+// Hot Module Replacement
+if(false) {
+ // When the styles change, update the <style> tags
+ if(!content.locals) {
+   module.hot.accept("!!../../../../../node_modules/css-loader/index.js!../../../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-684ec650\",\"scoped\":false,\"sourceMap\":false}!../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./CardPublicationForm.vue", function() {
+     var newContent = require("!!../../../../../node_modules/css-loader/index.js!../../../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-684ec650\",\"scoped\":false,\"sourceMap\":false}!../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./CardPublicationForm.vue");
+     if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+     update(newContent);
+   });
+ }
+ // When the module is disposed, remove the <style> tags
+ module.hot.dispose(function() { update(); });
+}
+
+/***/ }),
+/* 150 */
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(0)(undefined);
+// imports
+
+
+// module
+exports.push([module.i, "\n.noEmoji .emojionearea-button{\n    display: none;\n}\n.cardPublicationForm  .emojionearea-editor{\n    text-align: left;\n    font-size: 30px !important;\n    color: black;\n    font-family: monospace;\n    min-height: 50px !important;\n    max-height: 300px !important;\n    background: transparent !important;\n    width:100%;\n    transition: font-size 1s;\n}\n.cardPublicationForm .emojionearea .emojionearea-button, .emojionearea-picker{\n    z-index: 1 !important;\n}\n.cardPublicationForm .card__text .emojionearea{\n    display: flex;\n    min-height: 50px !important;\n    font-size: 15px !important;\n    background-color: transparent;\n}\n.menuBloc .buttonColor{\n    cursor: pointer;\n    transition: transform .5s;\n    border-radius: 50%\n}\n.menuBloc .buttonColor:hover{\n    transform: scale(1.5)\n}\n.menuColor{\n    min-width: 250px !important;\n}\n", ""]);
+
+// exports
+
+
+/***/ }),
+/* 151 */
+/***/ (function(module, exports, __webpack_require__) {
+
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__(152);
+if(typeof content === 'string') content = [[module.i, content, '']];
+if(content.locals) module.exports = content.locals;
+// add the styles to the DOM
+var add = __webpack_require__(4).default
+var update = add("3f116f33", content, false, {});
+// Hot Module Replacement
+if(false) {
+ // When the styles change, update the <style> tags
+ if(!content.locals) {
+   module.hot.accept("!!../../../../../node_modules/css-loader/index.js!../../../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-684ec650\",\"scoped\":true,\"sourceMap\":false}!../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=1!./CardPublicationForm.vue", function() {
+     var newContent = require("!!../../../../../node_modules/css-loader/index.js!../../../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-684ec650\",\"scoped\":true,\"sourceMap\":false}!../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=1!./CardPublicationForm.vue");
+     if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+     update(newContent);
+   });
+ }
+ // When the module is disposed, remove the <style> tags
+ module.hot.dispose(function() { update(); });
+}
+
+/***/ }),
+/* 152 */
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(0)(undefined);
+// imports
+
+
+// module
+exports.push([module.i, "\n.nbr-photos[data-v-684ec650]{\n    position:absolute;\n    width: 100%;\n    height: 100%;\n    display:none;\n    background-color: rgba(0, 0, 0, .4);\n    text-align: center;\n    padding-top: 35%;\n    color: #fff;\n    border-radius: 4px;\n    font-size: 18px;\n}\ndiv:hover > .nbr-photos[data-v-684ec650]{\n    display: block\n}\n.nbr-photos[data-v-684ec650]:hover{\n    display: block\n}\n", ""]);
+
+// exports
+
+
+/***/ }),
+/* 153 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return render; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return staticRenderFns; });
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c(
+    "div",
+    { staticClass: "cardPublicationForm" },
+    [
+      _c(
+        "v-card",
+        { attrs: { height: "auto" } },
+        [
+          _vm.loading
+            ? _c("v-progress-linear", {
+                staticStyle: { margin: "0" },
+                attrs: { indeterminate: true }
+              })
+            : _vm._e(),
+          _vm._v(" "),
+          _vm.dialog
+            ? _c(
+                "v-card-title",
+                [
+                  _vm._v("Form Publication "),
+                  _c("v-spacer"),
+                  _c(
+                    "v-btn",
+                    {
+                      attrs: { icon: "" },
+                      on: {
+                        click: function($event) {
+                          _vm.$emit("switchDialog")
+                        }
+                      }
+                    },
+                    [_c("v-icon", [_vm._v("close")])],
+                    1
+                  )
+                ],
+                1
+              )
+            : _vm._e(),
+          _vm._v(" "),
+          _c("v-divider"),
+          _vm._v(" "),
+          _c(
+            "v-card-title",
+            {
+              style: _vm.$vuetify.breakpoint.smAndUp || "padding:0",
+              attrs: { "primary-title": "" }
+            },
+            [
+              _c(
+                "v-layout",
+                { attrs: { row: "", wrap: "" } },
+                [
+                  _vm.$vuetify.breakpoint.smAndUp
+                    ? _c(
+                        "v-flex",
+                        { attrs: { lg2: "" } },
+                        [
+                          _c(
+                            "v-avatar",
+                            {
+                              staticStyle: { "margin-top": "15px" },
+                              attrs: { size: "40px" }
+                            },
+                            [
+                              _c("img", {
+                                attrs: { src: _vm.user.avatar, alt: "avatar" }
+                              })
+                            ]
+                          )
+                        ],
+                        1
+                      )
+                    : _vm._e(),
+                  _vm._v(" "),
+                  _c(
+                    "v-flex",
+                    { staticStyle: { width: "100px" }, attrs: { lg10: "" } },
+                    [
+                      _c("v-card-text", [
+                        _c("div", { class: _vm.emojiClass }, [
+                          _c("textarea", { staticClass: "emojionearea" })
+                        ])
+                      ])
+                    ],
+                    1
+                  )
+                ],
+                1
+              )
+            ],
+            1
+          ),
+          _vm._v(" "),
+          _c(
+            "v-card-text",
+            [
+              _c(
+                "v-card-actions",
+                [
+                  _vm.dialog && _vm.$vuetify.breakpoint.smAndUp
+                    ? _c(
+                        "v-btn",
+                        {
+                          attrs: { flat: "", color: "primary" },
+                          nativeOn: {
+                            click: function($event) {
+                              _vm.select($event)
+                            }
+                          }
+                        },
+                        [
+                          _c("v-icon", [_vm._v("insert_photo")]),
+                          _vm._v("Picture")
+                        ],
+                        1
+                      )
+                    : _vm._e(),
+                  _vm._v(" "),
+                  !_vm.dialog && _vm.$vuetify.breakpoint.smAndUp
+                    ? _c(
+                        "v-btn",
+                        {
+                          attrs: {
+                            slot: "activator",
+                            flat: "",
+                            color: "primary",
+                            dark: ""
+                          },
+                          nativeOn: {
+                            click: function($event) {
+                              _vm.$emit("switchDialog")
+                            }
+                          },
+                          slot: "activator"
+                        },
+                        [_vm._v("Enlarge")]
+                      )
+                    : _vm._e(),
+                  _vm._v(" "),
+                  _vm.hasColors
+                    ? _c(
+                        "v-menu",
+                        {
+                          attrs: {
+                            "offset-x": "",
+                            "close-on-content-click": false,
+                            "nudge-width": 200,
+                            "content-class":
+                              _vm.$vuetify.breakpoint.smAndUp || "menuColor"
+                          }
+                        },
+                        [
+                          _c(
+                            "v-btn",
+                            {
+                              attrs: {
+                                slot: "activator",
+                                flat: "",
+                                color: "primary",
+                                dark: ""
+                              },
+                              slot: "activator"
+                            },
+                            [
+                              _c("v-icon", [_vm._v("color_lens")]),
+                              _vm._v("Color")
+                            ],
+                            1
+                          ),
+                          _vm._v(" "),
+                          _c(
+                            "div",
+                            { staticClass: "menuBloc" },
+                            [
+                              _c(
+                                "v-card",
+                                [
+                                  _c(
+                                    "v-card-text",
+                                    [
+                                      _c("h3", [_vm._v("Custom colors")]),
+                                      _vm._v(" "),
+                                      _c(
+                                        "v-layout",
+                                        {
+                                          staticStyle: { height: "25px" },
+                                          attrs: {
+                                            "justify-space-between": "",
+                                            wrap: "",
+                                            row: ""
+                                          }
+                                        },
+                                        _vm._l(9, function(n) {
+                                          return _c("v-flex", {
+                                            key: n,
+                                            class:
+                                              n === 9
+                                                ? "buttonColor backgroundSmall" +
+                                                  n
+                                                : "buttonColor background" + n,
+                                            style:
+                                              n === 1
+                                                ? "cursor:pointer;border-radius:50%;background-color:#ddd !important"
+                                                : "cursor:pointer;border-radius:50%;",
+                                            attrs: { lg1: "" },
+                                            on: {
+                                              click: function($event) {
+                                                _vm.background("background" + n)
+                                              }
+                                            }
+                                          })
+                                        })
+                                      )
+                                    ],
+                                    1
+                                  )
+                                ],
+                                1
+                              )
+                            ],
+                            1
+                          )
+                        ],
+                        1
+                      )
+                    : _vm._e(),
+                  _vm._v(" "),
+                  _c("v-spacer"),
+                  _vm._v(" "),
+                  _vm.dialog && _vm.$vuetify.breakpoint.smAndUp
+                    ? _c(
+                        "v-btn",
+                        {
+                          attrs: { flat: "flat" },
+                          nativeOn: {
+                            click: function($event) {
+                              _vm.$emit("switchDialog")
+                            }
+                          }
+                        },
+                        [_vm._v("Cancel")]
+                      )
+                    : _vm._e(),
+                  _vm._v(" "),
+                  _c(
+                    "v-btn",
+                    {
+                      attrs: { flat: "", color: "orange" },
+                      nativeOn: {
+                        click: function($event) {
+                          _vm.publish($event)
+                        }
+                      }
+                    },
+                    [_vm._v("Publish")]
+                  )
+                ],
+                1
+              ),
+              _vm._v(" "),
+              _vm.dialog && !_vm.$vuetify.breakpoint.smAndUp
+                ? _c(
+                    "v-btn",
+                    {
+                      attrs: { flat: "", color: "primary" },
+                      nativeOn: {
+                        click: function($event) {
+                          _vm.select($event)
+                        }
+                      }
+                    },
+                    [_c("v-icon", [_vm._v("insert_photo")]), _vm._v("Picture")],
+                    1
+                  )
+                : _vm._e(),
+              _vm._v(" "),
+              _vm.url && _vm.dialog
+                ? _c(
+                    "v-avatar",
+                    {
+                      staticStyle: { position: "relative" },
+                      attrs: { size: "200px", tile: true }
+                    },
+                    [
+                      _c("img", { attrs: { src: _vm.url, alt: "image" } }),
+                      _vm._v(" "),
+                      _c(
+                        "div",
+                        { staticClass: "nbr-photos" },
+                        [
+                          _c(
+                            "v-btn",
+                            {
+                              attrs: { color: "primary", icon: "" },
+                              on: {
+                                click: function($event) {
+                                  _vm.file = null
+                                }
+                              }
+                            },
+                            [_c("v-icon", [_vm._v("close")])],
+                            1
+                          )
+                        ],
+                        1
+                      )
+                    ]
+                  )
+                : _vm._e()
+            ],
+            1
+          ),
+          _vm._v(" "),
+          _c("input", {
+            staticStyle: { display: "none" },
+            attrs: { type: "file", id: "photo", name: "avatar" },
+            on: { change: _vm.preview }
+          })
+        ],
+        1
+      )
+    ],
+    1
+  )
+}
+var staticRenderFns = []
+render._withStripped = true
+
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+    require("vue-hot-reload-api")      .rerender("data-v-684ec650", { render: render, staticRenderFns: staticRenderFns })
+  }
+}
+
+/***/ }),
+/* 154 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return render; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return staticRenderFns; });
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c(
+    "div",
+    [
+      !_vm.onlyDialog
+        ? _c("CardPublicationForm", {
+            attrs: { dialog: false },
+            on: { switchDialog: _vm.switchDialog }
+          })
+        : _vm._e(),
+      _vm._v(" "),
+      _c(
+        "v-dialog",
+        {
+          attrs: {
+            width: _vm.$vuetify.breakpoint.smAndUp ? "50%" : "90%",
+            "content-class": "overflow"
+          },
+          model: {
+            value: _vm.dialog,
+            callback: function($$v) {
+              _vm.dialog = $$v
+            },
+            expression: "dialog"
+          }
+        },
+        [
+          _c("CardPublicationForm", {
+            attrs: { dialog: true },
+            on: { switchDialog: _vm.switchDialog }
+          })
+        ],
+        1
+      )
+    ],
+    1
+  )
+}
+var staticRenderFns = []
+render._withStripped = true
+
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+    require("vue-hot-reload-api")      .rerender("data-v-e8738818", { render: render, staticRenderFns: staticRenderFns })
+  }
+}
+
+/***/ }),
+/* 155 */,
+/* 156 */,
+/* 157 */,
+/* 158 */,
+/* 159 */,
+/* 160 */,
+/* 161 */,
+/* 162 */,
+/* 163 */,
+/* 164 */,
+/* 165 */,
+/* 166 */,
+/* 167 */,
+/* 168 */,
+/* 169 */,
+/* 170 */,
+/* 171 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__card_CardPublication_vue__ = __webpack_require__(145);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__comment_DialogComment_vue__ = __webpack_require__(141);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__courses_PdfViewer__ = __webpack_require__(247);
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+
+
+
+/* harmony default export */ __webpack_exports__["a"] = ({
+    components: { cardPublication: __WEBPACK_IMPORTED_MODULE_0__card_CardPublication_vue__["a" /* default */], dialogComment: __WEBPACK_IMPORTED_MODULE_1__comment_DialogComment_vue__["a" /* default */], pdfViewer: __WEBPACK_IMPORTED_MODULE_2__courses_PdfViewer__["a" /* default */] },
+    data: function data() {
+        return {
+            darked: false,
+            drawer: false,
+            speedDial: false,
+            dialogPublication: false,
+            body: null,
+            timerIndex: null,
+            openDialogComment: false,
+            articles: [],
+            article: {},
+            drawerUsers: false,
+            searchItems: [],
+            selectedUser: null,
+            mini: false
+        };
+    },
+
+    computed: {
+        user: function user() {
+            return this.$store.state.user.user;
+        },
+        users: function users() {
+            // && user.id!==this.user.id
+            var usersOnline = this.$store.state.users.users.filter(function (user) {
+                return user.online;
+            });
+            return usersOnline;
+        },
+        loading: function loading() {
+            return this.$store.state.setting.loading;
+        },
+        notifications: function notifications() {
+            return this.$store.state.setting.notifications;
+        }
+    },
+    methods: {
+        logout: function logout() {
+            var _this = this;
+
+            this.$http.get('/log_out').then(function (response) {
+                if (response.body.status === 1) {
+                    _this.$store.dispatch("user/delete");
+                    window.location.href = window.location.host;
+                    window.location.reload();
+                }
+            });
+        },
+        scrollToTop: function scrollToTop() {
+            this.$scrollTo('#showTop', 500, { container: 'body' });
+        },
+        show: function show(notification) {
+            var _this2 = this;
+
+            if (notification.article) {
+                this.openBox(notification);
+            } else {
+                var article = this.$store.state.article.articles.find(function (article) {
+                    return article.id === notification.comment.article_id;
+                });
+                if (article) {
+                    notification.article = article;
+                    this.openBox(notification);
+                } else {
+                    this.$http.get('/user/article/' + notification.comment.article_id).then(function (response) {
+                        if (response.body.id) {
+                            var user = response.body.user;
+                            delete response.body.user;
+                            _this2.$store.dispatch('article/save', response.body);
+                            _this2.$store.dispatch('users/save', user);
+                            notification.article = response.body;
+                            _this2.openBox(notification);
+                        }
+                    });
+                }
+            }
+        },
+        openBox: function openBox(notification) {
+            var _this3 = this;
+
+            this.articles = [notification.article];
+            this.openDialogComment = true;
+            this.$nextTick(function () {
+                _this3.article = notification.article;
+                _this3.$store.dispatch('setting/deleteNotification', notification.id);
+            });
+        },
+        search: function search($event) {
+            var _this4 = this;
+
+            if ($event.target.value.trim().length > 2) {
+                this.$store.dispatch('setting/setLoading', true);
+                this.$http.get('/user/search/' + $event.target.value.trim()).then(function (response) {
+                    response.body.map(function (responseUser) {
+                        var user = _this4.searchItems.find(function (user) {
+                            return user.value === responseUser.id;
+                        });
+                        if (!user) _this4.searchItems.push({ value: responseUser.id, name: responseUser.name + " " + responseUser.forename, avatar: responseUser.avatar });
+                    });
+                    _this4.$store.dispatch('setting/setLoading', false);
+                });
+            } else {
+                this.searchItems = [];
+            }
+        }
+    },
+    mounted: function mounted() {
+        this.darked = this.$store.state.setting.darked;
+        this.drawer = this.$vuetify.breakpoint.smAndUp;
+        this.mini = this.$vuetify.breakpoint.smAndUp;
+        this.body = document.querySelector('body');
+    },
+
+    watch: {
+        darked: function darked(data) {
+            this.$store.dispatch('setting/invertcolor');
+            if (data) {
+                document.querySelectorAll('.emojionearea-editor').map(function (elt) {
+                    elt.style.color = "white";
+                });
+            } else {
+                document.querySelectorAll('.emojionearea-editor').map(function (elt) {
+                    elt.style.color = "#424242";
+                });
+            }
+        },
+        selectedUser: function selectedUser(data) {
+            if (data.length > 0) {
+                this.$router.push('/profile/' + data[0].value);
+            }
+        },
+        '$vuetify.breakpoint.smAndUp': function $vuetifyBreakpointSmAndUp(data) {
+            this.drawer = data;
+            this.mini = data;
+        }
+    }
+});
+
+/***/ }),
+/* 172 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+/* harmony default export */ __webpack_exports__["a"] = ({
+    props: {
+        open: Boolean,
+        url: String
+    },
+    data: function data() {
+        return {
+            dialog: false,
+            html: null
+        };
+    },
+    computed: {
+        book: function book() {
+            var _this = this;
+
+            return this.$store.state.book.books.find(function (book) {
+                return book.id === parseInt(_this.$route.params.book);
+            }) || {};
+        }
+    },
+    methods: {},
+    mounted: function mounted() {
+        this.html = document.querySelector('html');
+        if (this.$route.params.book) {
+            this.dialog = true;
+            this.html.style.overflow = "hidden";
+        }
+    },
+
+    watch: {
+        '$route.params.book': function $routeParamsBook(data) {
+            if (data) {
+                this.dialog = true;
+                this.html.style.overflow = "hidden";
+            } else {
+                this.dialog = false;
+                this.html.style.overflow = "auto";
+            }
+        }
+    }
+});
+
+/***/ }),
+/* 173 */,
+/* 174 */,
+/* 175 */,
+/* 176 */,
+/* 177 */,
+/* 178 */,
+/* 179 */,
+/* 180 */,
+/* 181 */,
+/* 182 */,
+/* 183 */,
+/* 184 */,
+/* 185 */,
+/* 186 */,
+/* 187 */,
+/* 188 */,
+/* 189 */,
+/* 190 */,
+/* 191 */,
+/* 192 */,
+/* 193 */,
+/* 194 */,
+/* 195 */,
+/* 196 */,
+/* 197 */,
+/* 198 */,
+/* 199 */,
+/* 200 */,
+/* 201 */,
+/* 202 */,
+/* 203 */,
+/* 204 */,
+/* 205 */,
+/* 206 */,
+/* 207 */,
+/* 208 */,
+/* 209 */,
+/* 210 */,
+/* 211 */,
+/* 212 */,
+/* 213 */,
+/* 214 */,
+/* 215 */,
+/* 216 */,
+/* 217 */,
+/* 218 */,
+/* 219 */,
+/* 220 */,
+/* 221 */,
+/* 222 */,
+/* 223 */,
+/* 224 */,
+/* 225 */,
+/* 226 */,
+/* 227 */,
+/* 228 */,
+/* 229 */,
+/* 230 */,
+/* 231 */,
+/* 232 */,
+/* 233 */,
+/* 234 */,
+/* 235 */,
+/* 236 */,
+/* 237 */,
+/* 238 */,
+/* 239 */,
+/* 240 */,
+/* 241 */,
+/* 242 */,
+/* 243 */
+/***/ (function(module, exports, __webpack_require__) {
+
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__(244);
+if(typeof content === 'string') content = [[module.i, content, '']];
+if(content.locals) module.exports = content.locals;
+// add the styles to the DOM
+var add = __webpack_require__(4).default
+var update = add("6a1bebee", content, false, {});
+// Hot Module Replacement
+if(false) {
+ // When the styles change, update the <style> tags
+ if(!content.locals) {
+   module.hot.accept("!!../../../../../node_modules/css-loader/index.js!../../../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-43998c28\",\"scoped\":true,\"sourceMap\":false}!../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./User.vue", function() {
+     var newContent = require("!!../../../../../node_modules/css-loader/index.js!../../../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-43998c28\",\"scoped\":true,\"sourceMap\":false}!../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./User.vue");
+     if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+     update(newContent);
+   });
+ }
+ // When the module is disposed, remove the <style> tags
+ module.hot.dispose(function() { update(); });
+}
+
+/***/ }),
+/* 244 */
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(0)(undefined);
+// imports
+
+
+// module
+exports.push([module.i, "\n.input-group--solo .input-group__input .input-group__append-icon[data-v-43998c28]{display:none !important\n}\n", ""]);
+
+// exports
+
+
+/***/ }),
+/* 245 */
+/***/ (function(module, exports, __webpack_require__) {
+
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__(246);
+if(typeof content === 'string') content = [[module.i, content, '']];
+if(content.locals) module.exports = content.locals;
+// add the styles to the DOM
+var add = __webpack_require__(4).default
+var update = add("15ef796e", content, false, {});
+// Hot Module Replacement
+if(false) {
+ // When the styles change, update the <style> tags
+ if(!content.locals) {
+   module.hot.accept("!!../../../../../node_modules/css-loader/index.js!../../../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-43998c28\",\"scoped\":false,\"sourceMap\":false}!../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=1!./User.vue", function() {
+     var newContent = require("!!../../../../../node_modules/css-loader/index.js!../../../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-43998c28\",\"scoped\":false,\"sourceMap\":false}!../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=1!./User.vue");
+     if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+     update(newContent);
+   });
+ }
+ // When the module is disposed, remove the <style> tags
+ module.hot.dispose(function() { update(); });
+}
+
+/***/ }),
+/* 246 */
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(0)(undefined);
+// imports
+
+
+// module
+exports.push([module.i, "\n.bg_app{\n    background-color: #e6ecf0 !important;\n}\n#showTop{\n    overflow-x: hidden;\n}\n.noOverflow{\n    overflow: hidden !important;\n}\n.layout_bloc{\n    margin-top: 60px;\n}\n.layout_phone{\n    margin-top: 20px;\n}\n.menuNotification{\n    position: fixed !important;\n    top: 50px !important;\n    right: 10px !important;\n    left: inherit !important;\n    bottom: inherit !important\n}\n.menuCover{\n    width:350px !important;\n    height:200px !important;\n}\n.blue_sky{\n    background-color: #b3d4fc;\n}\n.card__media__content{\n    white-space: pre-line;\n    margin-bottom: -4px;\n    padding-left: 10px;\n    margin-top: -4px;\n    margin: -4px;\n    -webkit-box-orient: vertical;\n    -webkit-box-direction: normal;\n    -ms-flex-direction: column;\n    flex-direction: column;\n    -webkit-box-pack: center;\n    -ms-flex-pack: center;\n    justify-content: center;\n    -webkit-box-align: center;\n    -ms-flex-align: center;\n    align-items: center;\n    display: -webkit-box;\n    display: -ms-flexbox;\n    display: flex;\n    -webkit-box-flex: 1;\n    -ms-flex: 1 1 auto;\n    flex: 1 1 auto;\n    -ms-flex-wrap: nowrap;\n    flex-wrap: nowrap;\n}\n.card__media{\n    color: rgba(255,255,255,1.00);\n    font-size: 30px;\n    line-height: 1.2000em;\n    text-align: center;\n    font-family: monospace\n}\n.overflow{\n    overflow-y: auto !important;\n}\n.blackForm .emojionearea{\n    background-color: #424242 !important;\n    color: white !important;\n}\n.blackForm .emojionearea-editor{\n    color: white !important;\n}\n.emojionearea .emojionearea-picker .emojionearea-search > input{\n    color: black;\n}\n.phone .toolbar__extension{\n    display: none;\n}\n.card--flex-toolbar {\n    margin-top: 64px;\n}\n.application .theme--dark.toolbar, .theme--dark .toolbar{\n    background-color: inherit;\n}\n.fontBlack{\n    background: #424242;\n}\n.menuDrawer{\n    margin-top:128.49px !important;\n    position: fixed;\n}\n.background0{\n    background-color: #ddd !important;\n}\n.background1{\n    background-color: transparent !important;\n    color: black !important;\n    text-align: left !important;\n}\n.background2{\n    background-color:rgba(0,244,255,1.00);background-image:-webkit-linear-gradient(45deg,rgba(0,244,255,1.00) 0%,rgba(17,55,173,1.00) 100%);background-image:-moz-linear-gradient(45deg,rgba(0,244,255,1.00) 0%,rgba(17,55,173,1.00) 100%);background-image:-ms-linear-gradient(45deg,rgba(0,244,255,1.00) 0%,rgba(17,55,173,1.00) 100%);background-image:-o-linear-gradient(45deg,rgba(0,244,255,1.00) 0%,rgba(17,55,173,1.00) 100%);background-image:-webkit-gradient(left bottom,color-stop(rgba(0,244,255,1.00) 0%),color-stop(rgba(17,55,173,1.00) 100%));background-image:linear-gradient(45deg,rgba(0,244,255,1.00) 0%,rgba(17,55,173,1.00) 100%) !important;\n    color: white !important;\n    text-align: center !important;\n    justify-content: center;\n    flex-direction: column;\n    font-size: 30px !important;\n}\n.background3{\n    background-color:rgba(23,172,255,1.00);background-image:-webkit-linear-gradient(45deg,rgba(102,244,133,1.00) 0%,rgba(23,172,255,1.00) 100%);background-image:-moz-linear-gradient(45deg,rgba(102,244,133,1.00) 0%,rgba(23,172,255,1.00) 100%);background-image:-ms-linear-gradient(45deg,rgba(102,244,133,1.00) 0%,rgba(23,172,255,1.00) 100%);background-image:-o-linear-gradient(45deg,rgba(102,244,133,1.00) 0%,rgba(23,172,255,1.00) 100%);background-image:-webkit-gradient(left bottom,color-stop(rgba(102,244,133,1.00) 0%),color-stop(rgba(23,172,255,1.00) 100%));background-image:linear-gradient(45deg,rgba(102,244,133,1.00) 0%,rgba(23,172,255,1.00) 100%) !important;\n    color: white !important;\n    text-align: center !important;\n    justify-content: center;\n    flex-direction: column;\n    font-size: 30px !important;\n}\n.background4{\n    background-color:rgba(5,174,53,1.00);background-image:-webkit-linear-gradient(45deg,rgba(248,240,35,1.00) 0%,rgba(5,174,53,1.00) 100%);background-image:-moz-linear-gradient(45deg,rgba(248,240,35,1.00) 0%,rgba(5,174,53,1.00) 100%);background-image:-ms-linear-gradient(45deg,rgba(248,240,35,1.00) 0%,rgba(5,174,53,1.00) 100%);background-image:-o-linear-gradient(45deg,rgba(248,240,35,1.00) 0%,rgba(5,174,53,1.00) 100%);background-image:-webkit-gradient(left bottom,color-stop(rgba(248,240,35,1.00) 0%),color-stop(rgba(5,174,53,1.00) 100%));background-image:linear-gradient(45deg,rgba(248,240,35,1.00) 0%,rgba(5,174,53,1.00) 100%) !important;\n    color: white !important;\n    text-align: center !important;\n    justify-content: center;\n    flex-direction: column;\n    font-size: 30px !important;\n}\n.background5{\n    background-color:rgba(255,0,71,1.00);background-image:-webkit-linear-gradient(45deg,rgba(255,0,71,1.00) 0%,rgba(44,52,199,1.00) 100%);background-image:-moz-linear-gradient(45deg,rgba(255,0,71,1.00) 0%,rgba(44,52,199,1.00) 100%);background-image:-ms-linear-gradient(45deg,rgba(255,0,71,1.00) 0%,rgba(44,52,199,1.00) 100%);background-image:-o-linear-gradient(45deg,rgba(255,0,71,1.00) 0%,rgba(44,52,199,1.00) 100%);background-image:-webkit-gradient(left bottom,color-stop(rgba(255,0,71,1.00) 0%),color-stop(rgba(44,52,199,1.00) 100%));background-image:linear-gradient(45deg,rgba(255,0,71,1.00) 0%,rgba(44,52,199,1.00) 100%) !important;\n    color: white !important;\n    text-align: center !important;\n    justify-content: center;\n    flex-direction: column;\n    font-size: 30px !important;\n}\n.background6{\n    background-color:rgba(115,33,173,1.00);background-image:-webkit-linear-gradient(-45deg,rgba(115,33,173,1.00) 0%,rgba(72,229,169,1.00) 100%);background-image:-moz-linear-gradient(-45deg,rgba(115,33,173,1.00) 0%,rgba(72,229,169,1.00) 100%);background-image:-ms-linear-gradient(-45deg,rgba(115,33,173,1.00) 0%,rgba(72,229,169,1.00) 100%);background-image:-o-linear-gradient(-45deg,rgba(115,33,173,1.00) 0%,rgba(72,229,169,1.00) 100%);background-image:-webkit-gradient(left top,right bottom,color-stop(rgba(115,33,173,1.00) 0%),color-stop(rgba(72,229,169,1.00) 100%));background-image:linear-gradient(135deg,rgba(115,33,173,1.00) 0%,rgba(72,229,169,1.00) 100%) !important;\n    color: white !important;\n    text-align: center !important;\n    justify-content: center;\n    flex-direction: column;\n    font-size: 30px !important;\n}\n.background7{\n    background-color:rgba(167,183,216,1.00);background-image:-webkit-linear-gradient(45deg,rgba(167,183,216,1.00) 0%,rgba(22,24,29,1.00) 100%);background-image:-moz-linear-gradient(45deg,rgba(167,183,216,1.00) 0%,rgba(22,24,29,1.00) 100%);background-image:-ms-linear-gradient(45deg,rgba(167,183,216,1.00) 0%,rgba(22,24,29,1.00) 100%);background-image:-o-linear-gradient(45deg,rgba(167,183,216,1.00) 0%,rgba(22,24,29,1.00) 100%);background-image:-webkit-gradient(left bottom,color-stop(rgba(167,183,216,1.00) 0%),color-stop(rgba(22,24,29,1.00) 100%));background-image:linear-gradient(45deg,rgba(167,183,216,1.00) 0%,rgba(22,24,29,1.00) 100%) !important;\n    color: white !important;\n    text-align: center !important;\n    justify-content: center;\n    flex-direction: column;\n    font-size: 30px !important;\n}\n.background8{\n    background-color:rgba(93,63,218,1.00);background-image:-webkit-linear-gradient(45deg,rgba(252,54,253,1.00) 0%,rgba(93,63,218,1.00) 100%);background-image:-moz-linear-gradient(45deg,rgba(252,54,253,1.00) 0%,rgba(93,63,218,1.00) 100%);background-image:-ms-linear-gradient(45deg,rgba(252,54,253,1.00) 0%,rgba(93,63,218,1.00) 100%);background-image:-o-linear-gradient(45deg,rgba(252,54,253,1.00) 0%,rgba(93,63,218,1.00) 100%);background-image:-webkit-gradient(left bottom,color-stop(rgba(252,54,253,1.00) 0%),color-stop(rgba(93,63,218,1.00) 100%));background-image:linear-gradient(45deg,rgba(252,54,253,1.00) 0%,rgba(93,63,218,1.00) 100%);\n    color: white !important;\n    text-align: center !important;\n    justify-content: center;\n    flex-direction: column;\n    font-size: 30px !important;\n}\n.background9{\n    background: url(https://fb-s-b-a.akamaihd.net/h-ak-fbx/v/t39.10873-6/21624555_753398934860280_5226642317791723520_n.jpg?oh=5e66dc787dfbb00fa0fba58e552f6b47&oe=5ACE152C&__gda__=1522286412_69dab1e2c504c8b996f49800a61c1edd) center center / cover no-repeat !important;\n    color: white !important;\n    text-align: center !important;\n    justify-content: center;\n    flex-direction: column;\n    font-size: 30px !important;\n}\n.backgroundSmall9{\n    background: url(https://fb-s-a-a.akamaihd.net/h-ak-fbx/v/t39.10873-6/p32x32/21274785_753398928193614_2779422909477683200_n.jpg?oh=562d5b1b9d519375f9eca0af689328d1&oe=5ACE57F0&__gda__=1522048561_b99ec82924cf40a75352e7e8db4e84f9) center center / cover no-repeat !important\n}\n", ""]);
+
+// exports
+
+
+/***/ }),
+/* 247 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__babel_loader_cacheDirectory_true_presets_env_modules_false_targets_browsers_2_uglify_true_env_modules_false_targets_browsers_last_2_versions_safari_7_debug_true_plugins_transform_object_rest_spread_transform_runtime_polyfill_false_helpers_false_syntax_dynamic_import_node_modules_vue_loader_lib_selector_type_script_index_0_PdfViewer_vue__ = __webpack_require__(172);
+/* unused harmony namespace reexport */
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_0ccda500_hasScoped_true_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_PdfViewer_vue__ = __webpack_require__(250);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__node_modules_vue_loader_lib_runtime_component_normalizer__ = __webpack_require__(3);
+var disposed = false
+function injectStyle (context) {
+  if (disposed) return
+  __webpack_require__(248)
+}
+/* script */
+
+
+/* template */
+
+/* template functional */
+var __vue_template_functional__ = false
+/* styles */
+var __vue_styles__ = injectStyle
+/* scopeId */
+var __vue_scopeId__ = "data-v-0ccda500"
+/* moduleIdentifier (server only) */
+var __vue_module_identifier__ = null
+
+var Component = Object(__WEBPACK_IMPORTED_MODULE_2__node_modules_vue_loader_lib_runtime_component_normalizer__["a" /* default */])(
+  __WEBPACK_IMPORTED_MODULE_0__babel_loader_cacheDirectory_true_presets_env_modules_false_targets_browsers_2_uglify_true_env_modules_false_targets_browsers_last_2_versions_safari_7_debug_true_plugins_transform_object_rest_spread_transform_runtime_polyfill_false_helpers_false_syntax_dynamic_import_node_modules_vue_loader_lib_selector_type_script_index_0_PdfViewer_vue__["a" /* default */],
+  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_0ccda500_hasScoped_true_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_PdfViewer_vue__["a" /* render */],
+  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_0ccda500_hasScoped_true_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_PdfViewer_vue__["b" /* staticRenderFns */],
+  __vue_template_functional__,
+  __vue_styles__,
+  __vue_scopeId__,
+  __vue_module_identifier__
+)
+Component.options.__file = "resources/assets/js/components/user/courses/PdfViewer.vue"
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-0ccda500", Component.options)
+  } else {
+    hotAPI.reload("data-v-0ccda500", Component.options)
+  }
+  module.hot.dispose(function (data) {
+    disposed = true
+  })
+})()}
+
+/* harmony default export */ __webpack_exports__["a"] = (Component.exports);
+
+
+/***/ }),
+/* 248 */
+/***/ (function(module, exports, __webpack_require__) {
+
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__(249);
+if(typeof content === 'string') content = [[module.i, content, '']];
+if(content.locals) module.exports = content.locals;
+// add the styles to the DOM
+var add = __webpack_require__(4).default
+var update = add("03d20b8e", content, false, {});
+// Hot Module Replacement
+if(false) {
+ // When the styles change, update the <style> tags
+ if(!content.locals) {
+   module.hot.accept("!!../../../../../../node_modules/css-loader/index.js!../../../../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-0ccda500\",\"scoped\":true,\"sourceMap\":false}!../../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./PdfViewer.vue", function() {
+     var newContent = require("!!../../../../../../node_modules/css-loader/index.js!../../../../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-0ccda500\",\"scoped\":true,\"sourceMap\":false}!../../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./PdfViewer.vue");
+     if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+     update(newContent);
+   });
+ }
+ // When the module is disposed, remove the <style> tags
+ module.hot.dispose(function() { update(); });
+}
+
+/***/ }),
+/* 249 */
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(0)(undefined);
+// imports
+
+
+// module
+exports.push([module.i, "\n.btn-close[data-v-0ccda500]{\n    position: absolute;\n    top:0px;\n    right: 10px;\n    z-index: 1\n}\n", ""]);
+
+// exports
+
+
+/***/ }),
+/* 250 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return render; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return staticRenderFns; });
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c(
+    "v-dialog",
+    {
+      attrs: {
+        fullscreen: "",
+        transition: "dialog-bottom-transition",
+        overlay: false
+      },
+      model: {
+        value: _vm.dialog,
+        callback: function($$v) {
+          _vm.dialog = $$v
+        },
+        expression: "dialog"
+      }
+    },
+    [
+      _c(
+        "v-card",
+        [
+          _c(
+            "v-btn",
+            {
+              staticClass: "btn-close",
+              attrs: { icon: "", dark: "", exact: "" },
+              on: {
+                click: function($event) {
+                  _vm.$router.go(-2)
+                }
+              }
+            },
+            [_c("v-icon", [_vm._v("close")])],
+            1
+          ),
+          _vm._v(" "),
+          _c(
+            "div",
+            {
+              staticStyle: {
+                position: "relative",
+                height: "100vh",
+                width: "100%"
+              }
+            },
+            [
+              _c("iframe", {
+                staticStyle: {
+                  overflow: "hidden",
+                  height: "100%",
+                  width: "100%",
+                  position: "absolute",
+                  top: "0",
+                  left: "0",
+                  right: "0",
+                  bottom: "0"
+                },
+                attrs: {
+                  id: "viewer",
+                  height: "100%",
+                  width: "100%",
+                  src: _vm.book.url,
+                  frameborder: "0",
+                  scrolling: "no"
+                }
+              })
+            ]
+          )
+        ],
+        1
+      )
+    ],
+    1
+  )
+}
+var staticRenderFns = []
+render._withStripped = true
+
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+    require("vue-hot-reload-api")      .rerender("data-v-0ccda500", { render: render, staticRenderFns: staticRenderFns })
+  }
+}
+
+/***/ }),
+/* 251 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return render; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return staticRenderFns; });
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c(
+    "v-app",
+    { attrs: { dark: _vm.darked, id: "showTop" } },
+    [
+      _c(
+        "v-card",
+        {
+          staticClass: "block_app",
+          attrs: {
+            dark: _vm.darked,
+            color: _vm.darked ? "theme--dark" : "theme--light bg_app",
+            flat: ""
+          }
+        },
+        [
+          _c(
+            "v-toolbar",
+            {
+              class: _vm.$vuetify.breakpoint.smAndUp || "phone",
+              style: _vm.darked ? "z-index:8" : "z-index:8;background: #00b4ff",
+              attrs: {
+                "scroll-off-screen": !_vm.$vuetify.breakpoint.smAndUp,
+                dark: _vm.darked,
+                color: _vm.darked ? "theme--dark" : null,
+                prominent: "",
+                fixed: "",
+                flat: "",
+                extended: ""
+              }
+            },
+            [
+              _vm.$route.path === "/" || _vm.$vuetify.breakpoint.smAndUp
+                ? _c("v-toolbar-side-icon", {
+                    staticClass: "white--text",
+                    on: {
+                      click: function($event) {
+                        _vm.$vuetify.breakpoint.smAndUp
+                          ? (_vm.mini = !_vm.mini)
+                          : (_vm.drawer = !_vm.drawer)
+                      }
+                    }
+                  })
+                : _c(
+                    "v-btn",
+                    {
+                      staticClass: "white--text",
+                      attrs: { icon: "" },
+                      on: {
+                        click: function($event) {
+                          _vm.$router.go(-1)
+                        }
+                      }
+                    },
+                    [_c("v-icon", [_vm._v("chevron_left")])],
+                    1
+                  ),
+              _vm._v(" "),
+              _vm.$vuetify.breakpoint.smAndUp
+                ? _c("v-toolbar-title", { staticClass: "white--text" }, [
+                    _vm._v("Weltimo")
+                  ])
+                : _vm._e(),
+              _vm._v(" "),
+              !_vm.$vuetify.breakpoint.smAndUp
+                ? _c("v-select", {
+                    attrs: {
+                      light: "",
+                      solo: "",
+                      items: _vm.searchItems,
+                      placeholder: "Search",
+                      multiple: "",
+                      chips: "",
+                      "item-text": "name",
+                      "item-value": "id",
+                      "max-height": "auto",
+                      "prepend-icon": "search",
+                      autocomplete: ""
+                    },
+                    nativeOn: {
+                      input: function($event) {
+                        _vm.search($event)
+                      }
+                    },
+                    scopedSlots: _vm._u([
+                      {
+                        key: "selection",
+                        fn: function(data) {
+                          return [
+                            _c(
+                              "v-chip",
+                              {
+                                key: JSON.stringify(data.item),
+                                staticClass: "chip--select-multi",
+                                attrs: { close: "", selected: data.selected },
+                                on: {
+                                  input: function($event) {
+                                    data.parent.selectItem(data.item)
+                                  }
+                                }
+                              },
+                              [
+                                _c("v-avatar", [
+                                  _c("img", {
+                                    attrs: { src: data.item.avatar }
+                                  })
+                                ]),
+                                _vm._v(
+                                  "\n                        " +
+                                    _vm._s(data.item.name) +
+                                    "\n                    "
+                                )
+                              ],
+                              1
+                            )
+                          ]
+                        }
+                      },
+                      {
+                        key: "item",
+                        fn: function(data) {
+                          return [
+                            typeof data.item !== "object"
+                              ? [
+                                  _c("v-list-tile-content", {
+                                    domProps: { textContent: _vm._s(data.item) }
+                                  })
+                                ]
+                              : [
+                                  _c("v-list-tile-avatar", [
+                                    _c("img", {
+                                      attrs: { src: data.item.avatar }
+                                    })
+                                  ]),
+                                  _vm._v(" "),
+                                  _c(
+                                    "v-list-tile-content",
+                                    [
+                                      _c("v-list-tile-title", {
+                                        domProps: {
+                                          innerHTML: _vm._s(data.item.name)
+                                        }
+                                      })
+                                    ],
+                                    1
+                                  )
+                                ]
+                          ]
+                        }
+                      }
+                    ]),
+                    model: {
+                      value: _vm.selectedUser,
+                      callback: function($$v) {
+                        _vm.selectedUser = $$v
+                      },
+                      expression: "selectedUser"
+                    }
+                  })
+                : _c("v-spacer"),
+              _vm._v(" "),
+              _c(
+                "v-menu",
+                {
+                  attrs: {
+                    "content-class": "menuNotification",
+                    "close-on-content-click": false,
+                    "max-height": "350px"
+                  }
+                },
+                [
+                  _c(
+                    "v-badge",
+                    {
+                      attrs: { slot: "activator", color: "cyan", left: "" },
+                      slot: "activator"
+                    },
+                    [
+                      _vm.notifications.length > 0
+                        ? _c(
+                            "span",
+                            { attrs: { slot: "badge" }, slot: "badge" },
+                            [_vm._v(_vm._s(_vm.notifications.length))]
+                          )
+                        : _vm._e(),
+                      _vm._v(" "),
+                      _c(
+                        "v-icon",
+                        { staticClass: "white--text", attrs: { icon: "" } },
+                        [_vm._v("notifications")]
+                      )
+                    ],
+                    1
+                  ),
+                  _vm._v(" "),
+                  _vm.notifications.length > 0
+                    ? _c(
+                        "v-list",
+                        _vm._l(_vm.notifications, function(notification, i) {
+                          return _c(
+                            "v-list-tile",
+                            {
+                              key: i,
+                              attrs: {
+                                avatar: "",
+                                to: "/profile/" + notification.user.id
+                              }
+                            },
+                            [
+                              _c("v-list-tile-avatar", [
+                                _c("img", {
+                                  attrs: { src: notification.user.avatar }
+                                })
+                              ]),
+                              _vm._v(" "),
+                              _c(
+                                "v-tooltip",
+                                { attrs: { top: "" } },
+                                [
+                                  _c(
+                                    "v-list-tile-content",
+                                    {
+                                      staticStyle: {
+                                        width: "231px",
+                                        "margin-right": "5px"
+                                      },
+                                      attrs: { slot: "activator" },
+                                      slot: "activator"
+                                    },
+                                    [
+                                      _c("v-list-tile-title", [
+                                        _vm._v(_vm._s(notification.message))
+                                      ])
+                                    ],
+                                    1
+                                  ),
+                                  _vm._v(" "),
+                                  _c("span", [
+                                    _vm._v(_vm._s(notification.message))
+                                  ])
+                                ],
+                                1
+                              ),
+                              _vm._v(" "),
+                              notification.isFollower
+                                ? _c(
+                                    "v-list-tile-action",
+                                    [
+                                      _c(
+                                        "v-btn",
+                                        {
+                                          attrs: {
+                                            slot: "activator",
+                                            color: "primary",
+                                            outline: ""
+                                          },
+                                          on: {
+                                            click: function($event) {
+                                              $event.preventDefault()
+                                              $event.stopPropagation()
+                                            }
+                                          },
+                                          slot: "activator"
+                                        },
+                                        [
+                                          _c("v-icon", [_vm._v("person_add")]),
+                                          _vm._v(
+                                            "Follow\n                            "
+                                          )
+                                        ],
+                                        1
+                                      )
+                                    ],
+                                    1
+                                  )
+                                : _vm._e(),
+                              _vm._v(" "),
+                              notification.isNewsletter
+                                ? _c(
+                                    "v-list-tile-action",
+                                    [
+                                      _c(
+                                        "v-btn",
+                                        {
+                                          attrs: {
+                                            slot: "activator",
+                                            color: "primary"
+                                          },
+                                          on: {
+                                            click: function($event) {
+                                              $event.preventDefault()
+                                              $event.stopPropagation()
+                                              _vm.show(notification)
+                                            }
+                                          },
+                                          slot: "activator"
+                                        },
+                                        [
+                                          _vm._v(
+                                            "Show\n                            "
+                                          )
+                                        ]
+                                      )
+                                    ],
+                                    1
+                                  )
+                                : _vm._e()
+                            ],
+                            1
+                          )
+                        })
+                      )
+                    : _vm._e()
+                ],
+                1
+              )
+            ],
+            1
+          ),
+          _vm._v(" "),
+          _c("dialog-comment", {
+            attrs: {
+              open: _vm.openDialogComment,
+              article: _vm.article,
+              articles: _vm.articles
+            },
+            on: {
+              close: function($event) {
+                _vm.openDialogComment = !_vm.openDialogComment
+              }
+            }
+          }),
+          _vm._v(" "),
+          _c(
+            "v-layout",
+            { staticStyle: { "margin-bottom": "65px" }, attrs: { row: "" } },
+            [
+              _c(
+                "v-flex",
+                { attrs: { xs12: "", lg8: "", "offset-lg2": "" } },
+                [
+                  _c(
+                    "v-card",
+                    {
+                      staticClass: "card--flex-toolbar",
+                      staticStyle: { height: "100%" },
+                      attrs: {
+                        dark: _vm.darked,
+                        color: _vm.darked
+                          ? "theme--dark"
+                          : "theme--light bg_app"
+                      }
+                    },
+                    [
+                      _vm.loading && !_vm.$vuetify.breakpoint.smAndUp
+                        ? _c("v-progress-linear", {
+                            staticStyle: {
+                              "z-index": "8",
+                              "margin-left": "0",
+                              top: "50px",
+                              position: "fixed"
+                            },
+                            attrs: { indeterminate: true }
+                          })
+                        : _vm._e(),
+                      _vm._v(" "),
+                      _vm.$vuetify.breakpoint.smAndUp
+                        ? _c(
+                            "v-toolbar",
+                            {
+                              staticStyle: {
+                                "z-index": "8",
+                                width: "66.66666666666666%",
+                                position: "fixed"
+                              },
+                              attrs: { dark: "", card: "", prominent: "" }
+                            },
+                            [
+                              _vm.loading
+                                ? _c("v-progress-linear", {
+                                    staticStyle: {
+                                      "margin-left": "0",
+                                      top: "-14px",
+                                      position: "absolute"
+                                    },
+                                    attrs: { indeterminate: true }
+                                  })
+                                : _vm._e(),
+                              _vm._v(" "),
+                              _c(
+                                "v-toolbar-title",
+                                { staticClass: "body-2 grey--text" },
+                                [_vm._v(_vm._s(_vm.$route.name))]
+                              ),
+                              _vm._v(" "),
+                              _c("v-spacer"),
+                              _vm._v(" "),
+                              _c("v-select", {
+                                attrs: {
+                                  light: "",
+                                  solo: "",
+                                  items: _vm.searchItems,
+                                  placeholder: "Search",
+                                  multiple: "",
+                                  chips: "",
+                                  "item-text": "name",
+                                  "item-value": "id",
+                                  "max-height": "auto",
+                                  "prepend-icon": "search",
+                                  autocomplete: ""
+                                },
+                                nativeOn: {
+                                  input: function($event) {
+                                    _vm.search($event)
+                                  }
+                                },
+                                scopedSlots: _vm._u([
+                                  {
+                                    key: "selection",
+                                    fn: function(data) {
+                                      return [
+                                        _c(
+                                          "v-chip",
+                                          {
+                                            key: JSON.stringify(data.item),
+                                            staticClass: "chip--select-multi",
+                                            attrs: {
+                                              close: "",
+                                              selected: data.selected
+                                            },
+                                            on: {
+                                              input: function($event) {
+                                                data.parent.selectItem(
+                                                  data.item
+                                                )
+                                              }
+                                            }
+                                          },
+                                          [
+                                            _c("v-avatar", [
+                                              _c("img", {
+                                                attrs: { src: data.item.avatar }
+                                              })
+                                            ]),
+                                            _vm._v(
+                                              "\n                                    " +
+                                                _vm._s(data.item.name) +
+                                                "\n                                "
+                                            )
+                                          ],
+                                          1
+                                        )
+                                      ]
+                                    }
+                                  },
+                                  {
+                                    key: "item",
+                                    fn: function(data) {
+                                      return [
+                                        typeof data.item !== "object"
+                                          ? [
+                                              _c("v-list-tile-content", {
+                                                domProps: {
+                                                  textContent: _vm._s(data.item)
+                                                }
+                                              })
+                                            ]
+                                          : [
+                                              _c("v-list-tile-avatar", [
+                                                _c("img", {
+                                                  attrs: {
+                                                    src: data.item.avatar
+                                                  }
+                                                })
+                                              ]),
+                                              _vm._v(" "),
+                                              _c(
+                                                "v-list-tile-content",
+                                                [
+                                                  _c("v-list-tile-title", {
+                                                    domProps: {
+                                                      innerHTML: _vm._s(
+                                                        data.item.name
+                                                      )
+                                                    }
+                                                  })
+                                                ],
+                                                1
+                                              )
+                                            ]
+                                      ]
+                                    }
+                                  }
+                                ]),
+                                model: {
+                                  value: _vm.selectedUser,
+                                  callback: function($$v) {
+                                    _vm.selectedUser = $$v
+                                  },
+                                  expression: "selectedUser"
+                                }
+                              })
+                            ],
+                            1
+                          )
+                        : _vm._e(),
+                      _vm._v(" "),
+                      _c("v-divider"),
+                      _vm._v(" "),
+                      _c(
+                        "div",
+                        {
+                          class: _vm.$vuetify.breakpoint.smAndUp
+                            ? "layout_bloc"
+                            : "layout_phone"
+                        },
+                        [_c("router-view")],
+                        1
+                      )
+                    ],
+                    1
+                  )
+                ],
+                1
+              ),
+              _vm._v(" "),
+              _c(
+                "v-flex",
+                { attrs: { lg2: "", xs0: "" } },
+                [
+                  _c(
+                    "v-speed-dial",
+                    {
+                      style: _vm.$vuetify.breakpoint.smAndUp
+                        ? "z-index:8"
+                        : "bottom:0;right:0;z-index:8",
+                      attrs: {
+                        bottom: "",
+                        right: "",
+                        direction: "top",
+                        hover: _vm.$vuetify.breakpoint.smAndUp,
+                        fixed: ""
+                      },
+                      model: {
+                        value: _vm.speedDial,
+                        callback: function($$v) {
+                          _vm.speedDial = $$v
+                        },
+                        expression: "speedDial"
+                      }
+                    },
+                    [
+                      _c(
+                        "v-btn",
+                        {
+                          attrs: {
+                            slot: "activator",
+                            color: "blue darken-2",
+                            dark: "",
+                            fab: "",
+                            hover: ""
+                          },
+                          slot: "activator",
+                          model: {
+                            value: _vm.speedDial,
+                            callback: function($$v) {
+                              _vm.speedDial = $$v
+                            },
+                            expression: "speedDial"
+                          }
+                        },
+                        [
+                          _c("v-icon", [_vm._v("account_circle")]),
+                          _vm._v(" "),
+                          _c("v-icon", [_vm._v("close")])
+                        ],
+                        1
+                      ),
+                      _vm._v(" "),
+                      _c(
+                        "v-btn",
+                        {
+                          attrs: {
+                            fab: "",
+                            dark: "",
+                            small: "",
+                            color: "green"
+                          },
+                          nativeOn: {
+                            click: function($event) {
+                              _vm.dialogPublication = true
+                            }
+                          }
+                        },
+                        [_c("v-icon", [_vm._v("edit")])],
+                        1
+                      ),
+                      _vm._v(" "),
+                      _c(
+                        "v-btn",
+                        {
+                          attrs: {
+                            fab: "",
+                            dark: "",
+                            small: "",
+                            color: "indigo"
+                          },
+                          on: {
+                            click: function($event) {
+                              _vm.drawerUsers = !_vm.drawerUsers
+                            }
+                          }
+                        },
+                        [_c("v-icon", [_vm._v("group")])],
+                        1
+                      ),
+                      _vm._v(" "),
+                      _c(
+                        "v-tooltip",
+                        { attrs: { top: "" } },
+                        [
+                          _c(
+                            "v-btn",
+                            {
+                              attrs: {
+                                slot: "activator",
+                                fab: "",
+                                dark: "",
+                                small: "",
+                                color: "red"
+                              },
+                              on: { click: _vm.scrollToTop },
+                              slot: "activator"
+                            },
+                            [_c("v-icon", [_vm._v("keyboard_arrow_up")])],
+                            1
+                          ),
+                          _vm._v(" "),
+                          _c("span", [_vm._v("Scroll to top!")])
+                        ],
+                        1
+                      )
+                    ],
+                    1
+                  ),
+                  _vm._v(" "),
+                  _c(
+                    "v-navigation-drawer",
+                    {
+                      staticClass: "menuDrawer",
+                      style:
+                        _vm.$vuetify.breakpoint.smAndUp ||
+                        "margin-top:63px !important",
+                      attrs: {
+                        temporary: "",
+                        "hide-overlay": "",
+                        right: "",
+                        app: ""
+                      },
+                      model: {
+                        value: _vm.drawerUsers,
+                        callback: function($$v) {
+                          _vm.drawerUsers = $$v
+                        },
+                        expression: "drawerUsers"
+                      }
+                    },
+                    [
+                      _c(
+                        "v-list",
+                        { staticClass: "pa-1" },
+                        [
+                          _c(
+                            "v-list-tile",
+                            { attrs: { avatar: "" } },
+                            [
+                              _c(
+                                "v-list-tile-content",
+                                [
+                                  _c("v-list-tile-title", [
+                                    _vm._v("Users online")
+                                  ])
+                                ],
+                                1
+                              )
+                            ],
+                            1
+                          )
+                        ],
+                        1
+                      ),
+                      _vm._v(" "),
+                      _c(
+                        "v-list",
+                        { staticClass: "pt-0", attrs: { dense: "" } },
+                        [
+                          _c("v-divider"),
+                          _vm._v(" "),
+                          _vm._l(_vm.users, function(user, i) {
+                            return _c(
+                              "v-list-tile",
+                              {
+                                key: i,
+                                attrs: { avatar: "" },
+                                on: { click: function($event) {} }
+                              },
+                              [
+                                _c(
+                                  "v-list-tile-action",
+                                  [
+                                    _c(
+                                      "v-icon",
+                                      {
+                                        style: user.online
+                                          ? "color:green"
+                                          : null
+                                      },
+                                      [_vm._v("fiber_manual_record")]
+                                    )
+                                  ],
+                                  1
+                                ),
+                                _vm._v(" "),
+                                _c("v-list-tile-avatar", [
+                                  _c("img", { attrs: { src: user.avatar } })
+                                ]),
+                                _vm._v(" "),
+                                _c(
+                                  "v-list-tile-content",
+                                  [
+                                    _c("v-list-tile-title", [
+                                      _vm._v(
+                                        _vm._s(user.name + " " + user.forename)
+                                      )
+                                    ])
+                                  ],
+                                  1
+                                )
+                              ],
+                              1
+                            )
+                          })
+                        ],
+                        2
+                      )
+                    ],
+                    1
+                  )
+                ],
+                1
+              )
+            ],
+            1
+          )
+        ],
+        1
+      ),
+      _vm._v(" "),
+      _c(
+        "v-navigation-drawer",
+        {
+          class: _vm.$vuetify.breakpoint.smAndUp ? "menuDrawer" : null,
+          style: !_vm.$vuetify.breakpoint.smAndUp || "margin-top:63px",
+          attrs: {
+            stateless: "",
+            fixed: "",
+            app: "",
+            clipped: "",
+            dark: _vm.darked,
+            "mini-variant": _vm.mini
+          },
+          on: {
+            "update:miniVariant": function($event) {
+              _vm.mini = $event
+            }
+          },
+          model: {
+            value: _vm.drawer,
+            callback: function($$v) {
+              _vm.drawer = $$v
+            },
+            expression: "drawer"
+          }
+        },
+        [
+          _c(
+            "v-toolbar",
+            { staticClass: "transparent", attrs: { flat: "" } },
+            [
+              _c(
+                "v-list",
+                { staticClass: "pa-0" },
+                [
+                  _c(
+                    "v-list-tile",
+                    { attrs: { avatar: "" } },
+                    [
+                      _c("v-list-tile-avatar", [
+                        _c("img", { attrs: { src: _vm.user.avatar } })
+                      ]),
+                      _vm._v(" "),
+                      _c(
+                        "v-list-tile-content",
+                        [
+                          _c("v-list-tile-title", [
+                            _vm._v(
+                              _vm._s(_vm.user.name + " " + _vm.user.forename)
+                            )
+                          ])
+                        ],
+                        1
+                      ),
+                      _vm._v(" "),
+                      _c(
+                        "v-list-tile-action",
+                        [
+                          _c(
+                            "v-btn",
+                            {
+                              attrs: { icon: "" },
+                              nativeOn: {
+                                click: function($event) {
+                                  $event.stopPropagation()
+                                  _vm.mini = !_vm.mini
+                                }
+                              }
+                            },
+                            [_c("v-icon", [_vm._v("chevron_left")])],
+                            1
+                          )
+                        ],
+                        1
+                      )
+                    ],
+                    1
+                  )
+                ],
+                1
+              )
+            ],
+            1
+          ),
+          _vm._v(" "),
+          _c(
+            "v-list",
+            { attrs: { dense: "" } },
+            [
+              _c(
+                "v-list-group",
+                [
+                  _c(
+                    "v-list-tile",
+                    {
+                      attrs: { slot: "item" },
+                      on: { click: function($event) {} },
+                      slot: "item"
+                    },
+                    [
+                      _c(
+                        "v-list-tile-action",
+                        [_c("v-icon", [_vm._v("dashboard")])],
+                        1
+                      ),
+                      _vm._v(" "),
+                      _c(
+                        "v-list-tile-content",
+                        [_c("v-list-tile-title", [_vm._v("Dashboard")])],
+                        1
+                      ),
+                      _vm._v(" "),
+                      _c(
+                        "v-list-tile-action",
+                        [_c("v-icon", [_vm._v("keyboard_arrow_down")])],
+                        1
+                      )
+                    ],
+                    1
+                  ),
+                  _vm._v(" "),
+                  _c(
+                    "v-list-tile",
+                    { attrs: { to: "/", exact: "" } },
+                    [
+                      _c(
+                        "v-list-tile-action",
+                        [_c("v-icon", [_vm._v("home")])],
+                        1
+                      ),
+                      _vm._v(" "),
+                      _c(
+                        "v-list-tile-content",
+                        [_c("v-list-tile-title", [_vm._v("Home")])],
+                        1
+                      )
+                    ],
+                    1
+                  ),
+                  _vm._v(" "),
+                  _c(
+                    "v-list-tile",
+                    { on: { click: function($event) {} } },
+                    [
+                      _c(
+                        "v-list-tile-action",
+                        [_c("v-icon", [_vm._v("email")])],
+                        1
+                      ),
+                      _vm._v(" "),
+                      _c(
+                        "v-list-tile-content",
+                        [_c("v-list-tile-title", [_vm._v("Box")])],
+                        1
+                      )
+                    ],
+                    1
+                  ),
+                  _vm._v(" "),
+                  _c(
+                    "v-list-tile",
+                    { attrs: { to: "/profile/" + _vm.user.id } },
+                    [
+                      _c(
+                        "v-list-tile-action",
+                        [
+                          _c("v-avatar", { attrs: { size: "30px" } }, [
+                            _c("img", {
+                              attrs: { src: _vm.user.avatar, alt: "avatar" }
+                            })
+                          ])
+                        ],
+                        1
+                      ),
+                      _vm._v(" "),
+                      _c(
+                        "v-list-tile-content",
+                        [_c("v-list-tile-title", [_vm._v("Profile")])],
+                        1
+                      )
+                    ],
+                    1
+                  )
+                ],
+                1
+              ),
+              _vm._v(" "),
+              _c(
+                "v-list-group",
+                [
+                  _c(
+                    "v-list-tile",
+                    {
+                      attrs: { slot: "item" },
+                      on: { click: function($event) {} },
+                      slot: "item"
+                    },
+                    [
+                      _c(
+                        "v-list-tile-action",
+                        [_c("v-icon", [_vm._v("book")])],
+                        1
+                      ),
+                      _vm._v(" "),
+                      _c(
+                        "v-list-tile-content",
+                        [_c("v-list-tile-title", [_vm._v("Programms")])],
+                        1
+                      ),
+                      _vm._v(" "),
+                      _c(
+                        "v-list-tile-action",
+                        [_c("v-icon", [_vm._v("keyboard_arrow_down")])],
+                        1
+                      )
+                    ],
+                    1
+                  ),
+                  _vm._v(" "),
+                  _c(
+                    "v-list-tile",
+                    { on: { click: function($event) {} } },
+                    [
+                      _c(
+                        "v-list-tile-content",
+                        [_c("v-list-tile-title", [_vm._v("Exercises")])],
+                        1
+                      ),
+                      _vm._v(" "),
+                      _c("v-list-tile-action", [_c("v-icon")], 1)
+                    ],
+                    1
+                  ),
+                  _vm._v(" "),
+                  _c(
+                    "v-list-tile",
+                    { on: { click: function($event) {} } },
+                    [
+                      _c(
+                        "v-list-tile-content",
+                        [_c("v-list-tile-title", [_vm._v("Tests")])],
+                        1
+                      ),
+                      _vm._v(" "),
+                      _c("v-list-tile-action", [_c("v-icon")], 1)
+                    ],
+                    1
+                  ),
+                  _vm._v(" "),
+                  _c(
+                    "v-list-tile",
+                    { attrs: { to: "/courses" } },
+                    [
+                      _c(
+                        "v-list-tile-content",
+                        [_c("v-list-tile-title", [_vm._v("Courses")])],
+                        1
+                      ),
+                      _vm._v(" "),
+                      _c("v-list-tile-action", [_c("v-icon")], 1)
+                    ],
+                    1
+                  )
+                ],
+                1
+              ),
+              _vm._v(" "),
+              _c(
+                "v-list-group",
+                [
+                  _c(
+                    "v-list-tile",
+                    {
+                      attrs: { slot: "item" },
+                      on: { click: function($event) {} },
+                      slot: "item"
+                    },
+                    [
+                      _c(
+                        "v-list-tile-action",
+                        [_c("v-icon", [_vm._v("school")])],
+                        1
+                      ),
+                      _vm._v(" "),
+                      _c(
+                        "v-list-tile-content",
+                        [_c("v-list-tile-title", [_vm._v("Universities")])],
+                        1
+                      ),
+                      _vm._v(" "),
+                      _c(
+                        "v-list-tile-action",
+                        [_c("v-icon", [_vm._v("keyboard_arrow_down")])],
+                        1
+                      )
+                    ],
+                    1
+                  ),
+                  _vm._v(" "),
+                  _c(
+                    "v-list-tile",
+                    { attrs: { to: "/university" } },
+                    [
+                      _c(
+                        "v-list-tile-content",
+                        [_c("v-list-tile-title", [_vm._v("Germany")])],
+                        1
+                      ),
+                      _vm._v(" "),
+                      _c("v-list-tile-action", [_c("v-icon")], 1)
+                    ],
+                    1
+                  ),
+                  _vm._v(" "),
+                  _c(
+                    "v-list-tile",
+                    { on: { click: function($event) {} } },
+                    [
+                      _c(
+                        "v-list-tile-content",
+                        [_c("v-list-tile-title", [_vm._v("Austria")])],
+                        1
+                      ),
+                      _vm._v(" "),
+                      _c("v-list-tile-action", [_c("v-icon")], 1)
+                    ],
+                    1
+                  ),
+                  _vm._v(" "),
+                  _c(
+                    "v-list-tile",
+                    { on: { click: function($event) {} } },
+                    [
+                      _c(
+                        "v-list-tile-content",
+                        [_c("v-list-tile-title", [_vm._v("Swiss")])],
+                        1
+                      ),
+                      _vm._v(" "),
+                      _c("v-list-tile-action", [_c("v-icon")], 1)
+                    ],
+                    1
+                  )
+                ],
+                1
+              ),
+              _vm._v(" "),
+              _c(
+                "v-list-group",
+                [
+                  _c(
+                    "v-list-tile",
+                    {
+                      attrs: { slot: "item" },
+                      on: { click: function($event) {} },
+                      slot: "item"
+                    },
+                    [
+                      _c(
+                        "v-list-tile-action",
+                        [_c("v-icon", [_vm._v("apps")])],
+                        1
+                      ),
+                      _vm._v(" "),
+                      _c(
+                        "v-list-tile-content",
+                        [_c("v-list-tile-title", [_vm._v("More")])],
+                        1
+                      ),
+                      _vm._v(" "),
+                      _c(
+                        "v-list-tile-action",
+                        [_c("v-icon", [_vm._v("keyboard_arrow_down")])],
+                        1
+                      )
+                    ],
+                    1
+                  ),
+                  _vm._v(" "),
+                  _c(
+                    "v-list-tile",
+                    { attrs: { to: "/actualities" } },
+                    [
+                      _c(
+                        "v-list-tile-action",
+                        [_c("v-icon", [_vm._v("whatshot")])],
+                        1
+                      ),
+                      _vm._v(" "),
+                      _c(
+                        "v-list-tile-content",
+                        [_c("v-list-tile-title", [_vm._v("Actualities")])],
+                        1
+                      )
+                    ],
+                    1
+                  ),
+                  _vm._v(" "),
+                  _c(
+                    "v-list-tile",
+                    { on: { click: function($event) {} } },
+                    [
+                      _c(
+                        "v-list-tile-action",
+                        [_c("v-icon", [_vm._v("school")])],
+                        1
+                      ),
+                      _vm._v(" "),
+                      _c(
+                        "v-list-tile-content",
+                        [_c("v-list-tile-title", [_vm._v("Scholarship")])],
+                        1
+                      )
+                    ],
+                    1
+                  ),
+                  _vm._v(" "),
+                  _c(
+                    "v-list-tile",
+                    { attrs: { to: "/forum" } },
+                    [
+                      _c(
+                        "v-list-tile-action",
+                        [_c("v-icon", [_vm._v("forum")])],
+                        1
+                      ),
+                      _vm._v(" "),
+                      _c(
+                        "v-list-tile-content",
+                        [_c("v-list-tile-title", [_vm._v("Forum")])],
+                        1
+                      )
+                    ],
+                    1
+                  )
+                ],
+                1
+              ),
+              _vm._v(" "),
+              _c(
+                "v-list-group",
+                [
+                  _c(
+                    "v-list-tile",
+                    {
+                      attrs: { slot: "item" },
+                      on: { click: function($event) {} },
+                      slot: "item"
+                    },
+                    [
+                      _c(
+                        "v-list-tile-action",
+                        [_c("v-icon", [_vm._v("settings")])],
+                        1
+                      ),
+                      _vm._v(" "),
+                      _c(
+                        "v-list-tile-content",
+                        [_c("v-list-tile-title", [_vm._v("Parameters")])],
+                        1
+                      ),
+                      _vm._v(" "),
+                      _c(
+                        "v-list-tile-action",
+                        [_c("v-icon", [_vm._v("keyboard_arrow_down")])],
+                        1
+                      )
+                    ],
+                    1
+                  ),
+                  _vm._v(" "),
+                  _c(
+                    "v-list-tile",
+                    { attrs: { to: "/account" } },
+                    [
+                      _c(
+                        "v-list-tile-action",
+                        [_c("v-icon", [_vm._v("person")])],
+                        1
+                      ),
+                      _vm._v(" "),
+                      _c(
+                        "v-list-tile-content",
+                        [_c("v-list-tile-title", [_vm._v("Account")])],
+                        1
+                      )
+                    ],
+                    1
+                  ),
+                  _vm._v(" "),
+                  _c(
+                    "v-list-tile",
+                    { on: { click: _vm.logout } },
+                    [
+                      _c(
+                        "v-list-tile-action",
+                        [_c("v-icon", [_vm._v("exit_to_app")])],
+                        1
+                      ),
+                      _vm._v(" "),
+                      _c(
+                        "v-list-tile-content",
+                        [_c("v-list-tile-title", [_vm._v("Log out")])],
+                        1
+                      )
+                    ],
+                    1
+                  )
+                ],
+                1
+              ),
+              _vm._v(" "),
+              _c(
+                "v-list-group",
+                [
+                  _c(
+                    "v-list-tile",
+                    {
+                      attrs: { slot: "item" },
+                      on: { click: function($event) {} },
+                      slot: "item"
+                    },
+                    [
+                      _c(
+                        "v-list-tile-action",
+                        [_c("v-icon", [_vm._v("settings_applications")])],
+                        1
+                      ),
+                      _vm._v(" "),
+                      _c(
+                        "v-list-tile-content",
+                        [_c("v-list-tile-title", [_vm._v("Application")])],
+                        1
+                      ),
+                      _vm._v(" "),
+                      _c(
+                        "v-list-tile-action",
+                        [_c("v-icon", [_vm._v("keyboard_arrow_down")])],
+                        1
+                      )
+                    ],
+                    1
+                  ),
+                  _vm._v(" "),
+                  _c(
+                    "v-list-tile",
+                    { on: { click: function($event) {} } },
+                    [
+                      _c(
+                        "v-list-tile-action",
+                        [_c("v-icon", [_vm._v("bug_report")])],
+                        1
+                      ),
+                      _vm._v(" "),
+                      _c(
+                        "v-list-tile-content",
+                        [_c("v-list-tile-title", [_vm._v("Signal bug")])],
+                        1
+                      )
+                    ],
+                    1
+                  ),
+                  _vm._v(" "),
+                  _c(
+                    "v-list-tile",
+                    { attrs: { to: "/about" } },
+                    [
+                      _c(
+                        "v-list-tile-action",
+                        [_c("v-icon", [_vm._v("info")])],
+                        1
+                      ),
+                      _vm._v(" "),
+                      _c(
+                        "v-list-tile-content",
+                        [_c("v-list-tile-title", [_vm._v("About us")])],
+                        1
+                      )
+                    ],
+                    1
+                  ),
+                  _vm._v(" "),
+                  _c(
+                    "v-list-tile",
+                    { on: { click: function($event) {} } },
+                    [
+                      _c(
+                        "v-list-tile-action",
+                        [_c("v-icon", [_vm._v("invert_colors")])],
+                        1
+                      ),
+                      _vm._v(" "),
+                      _c(
+                        "v-list-tile-content",
+                        [
+                          _c(
+                            "v-list-tile-title",
+                            [
+                              _c(
+                                "v-tooltip",
+                                { attrs: { top: "" } },
+                                [
+                                  _c("v-switch", {
+                                    attrs: { slot: "activator" },
+                                    slot: "activator",
+                                    model: {
+                                      value: _vm.darked,
+                                      callback: function($$v) {
+                                        _vm.darked = $$v
+                                      },
+                                      expression: "darked"
+                                    }
+                                  }),
+                                  _vm._v(" "),
+                                  _c("span", [
+                                    _vm._v(
+                                      "Change the background color to black"
+                                    )
+                                  ])
+                                ],
+                                1
+                              )
+                            ],
+                            1
+                          )
+                        ],
+                        1
+                      )
+                    ],
+                    1
+                  )
+                ],
+                1
+              ),
+              _vm._v(" "),
+              _vm.user.role === "admin"
+                ? _c(
+                    "v-list-group",
+                    [
+                      _c(
+                        "v-list-tile",
+                        {
+                          attrs: { slot: "item" },
+                          on: { click: function($event) {} },
+                          slot: "item"
+                        },
+                        [
+                          _c(
+                            "v-list-tile-action",
+                            [
+                              _c("v-icon", { attrs: { dark: "" } }, [
+                                _vm._v("dashboard")
+                              ])
+                            ],
+                            1
+                          ),
+                          _vm._v(" "),
+                          _c(
+                            "v-list-tile-content",
+                            [_c("v-list-tile-title", [_vm._v("Dashboard")])],
+                            1
+                          ),
+                          _vm._v(" "),
+                          _c(
+                            "v-list-tile-action",
+                            [_c("v-icon", [_vm._v("keyboard_arrow_down")])],
+                            1
+                          )
+                        ],
+                        1
+                      ),
+                      _vm._v(" "),
+                      _c(
+                        "v-list-tile",
+                        { attrs: { to: "/admin", exact: "" } },
+                        [
+                          _c(
+                            "v-list-tile-action",
+                            [
+                              _c("v-icon", { attrs: { dark: "" } }, [
+                                _vm._v("apps")
+                              ])
+                            ],
+                            1
+                          ),
+                          _vm._v(" "),
+                          _c(
+                            "v-list-tile-content",
+                            [_c("v-list-tile-title", [_vm._v("Home")])],
+                            1
+                          )
+                        ],
+                        1
+                      ),
+                      _vm._v(" "),
+                      _c(
+                        "v-list-tile",
+                        { attrs: { to: "/admin/users" } },
+                        [
+                          _c(
+                            "v-list-tile-action",
+                            [
+                              _c("v-icon", { attrs: { dark: "" } }, [
+                                _vm._v("group")
+                              ])
+                            ],
+                            1
+                          ),
+                          _vm._v(" "),
+                          _c(
+                            "v-list-tile-content",
+                            [_c("v-list-tile-title", [_vm._v("Users")])],
+                            1
+                          )
+                        ],
+                        1
+                      ),
+                      _vm._v(" "),
+                      _c(
+                        "v-list-tile",
+                        { attrs: { to: "/admin/books" } },
+                        [
+                          _c(
+                            "v-list-tile-action",
+                            [
+                              _c("v-icon", { attrs: { dark: "" } }, [
+                                _vm._v("edit")
+                              ])
+                            ],
+                            1
+                          ),
+                          _vm._v(" "),
+                          _c(
+                            "v-list-tile-content",
+                            [_c("v-list-tile-title", [_vm._v("Books")])],
+                            1
+                          )
+                        ],
+                        1
+                      ),
+                      _vm._v(" "),
+                      _c(
+                        "v-list-tile",
+                        { attrs: { to: "/admin/university" } },
+                        [
+                          _c(
+                            "v-list-tile-action",
+                            [
+                              _c("v-icon", { attrs: { dark: "" } }, [
+                                _vm._v("school")
+                              ])
+                            ],
+                            1
+                          ),
+                          _vm._v(" "),
+                          _c(
+                            "v-list-tile-content",
+                            [_c("v-list-tile-title", [_vm._v("University")])],
+                            1
+                          )
+                        ],
+                        1
+                      ),
+                      _vm._v(" "),
+                      _c(
+                        "v-list-tile",
+                        { attrs: { to: "/admin/edit" } },
+                        [
+                          _c(
+                            "v-list-tile-action",
+                            [
+                              _c("v-icon", { attrs: { dark: "" } }, [
+                                _vm._v("edit")
+                              ])
+                            ],
+                            1
+                          ),
+                          _vm._v(" "),
+                          _c(
+                            "v-list-tile-content",
+                            [_c("v-list-tile-title", [_vm._v("Edit")])],
+                            1
+                          )
+                        ],
+                        1
+                      ),
+                      _vm._v(" "),
+                      _c(
+                        "v-list-tile",
+                        { attrs: { to: "/admin/server" } },
+                        [
+                          _c(
+                            "v-list-tile-action",
+                            [
+                              _c("v-icon", { attrs: { dark: "" } }, [
+                                _vm._v("dns")
+                              ])
+                            ],
+                            1
+                          ),
+                          _vm._v(" "),
+                          _c(
+                            "v-list-tile-content",
+                            [_c("v-list-tile-title", [_vm._v("Process")])],
+                            1
+                          )
+                        ],
+                        1
+                      )
+                    ],
+                    1
+                  )
+                : _vm._e()
+            ],
+            1
+          )
+        ],
+        1
+      ),
+      _vm._v(" "),
+      _c(
+        "v-footer",
+        { staticClass: "pa-3", attrs: { absolute: "" } },
+        [
+          _c("v-spacer"),
+          _vm._v(" "),
+          _c("div", [
+            _vm._v("© " + _vm._s(new Date().getFullYear()) + " Weltimo")
+          ])
+        ],
+        1
+      ),
+      _vm._v(" "),
+      _c("textarea", {
+        staticStyle: { position: "fixed", top: "-1000px", left: "-1000px" },
+        attrs: { id: "textareaClipboard" },
+        on: {
+          focus: function($event) {
+            $event.stopPropagation()
+            $event.preventDefault()
+          }
+        }
+      }),
+      _vm._v(" "),
+      _vm.$vuetify.breakpoint.smAndUp
+        ? _c("pdf-viewer", { attrs: { url: "url" } })
+        : _vm._e(),
+      _vm._v(" "),
+      _c("cardPublication", {
+        attrs: { onlyDialog: true, open: _vm.dialogPublication },
+        on: {
+          close: function($event) {
+            _vm.dialogPublication = false
+          }
+        }
+      })
+    ],
+    1
+  )
+}
+var staticRenderFns = []
+render._withStripped = true
+
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+    require("vue-hot-reload-api")      .rerender("data-v-43998c28", { render: render, staticRenderFns: staticRenderFns })
+  }
+}
 
 /***/ })
-
-});
+]));

@@ -69,7 +69,7 @@
                         this.ready = false
                         this.$store.dispatch('setting/setLoading',true)
                         this.$http.get(this.query.next).then(response=>{
-                            if(typeof response.body === "object"){
+                            if(typeof response.body.data === "object"){
                                 let users = []
                                 response.body.data.map(article=>{
                                     users.push(article.user)
@@ -90,7 +90,7 @@
                     this.ready = false
                     this.$store.dispatch('setting/setLoading',true)
                     this.$http.get('/user/profile/'+this.$route.params.id).then(response=>{
-                        if(typeof response.body === "object"){
+                        if(typeof response.body.data === "object"){
                             let users = []
                             response.body.data.map(article=>{
                                 users.push(article.user)

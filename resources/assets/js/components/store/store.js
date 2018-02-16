@@ -11,6 +11,9 @@ import msgflash from './modules/MsgFlash'
 import webSocketPlugin  from './webSocket/webSocketPlugin'
 import like from './modules/Like'
 import book from './modules/Book'
+import topic from './modules/Topic'
+import category from './modules/Category'
+import topicresponse from './modules/Topicresponse'
 
 export default new Vuex.Store({
     //strict: process.env.NODE_ENV !== 'production',
@@ -24,7 +27,10 @@ export default new Vuex.Store({
         comment,
         like,
         setting,
-        book
+        book,
+        topic,
+        category,
+        topicresponse
     },
     plugins:[webSocketPlugin()]
 })

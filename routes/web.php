@@ -19,6 +19,13 @@ Route::middleware('AjaxDetecte')->group(function () {
 	Route::get('log_in','LoginController@loginWithToken');
 	Route::get('log_out','LogoutController@logout');
 	Route::middleware('auth')->prefix('user')->group(function (){
+        Route::prefix('forum')->group(function (){
+            Route::resource('topic', 'TopicController');
+            Route::resource('topic/{topic}/topicresponse', 'TopicResponseController');
+            Route::get('/best', 'TopicController@bestTopics');
+            Route::get('/news', 'TopicController@newTopics');
+            Route::get('/mytopics', 'TopicController@myTopics');
+        });
 	    Route::get('/search/{keyword}', 'SearchController@index');
         Route::resource('actuality', 'ActualityController');
         Route::prefix('actuality/{actuality}')->group(function () {

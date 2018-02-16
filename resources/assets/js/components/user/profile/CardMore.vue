@@ -39,7 +39,7 @@
                                 open-on-hover
                                 style="width:100%"
                         >
-                            <v-list-tile slot="activator" avatar :to="'/user/profile/'+morePerson.id">
+                            <v-list-tile slot="activator" avatar :to="'/profile/'+morePerson.id">
                                 <v-list-tile-avatar >
                                     <img v-bind:src="morePerson.avatar"/>
                                 </v-list-tile-avatar>
@@ -61,7 +61,7 @@
                             </v-list-tile>
                             <v-card>
                                 <v-list>
-                                    <v-list-tile avatar :to="'/user/profile/'+morePerson.id">
+                                    <v-list-tile avatar :to="'/profile/'+morePerson.id">
                                         <v-list-tile-avatar>
                                             <img :src="morePerson.avatar" alt="avatar">
                                         </v-list-tile-avatar>

@@ -117,6 +117,49 @@ const router = new vueRouter({
                     ]
                 },
                 {
+                    path: "forum",
+                    component: resolve => require(['./components/user/Forum.vue'], resolve),
+                    name: "Forum",
+                    children: [
+                        {
+                            path: "/",
+                            component: resolve => require(['./components/user/forum/Home.vue'], resolve),
+                        },
+                        {
+                            path: ":type",
+                            component: resolve => require(['./components/user/forum/Topics.vue'], resolve),
+                        },
+                        {
+                            path: "topic/:id",
+                            component: resolve => require(['./components/user/forum/ShowTopic.vue'], resolve),
+                        },
+                        {
+                            path: "topic/:id/response/:response_id",
+                            component: resolve => require(['./components/user/forum/ShowTopic.vue'], resolve),
+                        }
+                    ]
+                },
+                {
+                    path: 'university',
+                    component: resolve => require(['./components/user/University.vue'], resolve),
+                    children:[
+                        {
+                            path: '/',
+                            component: resolve => require(['./components/user/university/Home.vue'], resolve),
+                        }
+                    ]
+                },
+                {
+                    path:"account",
+                    component: resolve => require(['./components/user/Account.vue'], resolve),
+                    name: "Account"
+                },
+                {
+                    path: "about",
+                        component: resolve => require(['./components/app/Info.vue'], resolve),
+                    name: "About",
+                },
+                {
                     path: "admin",
                     component: resolve => require(['./components/admin/Admin.vue'], resolve),
                     name: "Admin",
@@ -142,31 +185,14 @@ const router = new vueRouter({
                             component: resolve => require(['./components/admin/Server.vue'], resolve)
                         },
                         {
+                            path:"university",
+                            component: resolve => require(['./components/admin/University.vue'], resolve)
+                        },
+                        {
                             path: "*",
                             redirect: "/user"
                         }
                     ]
-                },
-                {
-                    path: "forum",
-                    component: resolve => require(['./components/user/Forum.vue'], resolve),
-                    name: "Forum",
-                    children: [
-                        {
-                            path: "/",
-                            component: resolve => require(['./components/user/forum/Home.vue'], resolve),
-                        }
-                    ]
-                },
-                {
-                    path:"account",
-                    component: resolve => require(['./components/user/Account.vue'], resolve),
-                    name: "Account"
-                },
-                {
-                    path: "about",
-                        component: resolve => require(['./components/app/Info.vue'], resolve),
-                    name: "About",
                 },
                 {
                     path: "*",

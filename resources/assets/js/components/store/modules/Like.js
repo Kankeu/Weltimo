@@ -1,17 +1,16 @@
-
 const state = {
     likes: []
 }
 
 const mutations = {
     SAVE(state, data){
-        data.map(function(dataUser){
-            let user = state.likes.find(user => user && user.id === dataUser.id)
+        data.map(function(dataLike){
+            let user = state.likes.find(like => like && like.id === dataLike.id)
             if(user){
                 let index = state.likes.indexOf(user)
-                if(index>-1) state.likes.splice(index,1,dataUser)
+                if(index>-1) state.likes.splice(index,1,dataLike)
             } else{
-                state.likes.push(dataUser)
+                state.likes.push(dataLike)
             }
         })
     },
