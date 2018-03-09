@@ -84,11 +84,11 @@ class UserController extends Controller
             'email' => 'required_without:password|email',
             'title' => 'max:50',
             'biography' => 'max:300',
-            'lPassword' => 'required_without:name|min:6',
+            'lPassword' => is_null(Auth::user()->password) ? '' : 'required_without:name|min:6',
             'password' => 'required_without:name|min:6',
         ]);
-        if(!is_null($request->input('lPassword')) && Hash::check($request->input('lPassword'),User::where('id',Auth::id())->first()->password)){
-
+        $passwordChecked = is_null(Auth::user()->password) ? true : Hash::check($request->input('lPassword'),User::where('id',Auth::id())->first()->password);
+        if(!is_null($request->input('lPassword')) && $passwordChecked){
             if(User::where('id',Auth::id())->update(["password"=>hash::make($request->input('password'))])){
                 return new Response(['status'=>1]);
             }

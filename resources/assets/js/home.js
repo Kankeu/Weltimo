@@ -29,6 +29,14 @@ const router = new vueRouter({
                     component: resolve => require(['./components/app/Inscription.vue'], resolve),
                     name: "Inscription",
                 },
+                {
+                    path: "/password/forgot",
+                    component: resolve => require(['./components/app/Home.vue'], resolve),
+                },
+                {
+                    path: "/password/reset/:token",
+                    component: resolve => require(['./components/app/Home.vue'], resolve),
+                },
             ]
         },
         {

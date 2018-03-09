@@ -1,7 +1,7 @@
 <template>
     <v-layout v-scroll="{callback: this.loadMore}" row>
-        <v-flex lg3 xs0></v-flex>
-        <v-flex lg6 xs12>
+        <v-flex lg3 xs0 sm2></v-flex>
+        <v-flex lg6 xs12 sm8>
             <v-container style="overflow: visible;" grid-list-md text-xs-center fluid>
                 <v-alert color="success" icon="check_circle" v-if="msgFlash" v-model="alert" outline dismissible>
                     {{msgFlash}}
@@ -20,7 +20,7 @@
                 </v-layout>
             </v-container>
         </v-flex>
-        <v-flex lg3 xs0></v-flex>
+        <v-flex lg3 xs0 sm2></v-flex>
     </v-layout>
 </template>
 

@@ -46,22 +46,56 @@ export default function webSocketPlugin () {
                             store.dispatch('users/save', replyedUser)
                             store.dispatch('article/addComment',{id:event.comment.article_id})
                         })
-                    Echo.join(`user.online.21`)
+                    Echo.private('App.User.'+store.state.user.user.id)
+                        .listen('MessageCreatedEvent',function (event) {
+                            event.message = `${event.data.user.name} ${event.data.user.forename} sent you a new message!`
+                            event.isNewsletter = false
+                            event.id = Math.random()
+                            let user = event.data.user
+                            delete event.data.user
+                            event.user = user
+                            store.dispatch('setting/addNotification', event)
+                            store.dispatch('message/save', event.data)
+                            store.dispatch('users/save', user)
+                        })
+                        .listen('NextStep',function (event) {
+                            event.discussionstate.user = event.user
+                            delete  event.user
+                            event.message = `${event.discussionstate.user.name} ${event.discussionstate.user.forename} proposes you to pass to the next step of discussion!`
+                            event.isNewsletter = false
+                            event.id = Math.random()
+                            let user = event.discussionstate.user
+                            delete event.discussionstate.user
+                            event.user = user
+                            store.dispatch('setting/addNotification', event)
+                            store.dispatch('discussionstate/save', event.discussionstate)
+                            store.dispatch('users/save', user)
+                        })
+                        .listen('RequestCreated',function (event) {
+                            event.request.user = event.user
+                            delete  event.user
+                            event.message = `${event.request.user.name} ${event.request.user.forename} has sent a request for the town ${event.request.town}`
+                            event.isNewsletter = false
+                            event.id = Math.random()
+                            let user = event.request.user
+                            delete event.request.user
+                            event.user = user
+                            store.dispatch('setting/addNotification', event)
+                            store.dispatch('boxmessage/save', event.request)
+                            store.dispatch('users/save', user)
+                        })
+                    Echo.join(`users.online`)
                         .here((users) => {
-                        console.log('here',users)
                             users.map(user=>user.online=true)
                             store.dispatch('users/save',users)
                         })
                         .joining((user) => {
-                            console.log('joining',user)
                             user.online= true
                             store.dispatch('users/save',user)
                         })
                         .leaving((user) => {
-                            console.log('leaving',user)
                             store.dispatch('users/delete',user)
                         })
-                        .listen('UserOnlineEvent',(e)=>console.log('listen',e))
                 }
             }
         })

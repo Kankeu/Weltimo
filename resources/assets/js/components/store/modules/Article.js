@@ -8,7 +8,7 @@ const mutations = {
             let article = state.articles.find(article => article && article.id === dataArticle.id)
             if(article){
                 let index = state.articles.indexOf(article)
-                if(index>-1) state.articles[index] = dataArticle
+                if(index>-1) state.articles.splice(index,1,dataArticle)
             } else{
                 state.articles.push(dataArticle)
             }

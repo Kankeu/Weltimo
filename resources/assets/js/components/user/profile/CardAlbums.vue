@@ -1,6 +1,6 @@
 <template>
     <v-container fluid md :style="$vuetify.breakpoint.smAndUp ? 'margin-top:50px' : 'padding:0;padding-top:8px'">
-        <v-layout>
+        <v-layout  v-scroll="{callback: this.loadMore}">
             <v-flex xs12 sm10 offset-sm1 offset-xs0>
                 <v-card>
                     <v-container grid-list-md text-xs-center fluid>
@@ -11,7 +11,7 @@
                                     v-for="image,i in images"
                                     :key="i"
                             >
-                                <v-card flat tile>
+                                <v-card flat :id="'image'+image.id" hover @click.native="selectImage(image)" tile>
                                     <v-card-media
                                             :src="image.path"
                                             height="150px"
@@ -27,14 +27,19 @@
                 </v-card>
             </v-flex>
         </v-layout>
+        <carousel :images="images" :open="openCarousel" @close="openCarousel=false" :image="image"></carousel>
     </v-container>
 </template>
 
 <script>
+    import carousel from '../../carousel/Carousel.vue'
     export default{
+        components:{carousel},
         data: ()=>({
             ready: true,
-            images: []
+            images: [],
+            image: null,
+            openCarousel: false
         }),
         computed:{
             user(){
@@ -70,6 +75,10 @@
                         })
                     }
                 }
+            },
+            selectImage(image){
+                this.image = image
+                this.openCarousel = true
             },
             load(){
                 if(!this.query && this.ready){

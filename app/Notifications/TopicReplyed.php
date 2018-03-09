@@ -70,9 +70,9 @@ class TopicReplyed extends Notification implements ShouldQueue
     {
         return (new MailMessage)
                     ->greeting('Hello '.$this->topic->user->forename.'!')
-            ->subject('Forum Weltimo')
+                    ->subject('Weltimo: Forum')
                     ->line('You have received a new response from '.$this->user->name.' '.$this->user->forename.' for '.$this->owner.' topic: '.$this->topic->title)
-                    ->action('See the response', url('http://localhost:8000/#/forum/topic/'.$this->topic->id.'/response/'.$this->topicresponse_id))
+                    ->action('See the response', url(config('app.url').'/#/forum/topic/'.$this->topic->id.'/response/'.$this->topicresponse_id))
                     ->line('Thank you for using Weltimo!');
     }
 

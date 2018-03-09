@@ -75,6 +75,9 @@
             '$route'(){
                 this.load()
             },
+            openDialogComment(data){
+                if(!data) this.$router.go(-2)
+            }
         },
     }
 </script>

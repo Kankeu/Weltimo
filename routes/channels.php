@@ -25,9 +25,7 @@ Broadcast::channel('comment.articleOwner.{id}', function ($user, $id) {
 Broadcast::channel('comment.commentOwner.{id}', function ($user, $id) {
     return (int) $user->id === (int) $id;
 });
-Broadcast::channel('user.online.{id}', function (User $user, $id) {
-    //if((int) $user->id === (int) $id){
-        return User::withCount('followers','following')
-            ->find($user->id);
-    //}
+Broadcast::channel('users.online', function (User $user) {
+    return User::withCount('followers','following')
+        ->find($user->id);
 });

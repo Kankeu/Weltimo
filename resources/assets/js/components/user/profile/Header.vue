@@ -1,66 +1,77 @@
 <template>
-    <div id="cardMore">
-        <v-parallax :src="(urls.cover) ? urls.cover : profile.cover" style="overflow: visible;" jumbotron height="300">
-            <v-layout column align-center class="cover" v-if="user.id===profile.id" justify-center>
-                <div v-if="urls.cover">
-                    <v-btn round color="danger" @click="clear('cover')">Cancel</v-btn>
-                    <v-btn round color="success" @click="send('cover')">Save</v-btn>
-                </div>
-                <v-btn round color="primary" @click.native="select('cover')" icon v-else><v-icon>insert_photo</v-icon></v-btn>
-            </v-layout>
-            <v-tooltip class="btnSubs" top>
-                <v-btn
-                        :loading="loadingSubs"
-                        :color="profile.followed ? null :'primary'"
-                        @click.native="follow"
-                        v-if="user.id!==profile.id"
-                        slot="activator"
-                        rounded
-                >
-                    <v-icon v-if="!profile.followed">person_add</v-icon>{{profile.followed ? "Unfollow" : "Follow"}}
-                </v-btn>
-                <span v-if="profile.followed">Click here to unfollow</span><span v-else>Click here to follow</span>
-            </v-tooltip>
-        </v-parallax>
-        <v-card style="height:55px">
-            <v-bottom-nav absolute :value="true" style="justify-content:flex-end" class="hBtnNav" color="transparent">
-                <v-btn flat :to="'/profile/'+profile.id+'/'" exact>
-                    <span>Home</span>
-                    <v-icon></v-icon>
-                </v-btn>
-                <v-btn flat :to="'/profile/'+profile.id+'/following'">
+    <div>
+        <div id="headercl">
+            <v-parallax :src="(urls.cover && user.id===profile.id) ? urls.cover : profile.cover" style="overflow: visible;" jumbotron height="300">
+                <v-layout column align-center class="cover" v-if="user.id===profile.id" justify-center>
+                    <div v-if="urls.cover">
+                        <v-btn round color="danger" @click="clear('cover')">Cancel</v-btn>
+                        <v-btn round color="success" @click="send('cover')">Save</v-btn>
+                    </div>
+                    <v-btn round color="primary" @click.native="select('cover')" icon v-else><v-icon>insert_photo</v-icon></v-btn>
+                </v-layout>
+                <v-tooltip class="btnSubs" top>
+                    <v-btn
+                            :loading="loadingSubs"
+                            :color="profile.followed ? null :'primary'"
+                            @click.native="follow"
+                            v-if="user.id!==profile.id"
+                            slot="activator"
+                            rounded
+                    >
+                        <v-icon v-if="!profile.followed">person_add</v-icon>{{profile.followed ? "Unfollow" : "Follow"}}
+                    </v-btn>
+                    <span v-if="profile.followed">Click here to unfollow</span><span v-else>Click here to follow</span>
+                </v-tooltip>
+            </v-parallax>
+            <v-card style="height:55px">
+                <v-bottom-nav absolute :value="true" style="justify-content:flex-end" class="hBtnNav" color="transparent">
+                    <v-btn flat :to="'/profile/'+profile.id+'/'" exact>
+                        <span>Home</span>
+                        <v-icon></v-icon>
+                    </v-btn>
+                    <v-btn flat :to="'/profile/'+profile.id+'/following'">
                     <span>Following<br>
                     {{profile.following_count}}
                     </span>
-                    <v-icon></v-icon>
-                </v-btn>
-                <v-btn flat :to="'/profile/'+profile.id+'/followers'">
+                        <v-icon></v-icon>
+                    </v-btn>
+                    <v-btn flat :to="'/profile/'+profile.id+'/followers'">
                     <span>Followers<br>
                     {{profile.followers_count}}
                     </span>
-                </v-btn>
-                <v-btn flat :to="'/profile/'+profile.id+'/albums'">
-                    <span>Albums</span>
-                </v-btn>
-            </v-bottom-nav>
-        </v-card>
-        <v-avatar
-                size="200px"
-                slot="activator"
-                class="elevation-4"
-                style="position: absolute;top: 200px;left: 10px;z-index: 4;"
-        >
-            <div class="nbr-photos" v-if="profile.id===user.id">
-                <div v-if="urls.avatar">
-                    <v-btn round color="danger" @click="clear('avatar')">Cancel</v-btn>
-                    <v-btn round color="success" @click="send('avatar')">Save</v-btn>
+                    </v-btn>
+                    <v-btn flat :to="'/profile/'+profile.id+'/albums'">
+                        <span>Albums</span>
+                    </v-btn>
+                </v-bottom-nav>
+            </v-card>
+            <v-avatar
+                    size="200px"
+                    slot="activator"
+                    class="elevation-4"
+                    style="position: absolute;top: 200px;left: 10px;z-index: 4;"
+            >
+                <div class="nbr-photos" v-if="profile.id===user.id">
+                    <div v-if="urls.avatar">
+                        <v-btn round color="danger" @click="clear('avatar')">Cancel</v-btn>
+                        <v-btn round color="success" @click="send('avatar')">Save</v-btn>
+                    </div>
+                    <v-btn round color="primary" @click.native="select('avatar')" icon v-else><v-icon>insert_photo</v-icon></v-btn>
                 </div>
-                <v-btn round color="primary" @click.native="select('avatar')" icon v-else><v-icon>insert_photo</v-icon></v-btn>
-            </div>
-            <img :src="(urls.avatar) ? urls.avatar : profile.avatar" alt="avatar">
-        </v-avatar>
-        <input type="file" id="cover" style="display:none" @change="preview">
-        <input type="file" id="avatar" style="display:none" @change="preview">
+                <img :src="(urls.avatar && user.id===profile.id) ? urls.avatar : profile.avatar" alt="avatar">
+            </v-avatar>
+            <input type="file" id="cover" style="display:none" @change="preview">
+            <input type="file" id="avatar" style="display:none" @change="preview">
+        </div>
+        <v-snackbar
+                :timeout="6000"
+                top
+                right
+                v-model="snackbar"
+        >
+            {{text}}
+            <v-btn flat color="pink" @click.native="snackbar = false">Close</v-btn>
+        </v-snackbar>
     </div>
 </template>
 
@@ -68,6 +79,8 @@
     export default {
         data: ()=>({
             loadingSubs: false,
+            snackbar: false,
+            text: '',
             urls: {
                 avatar: null,
                 cover:null
@@ -96,6 +109,9 @@
                             this.loadingSubs = false
                             this.$set(profile,'followed',null)
                             profile.followers_count--
+                            this.text = this.profile.forename+' is no longer followed by you!'
+                            this.text = 'You follow no longer '+this.profile.forename+'!'
+                            this.snackbar = true
                         }
                     })
                 }else{
@@ -104,6 +120,8 @@
                             this.$set(profile,'followed',response.body)
                             this.loadingSubs = false
                             profile.followers_count++
+                            this.text = 'You follow '+this.profile.forename+'!'
+                            this.snackbar = true
                         }
                     })
                 }
@@ -131,6 +149,8 @@
                         data[name] = this.urls[name]
                         this.$store.dispatch('user/update', data)
                         this.$store.dispatch('users/update', this.user)
+                        this.text = this.urls.avatar ? 'Avatar had been updated!' : 'Cover picture had been updated!'
+                        this.snackbar = true
                     }
                     this.$store.dispatch('setting/setLoading',false)
                     this.clear(name)
@@ -159,7 +179,7 @@
     .hBtnNav .btn{
         color: inherit !important;
     }
-    #cardMore{
+    #headercl{
         position: relative;
         z-index: 1;
     }
@@ -171,15 +191,18 @@
          border-radius: 50% !important;
          background-color: rgba(0, 0, 0, .4);
          text-align: center;
-         padding-top: 35%;
          color: #fff;
          border-radius: 4px;
          font-size: 18px;
      }
     div:hover > .nbr-photos{
-        display: block
+        display: flex;
+        justify-content: center;
+        align-items: center;
     }
     .nbr-photos:hover{
-        display: block
+        display: flex;
+        justify-content: center;
+        align-items: center;
     }
 </style>

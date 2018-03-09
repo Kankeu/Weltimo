@@ -56,7 +56,6 @@ class ProfileController extends Controller
     {
         $articles = Article::with('image','liked','user')
             ->where("user_id", $id)
-            ->whereNull('type')
             ->orderBy("id","desc")
             ->withCount('likes','comments')
             ->paginate(10);

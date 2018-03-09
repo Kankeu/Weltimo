@@ -10,9 +10,11 @@
                             <h1 class="white--text">Hello and welcome on Weltimo</h1>
                             <h3 class="white--text">Travel to Germany with confidence thanks to</h3>
                             <h3 class="white--text">our courses and follow-up offers.</h3>
-                            <div style="margin-top: 50px">
-                                <v-btn  color="primary" large>Sign in</v-btn>
-                                <v-btn  color="white" large outline>Android</v-btn>
+                            <div style="margin-top: 50px;">
+                                <v-btn href="/login/facebook" color="primary" outline large>Log in with Facebook</v-btn><br>
+                                <v-btn href="/login/google" color="red" outline large>Log in with Google</v-btn><br>
+                                <v-btn href="/login/github" large>Log in with Github</v-btn><br>
+                                <v-btn  color="primary" to="sign_in" large>Sign in</v-btn>
                             </div>
                         </v-layout>
                     </v-flex>

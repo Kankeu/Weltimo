@@ -4,7 +4,6 @@ const state = {
 
 const mutations = {
     SAVE(state, data){
-        console.log(data)
         data.map(function(dataCategory){
             let user = state.categories.find(category => category && category.id === dataCategory.id)
             if(user){

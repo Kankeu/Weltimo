@@ -14,7 +14,7 @@ class BookController extends Controller
      */
     public function index(string $type, string $level)
     {
-        $books = Book::with('image','user')
+        $books = Book::with('user')
             ->where('level',$level)
             ->where("type",$type)
             ->where("published_at","<=",NOW())

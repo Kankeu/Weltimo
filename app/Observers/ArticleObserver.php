@@ -9,6 +9,7 @@
 namespace App\Observer;
 
 
+use App\Article;
 use App\Jobs\DeleteImage;
 
 class ArticleObserver

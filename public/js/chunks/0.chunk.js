@@ -1,987 +1,18 @@
 webpackJsonp([0],{
 
-/***/ 106:
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return render; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return staticRenderFns; });
-var render = function() {
-  var _vm = this
-  var _h = _vm.$createElement
-  var _c = _vm._self._c || _h
-  return _c(
-    "v-dialog",
-    {
-      attrs: { "max-width": "290" },
-      model: {
-        value: _vm.dialog,
-        callback: function($$v) {
-          _vm.dialog = $$v
-        },
-        expression: "dialog"
-      }
-    },
-    [
-      _c(
-        "v-card",
-        [
-          _c(
-            "v-card-title",
-            [
-              _vm._v("Share the publication "),
-              _c("v-spacer"),
-              _c(
-                "v-btn",
-                {
-                  attrs: { icon: "" },
-                  on: {
-                    click: function($event) {
-                      _vm.dialog = false
-                    }
-                  }
-                },
-                [_c("v-icon", [_vm._v("close")])],
-                1
-              )
-            ],
-            1
-          ),
-          _vm._v(" "),
-          _c("v-divider"),
-          _vm._v(" "),
-          _c(
-            "v-container",
-            { attrs: { "grid-list-lg": "", "text-xs-left": "", fluid: "" } },
-            [
-              _c(
-                "v-layout",
-                { attrs: { column: "" } },
-                [
-                  _c("v-flex", { attrs: { lg12: "" } }, [
-                    _c(
-                      "a",
-                      { on: { click: _vm.facebook } },
-                      [
-                        _c("v-avatar", { attrs: { size: "32" } }, [
-                          _c("img", {
-                            attrs: {
-                              src:
-                                "https://www.gstatic.com/kpui/social/fb_32x32.png"
-                            }
-                          })
-                        ]),
-                        _vm._v(" Facebook")
-                      ],
-                      1
-                    )
-                  ]),
-                  _vm._v(" "),
-                  _c("v-flex", { attrs: { lg12: "" } }, [
-                    _c(
-                      "a",
-                      { on: { click: _vm.twitter } },
-                      [
-                        _c("v-avatar", { attrs: { size: "32" } }, [
-                          _c("img", {
-                            attrs: {
-                              src:
-                                "https://www.gstatic.com/kpui/social/twitter_32x32.png"
-                            }
-                          })
-                        ]),
-                        _vm._v(" Twitter")
-                      ],
-                      1
-                    )
-                  ])
-                ],
-                1
-              )
-            ],
-            1
-          )
-        ],
-        1
-      )
-    ],
-    1
-  )
-}
-var staticRenderFns = []
-render._withStripped = true
-
-if (false) {
-  module.hot.accept()
-  if (module.hot.data) {
-    require("vue-hot-reload-api")      .rerender("data-v-9ea2bec0", { render: render, staticRenderFns: staticRenderFns })
-  }
-}
-
-/***/ }),
-
-/***/ 200:
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__HeaderShowTopic_vue__ = __webpack_require__(321);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__TopicResponse_vue__ = __webpack_require__(325);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__ForumForm_vue__ = __webpack_require__(329);
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-
-
-
-
-/* harmony default export */ __webpack_exports__["a"] = ({
-    components: { topicResponse: __WEBPACK_IMPORTED_MODULE_1__TopicResponse_vue__["a" /* default */], headerShowTopic: __WEBPACK_IMPORTED_MODULE_0__HeaderShowTopic_vue__["a" /* default */], forumForm: __WEBPACK_IMPORTED_MODULE_2__ForumForm_vue__["a" /* default */] },
-    data: function data() {
-        return {
-            ready: true
-        };
-    },
-    computed: {
-        end: function end() {
-            var _this = this;
-
-            return this.$store.state.query.queries.find(function (e) {
-                return e.name === 'showTopic' && !e.next && e.id === parseInt(_this.$route.params.id);
-            });
-        },
-        query: function query() {
-            var _this2 = this;
-
-            return this.$store.state.query.queries.find(function (e) {
-                return e.name === 'showTopic' && e.id === parseInt(_this2.$route.params.id);
-            });
-        },
-        topic: function topic() {
-            var _this3 = this;
-
-            return this.$store.state.topic.topics.find(function (topic) {
-                return topic.id === parseInt(_this3.$route.params.id);
-            }) || {};
-        },
-        topicresponses: function topicresponses() {
-            var _this4 = this;
-
-            return this.$store.state.topicresponse.topicresponses.filter(function (topicresponse) {
-                return topicresponse.topic_id === _this4.topic.id;
-            });
-        },
-        owner: function owner() {
-            var _this5 = this;
-
-            return this.$store.state.users.users.find(function (user) {
-                return user.id === _this5.topic.user_id;
-            }) || {};
-        },
-        user: function user() {
-            return this.$store.state.user.user;
-        }
-    },
-    methods: {
-        loadMoreResponses: function loadMoreResponses() {
-            var _this6 = this;
-
-            if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 600) {
-                if (!this.end && this.ready) {
-                    this.ready = false;
-                    this.$store.dispatch('setting/setLoading', true);
-                    this.$http.get(this.query.next).then(function (response) {
-                        if (_typeof(response.body) === "object") {
-                            var users = [];
-                            response.body.data.map(function (topic) {
-                                users.push(topic.user);
-                                delete topic.user;
-                            });
-                            _this6.$store.dispatch("topicresponse/save", response.body.data);
-                            _this6.$store.dispatch("users/save", users);
-                            _this6.$store.dispatch("query/save", { name: 'showTopic', next: response.body.next_page_url, id: parseInt(_this6.$route.params.id) });
-                        }
-                        _this6.ready = true;
-                        _this6.$store.dispatch('setting/setLoading', false);
-                    });
-                }
-            }
-        },
-        loadResponses: function loadResponses() {
-            var _this7 = this;
-
-            if (!this.query && this.ready) {
-                this.ready = false;
-                this.$store.dispatch('setting/setLoading', true);
-                this.$http.get('/user/forum/topic/' + this.$route.params.id + '/topicresponse').then(function (response) {
-                    if (Array.isArray(response.body.data)) {
-                        var users = [];
-                        response.body.data.map(function (topic) {
-                            users.push(topic.user);
-                            delete topic.user;
-                        });
-                        _this7.$store.dispatch("topicresponse/save", response.body.data);
-                        _this7.$store.dispatch("users/save", users);
-                        _this7.$store.dispatch("query/save", { name: 'showTopic', next: response.body.next_page_url, id: parseInt(_this7.$route.params.id) });
-                        _this7.$nextTick(function () {
-                            if (_this7.$route.params.response_id) {
-                                document.querySelector('#topicresponse' + _this7.$route.params.response_id).scrollIntoView(false);
-                            }
-                        });
-                    }
-                    _this7.ready = true;
-                    _this7.$store.dispatch('setting/setLoading', false);
-                });
-            }
-        },
-        load: function load() {
-            var _this8 = this;
-
-            if (!this.query && this.ready) {
-                this.ready = false;
-                this.$store.dispatch('setting/setLoading', true);
-                this.$http.get('/user/forum/topic/' + this.$route.params.id).then(function (response) {
-                    _this8.ready = true;
-                    if (_typeof(response.body) === "object") {
-                        var user = response.body.user;
-                        delete response.body.user;
-                        var categories = response.body.categories;
-                        delete response.body.categories;
-                        _this8.$store.dispatch("topic/save", response.body);
-                        _this8.$store.dispatch("category/save", categories);
-                        _this8.$store.dispatch("users/save", user);
-                        _this8.loadResponses();
-                    }
-                    _this8.$store.dispatch('setting/setLoading', false);
-                });
-            }
-        }
-    },
-    mounted: function mounted() {
-        this.load();
-        window.temp = this;
-    },
-
-    watch: {
-        '$route.params.id': function $routeParamsId(data) {
-            this.load();
-        },
-        '$route.params.response_id': function $routeParamsResponse_id(data) {
-            if (data) {
-                document.querySelector('#topicresponse' + this.$route.params.response_id).scrollIntoView(false);
-            }
-        }
-    }
-});
-
-/***/ }),
-
-/***/ 201:
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__share_DialogShare_vue__ = __webpack_require__(91);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__ForumTopicEditForm_vue__ = __webpack_require__(322);
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-
-
-
-/* harmony default export */ __webpack_exports__["a"] = ({
-    components: { dialogShare: __WEBPACK_IMPORTED_MODULE_0__share_DialogShare_vue__["a" /* default */], dialogForumTopicEditForm: __WEBPACK_IMPORTED_MODULE_1__ForumTopicEditForm_vue__["a" /* default */] },
-    props: {
-        topic: Object
-    },
-    data: function data() {
-        return {
-            openDialogShare: false,
-            topicDelete: false,
-            loading: false,
-            opendialogForumEditForm: false,
-            userPopover: false
-        };
-    },
-    computed: {
-        user: function user() {
-            return this.$store.state.user.user;
-        },
-        owner: function owner() {
-            var _this = this;
-
-            return this.$store.state.users.users.find(function (user) {
-                return user.id === _this.topic.user_id;
-            }) || {};
-        }
-    },
-    methods: {
-        copie: function copie() {
-            var textarea = document.querySelector("#textareaClipboard");
-            textarea.value = this.urlTopic(this.topic.id);
-            textarea.select();
-            document.execCommand('copy');
-            textarea.blur();
-        },
-        destroy: function destroy() {
-            var _this2 = this;
-
-            this.loading = true;
-            this.$http.delete('user/forum/topic/' + this.topic.id).then(function (response) {
-                if (response.body.status === 1) {
-                    _this2.$store.dispatch('topic/delete', _this2.article);
-                    _this2.loading = false;
-                    _this2.topicDelete = false;
-                }
-            });
-        }
-    }
-});
-
-/***/ }),
-
-/***/ 202:
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-
-/* harmony default export */ __webpack_exports__["a"] = ({
-    props: {
-        open: Boolean,
-        topic: Object
-    },
-    data: function data() {
-        return {
-            dialog: false,
-            categories: [],
-            title: null,
-            question: null,
-            loading: false,
-            defaultCatogories: ['Grammatik', 'Übung', 'Vokabel', 'Konjugation', 'Unterlagen']
-        };
-    },
-    computed: {
-        questionParsed: function questionParsed() {
-            return JSON.stringify([{ text: this.question.trim() }]);
-        },
-        topicCategories: function topicCategories() {
-            var _this = this;
-
-            return this.$store.state.category.categories.filter(function (category) {
-                return category.topic_id === _this.topic.id;
-            });
-        }
-    },
-    methods: {
-        edit: function edit() {
-            var _this2 = this;
-
-            if (this.question && this.question.length > 0 && this.categories.length > 0 && this.title.length > 0) {
-                this.loading = true;
-                var data = { question: this.questionParsed, categories: this.categories, title: this.title };
-                this.$http.put('/user/forum/topic/' + this.topic.id, data).then(function (response) {
-                    if (_typeof(response.body) === "object") {
-                        var categories = response.body.categories;
-                        delete response.body.categories;
-                        _this2.$store.dispatch("topic/save", response.body);
-                        _this2.$store.dispatch("category/save", categories);
-                    }
-                    _this2.loading = false;
-                });
-            }
-        }
-    },
-    mounted: function mounted() {
-        var _this3 = this;
-
-        this.question = JSON.parse(this.topic.question)[0].text;
-        this.topic.categories;
-        this.topicCategories.map(function (category) {
-            _this3.categories.push(category.type);
-        });
-        this.title = this.topic.title;
-    },
-
-    watch: {
-        open: function open(data) {
-            if (data) this.dialog = true;
-        },
-        dialog: function dialog(data) {
-            if (!data) this.$emit('close');
-        }
-    }
-});
-
-/***/ }),
-
-/***/ 203:
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__share_DialogShare_vue__ = __webpack_require__(91);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__ForumResponseEditForm_vue__ = __webpack_require__(326);
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-
-
-
-/* harmony default export */ __webpack_exports__["a"] = ({
-    components: { dialogShare: __WEBPACK_IMPORTED_MODULE_0__share_DialogShare_vue__["a" /* default */], dialogForumResponseEditForm: __WEBPACK_IMPORTED_MODULE_1__ForumResponseEditForm_vue__["a" /* default */] },
-    props: {
-        topicresponse: Object
-    },
-    data: function data() {
-        return {
-            openDialogShare: false,
-            topicDelete: false,
-            loading: false,
-            openDialogEditForm: false,
-            userPopover: false
-        };
-    },
-    computed: {
-        user: function user() {
-            return this.$store.state.user.user;
-        },
-        owner: function owner() {
-            var _this = this;
-
-            return this.$store.state.users.users.find(function (user) {
-                return user.id === _this.topicresponse.user_id;
-            }) || {};
-        }
-    },
-    methods: {
-        masquer: function masquer() {
-            this.$store.dispatch("topicresponse/delete", { id: this.topicresponse.id });
-        },
-        copie: function copie() {
-            var textarea = document.querySelector("#textareaClipboard");
-            textarea.value = this.urlTopicResponse(parseInt(this.$route.params.id), this.topicresponse.id);
-            textarea.select();
-            document.execCommand('copy');
-            textarea.blur();
-        },
-        destroy: function destroy() {
-            var _this2 = this;
-
-            this.loading = true;
-            this.$http.delete('user/forum/topic/' + parseInt(this.$route.params.id) + '/topicresponse/' + this.topicresponse.id).then(function (response) {
-                if (response.body.status === 1) {
-                    _this2.$store.dispatch('topicresponse/delete', _this2.topicresponse);
-                    _this2.loading = false;
-                    _this2.topicDelete = false;
-                }
-            });
-        }
-    }
-});
-
-/***/ }),
-
-/***/ 204:
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-
-/* harmony default export */ __webpack_exports__["a"] = ({
-    props: {
-        open: Boolean,
-        topicresponse: Object
-    },
-    data: function data() {
-        return {
-            dialog: false,
-            response: null,
-            loading: false
-        };
-    },
-    computed: {
-        responseParsed: function responseParsed() {
-            return JSON.stringify([{ text: this.response.trim() }]);
-        }
-    },
-    methods: {
-        edit: function edit() {
-            var _this = this;
-
-            if (this.response && this.response.length > 0) {
-                var data = { response: this.responseParsed };
-                this.loading = true;
-                this.$http.put('/user/forum/topic/' + this.$route.params.id + '/topicresponse/' + this.topicresponse.id, data).then(function (response) {
-                    if (_typeof(response.body) === "object") {
-                        _this.$store.dispatch("topicresponse/save", response.body);
-                    }
-                    _this.loading = false;
-                });
-            }
-        }
-    },
-    mounted: function mounted() {
-        this.response = JSON.parse(this.topicresponse.response)[0].text;
-    },
-
-    watch: {
-        open: function open(data) {
-            if (data) this.dialog = true;
-        },
-        dialog: function dialog(data) {
-            if (!data) this.$emit('close');
-        }
-    }
-});
-
-/***/ }),
-
-/***/ 205:
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-
-/* harmony default export */ __webpack_exports__["a"] = ({
-    data: function data() {
-        return {
-            emailReceive: false,
-            response: null
-        };
-    },
-    computed: {
-        responseParsed: function responseParsed() {
-            return JSON.stringify([{ text: this.response.trim() }]);
-        }
-    },
-    methods: {
-        publish: function publish() {
-            var _this = this;
-
-            if (this.response && this.response.length > 0) {
-                var data = { response: this.responseParsed, emailReceive: this.emailReceive };
-                this.$store.dispatch('setting/setLoading', true);
-                this.$http.post('/user/forum/topic/' + this.$route.params.id + '/topicresponse', data).then(function (response) {
-                    if (_typeof(response.body) === "object") {
-                        _this.$store.dispatch("topicresponse/save", response.body);
-                        _this.response = null;
-                        _this.emailReceive = false;
-                    }
-                    _this.$store.dispatch('setting/setLoading', false);
-                });
-            }
-        }
-    }
-});
-
-/***/ }),
-
-/***/ 22:
+/***/ 16:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__babel_loader_cacheDirectory_true_presets_env_modules_false_targets_browsers_2_uglify_true_env_modules_false_targets_browsers_last_2_versions_safari_7_debug_true_plugins_transform_object_rest_spread_transform_runtime_polyfill_false_helpers_false_syntax_dynamic_import_node_modules_vue_loader_lib_selector_type_script_index_0_ShowTopic_vue__ = __webpack_require__(200);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__babel_loader_cacheDirectory_true_presets_env_modules_false_targets_browsers_2_uglify_true_env_modules_false_targets_browsers_last_2_versions_safari_7_debug_true_plugins_transform_object_rest_spread_transform_runtime_polyfill_false_helpers_false_syntax_dynamic_import_node_modules_vue_loader_lib_selector_type_script_index_0_Home_vue__ = __webpack_require__(183);
 /* empty harmony namespace reexport */
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_23531612_hasScoped_true_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_ShowTopic_vue__ = __webpack_require__(331);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_24ae9a78_hasScoped_true_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_Home_vue__ = __webpack_require__(277);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__node_modules_vue_loader_lib_runtime_component_normalizer__ = __webpack_require__(3);
 var disposed = false
 function injectStyle (context) {
   if (disposed) return
-  __webpack_require__(317)
-  __webpack_require__(319)
+  __webpack_require__(271)
 }
 /* script */
 
@@ -993,20 +24,20 @@ var __vue_template_functional__ = false
 /* styles */
 var __vue_styles__ = injectStyle
 /* scopeId */
-var __vue_scopeId__ = "data-v-23531612"
+var __vue_scopeId__ = "data-v-24ae9a78"
 /* moduleIdentifier (server only) */
 var __vue_module_identifier__ = null
 
 var Component = Object(__WEBPACK_IMPORTED_MODULE_2__node_modules_vue_loader_lib_runtime_component_normalizer__["a" /* default */])(
-  __WEBPACK_IMPORTED_MODULE_0__babel_loader_cacheDirectory_true_presets_env_modules_false_targets_browsers_2_uglify_true_env_modules_false_targets_browsers_last_2_versions_safari_7_debug_true_plugins_transform_object_rest_spread_transform_runtime_polyfill_false_helpers_false_syntax_dynamic_import_node_modules_vue_loader_lib_selector_type_script_index_0_ShowTopic_vue__["a" /* default */],
-  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_23531612_hasScoped_true_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_ShowTopic_vue__["a" /* render */],
-  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_23531612_hasScoped_true_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_ShowTopic_vue__["b" /* staticRenderFns */],
+  __WEBPACK_IMPORTED_MODULE_0__babel_loader_cacheDirectory_true_presets_env_modules_false_targets_browsers_2_uglify_true_env_modules_false_targets_browsers_last_2_versions_safari_7_debug_true_plugins_transform_object_rest_spread_transform_runtime_polyfill_false_helpers_false_syntax_dynamic_import_node_modules_vue_loader_lib_selector_type_script_index_0_Home_vue__["a" /* default */],
+  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_24ae9a78_hasScoped_true_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_Home_vue__["a" /* render */],
+  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_24ae9a78_hasScoped_true_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_Home_vue__["b" /* staticRenderFns */],
   __vue_template_functional__,
   __vue_styles__,
   __vue_scopeId__,
   __vue_module_identifier__
 )
-Component.options.__file = "resources/assets/js/components/user/forum/ShowTopic.vue"
+Component.options.__file = "resources/assets/js/components/app/Home.vue"
 
 /* hot reload */
 if (false) {(function () {
@@ -1015,9 +46,9 @@ if (false) {(function () {
   if (!hotAPI.compatible) return
   module.hot.accept()
   if (!module.hot.data) {
-    hotAPI.createRecord("data-v-23531612", Component.options)
+    hotAPI.createRecord("data-v-24ae9a78", Component.options)
   } else {
-    hotAPI.reload("data-v-23531612", Component.options)
+    hotAPI.reload("data-v-24ae9a78", Component.options)
   }
   module.hot.dispose(function (data) {
     disposed = true
@@ -1029,2333 +60,189 @@ if (false) {(function () {
 
 /***/ }),
 
-/***/ 317:
-/***/ (function(module, exports, __webpack_require__) {
-
-// style-loader: Adds some css to the DOM by adding a <style> tag
-
-// load the styles
-var content = __webpack_require__(318);
-if(typeof content === 'string') content = [[module.i, content, '']];
-if(content.locals) module.exports = content.locals;
-// add the styles to the DOM
-var add = __webpack_require__(4).default
-var update = add("268d6d96", content, false, {});
-// Hot Module Replacement
-if(false) {
- // When the styles change, update the <style> tags
- if(!content.locals) {
-   module.hot.accept("!!../../../../../../node_modules/css-loader/index.js!../../../../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-23531612\",\"scoped\":true,\"sourceMap\":false}!../../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./ShowTopic.vue", function() {
-     var newContent = require("!!../../../../../../node_modules/css-loader/index.js!../../../../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-23531612\",\"scoped\":true,\"sourceMap\":false}!../../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./ShowTopic.vue");
-     if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
-     update(newContent);
-   });
- }
- // When the module is disposed, remove the <style> tags
- module.hot.dispose(function() { update(); });
-}
-
-/***/ }),
-
-/***/ 318:
-/***/ (function(module, exports, __webpack_require__) {
-
-exports = module.exports = __webpack_require__(0)(undefined);
-// imports
-
-
-// module
-exports.push([module.i, "\n#showTopicResponse[data-v-23531612] {\n    padding-left: 10px;\n    margin-left: -10px;\n    border-left: 5px solid turquoise;\n}\n", ""]);
-
-// exports
-
-
-/***/ }),
-
-/***/ 319:
-/***/ (function(module, exports, __webpack_require__) {
-
-// style-loader: Adds some css to the DOM by adding a <style> tag
-
-// load the styles
-var content = __webpack_require__(320);
-if(typeof content === 'string') content = [[module.i, content, '']];
-if(content.locals) module.exports = content.locals;
-// add the styles to the DOM
-var add = __webpack_require__(4).default
-var update = add("6ef0b5c2", content, false, {});
-// Hot Module Replacement
-if(false) {
- // When the styles change, update the <style> tags
- if(!content.locals) {
-   module.hot.accept("!!../../../../../../node_modules/css-loader/index.js!../../../../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-23531612\",\"scoped\":false,\"sourceMap\":false}!../../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=1!./ShowTopic.vue", function() {
-     var newContent = require("!!../../../../../../node_modules/css-loader/index.js!../../../../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-23531612\",\"scoped\":false,\"sourceMap\":false}!../../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=1!./ShowTopic.vue");
-     if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
-     update(newContent);
-   });
- }
- // When the module is disposed, remove the <style> tags
- module.hot.dispose(function() { update(); });
-}
-
-/***/ }),
-
-/***/ 320:
-/***/ (function(module, exports, __webpack_require__) {
-
-exports = module.exports = __webpack_require__(0)(undefined);
-// imports
-
-
-// module
-exports.push([module.i, "\n.elt_topic {\n    color: #404852 !important;\n    font-family: \"Open Sans\";\n    font-size: 15px !important;\n    font: status-bar;\n}\n", ""]);
-
-// exports
-
-
-/***/ }),
-
-/***/ 321:
+/***/ 183:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__babel_loader_cacheDirectory_true_presets_env_modules_false_targets_browsers_2_uglify_true_env_modules_false_targets_browsers_last_2_versions_safari_7_debug_true_plugins_transform_object_rest_spread_transform_runtime_polyfill_false_helpers_false_syntax_dynamic_import_node_modules_vue_loader_lib_selector_type_script_index_0_HeaderShowTopic_vue__ = __webpack_require__(201);
-/* unused harmony namespace reexport */
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_7a3639aa_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_HeaderShowTopic_vue__ = __webpack_require__(324);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__node_modules_vue_loader_lib_runtime_component_normalizer__ = __webpack_require__(3);
-var disposed = false
-/* script */
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__PresentationCard_vue__ = __webpack_require__(273);
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
-/* template */
-
-/* template functional */
-var __vue_template_functional__ = false
-/* styles */
-var __vue_styles__ = null
-/* scopeId */
-var __vue_scopeId__ = null
-/* moduleIdentifier (server only) */
-var __vue_module_identifier__ = null
-
-var Component = Object(__WEBPACK_IMPORTED_MODULE_2__node_modules_vue_loader_lib_runtime_component_normalizer__["a" /* default */])(
-  __WEBPACK_IMPORTED_MODULE_0__babel_loader_cacheDirectory_true_presets_env_modules_false_targets_browsers_2_uglify_true_env_modules_false_targets_browsers_last_2_versions_safari_7_debug_true_plugins_transform_object_rest_spread_transform_runtime_polyfill_false_helpers_false_syntax_dynamic_import_node_modules_vue_loader_lib_selector_type_script_index_0_HeaderShowTopic_vue__["a" /* default */],
-  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_7a3639aa_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_HeaderShowTopic_vue__["a" /* render */],
-  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_7a3639aa_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_HeaderShowTopic_vue__["b" /* staticRenderFns */],
-  __vue_template_functional__,
-  __vue_styles__,
-  __vue_scopeId__,
-  __vue_module_identifier__
-)
-Component.options.__file = "resources/assets/js/components/user/forum/HeaderShowTopic.vue"
-
-/* hot reload */
-if (false) {(function () {
-  var hotAPI = require("vue-hot-reload-api")
-  hotAPI.install(require("vue"), false)
-  if (!hotAPI.compatible) return
-  module.hot.accept()
-  if (!module.hot.data) {
-    hotAPI.createRecord("data-v-7a3639aa", Component.options)
-  } else {
-    hotAPI.reload("data-v-7a3639aa", Component.options)
-  }
-  module.hot.dispose(function (data) {
-    disposed = true
-  })
-})()}
-
-/* harmony default export */ __webpack_exports__["a"] = (Component.exports);
-
-
-/***/ }),
-
-/***/ 322:
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__babel_loader_cacheDirectory_true_presets_env_modules_false_targets_browsers_2_uglify_true_env_modules_false_targets_browsers_last_2_versions_safari_7_debug_true_plugins_transform_object_rest_spread_transform_runtime_polyfill_false_helpers_false_syntax_dynamic_import_node_modules_vue_loader_lib_selector_type_script_index_0_ForumTopicEditForm_vue__ = __webpack_require__(202);
-/* unused harmony namespace reexport */
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_1f8fa0a7_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_ForumTopicEditForm_vue__ = __webpack_require__(323);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__node_modules_vue_loader_lib_runtime_component_normalizer__ = __webpack_require__(3);
-var disposed = false
-/* script */
-
-
-/* template */
-
-/* template functional */
-var __vue_template_functional__ = false
-/* styles */
-var __vue_styles__ = null
-/* scopeId */
-var __vue_scopeId__ = null
-/* moduleIdentifier (server only) */
-var __vue_module_identifier__ = null
-
-var Component = Object(__WEBPACK_IMPORTED_MODULE_2__node_modules_vue_loader_lib_runtime_component_normalizer__["a" /* default */])(
-  __WEBPACK_IMPORTED_MODULE_0__babel_loader_cacheDirectory_true_presets_env_modules_false_targets_browsers_2_uglify_true_env_modules_false_targets_browsers_last_2_versions_safari_7_debug_true_plugins_transform_object_rest_spread_transform_runtime_polyfill_false_helpers_false_syntax_dynamic_import_node_modules_vue_loader_lib_selector_type_script_index_0_ForumTopicEditForm_vue__["a" /* default */],
-  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_1f8fa0a7_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_ForumTopicEditForm_vue__["a" /* render */],
-  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_1f8fa0a7_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_ForumTopicEditForm_vue__["b" /* staticRenderFns */],
-  __vue_template_functional__,
-  __vue_styles__,
-  __vue_scopeId__,
-  __vue_module_identifier__
-)
-Component.options.__file = "resources/assets/js/components/user/forum/ForumTopicEditForm.vue"
-
-/* hot reload */
-if (false) {(function () {
-  var hotAPI = require("vue-hot-reload-api")
-  hotAPI.install(require("vue"), false)
-  if (!hotAPI.compatible) return
-  module.hot.accept()
-  if (!module.hot.data) {
-    hotAPI.createRecord("data-v-1f8fa0a7", Component.options)
-  } else {
-    hotAPI.reload("data-v-1f8fa0a7", Component.options)
-  }
-  module.hot.dispose(function (data) {
-    disposed = true
-  })
-})()}
-
-/* harmony default export */ __webpack_exports__["a"] = (Component.exports);
-
-
-/***/ }),
-
-/***/ 323:
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return render; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return staticRenderFns; });
-var render = function() {
-  var _vm = this
-  var _h = _vm.$createElement
-  var _c = _vm._self._c || _h
-  return _c(
-    "v-dialog",
-    {
-      attrs: { "max-width": "800" },
-      model: {
-        value: _vm.dialog,
-        callback: function($$v) {
-          _vm.dialog = $$v
-        },
-        expression: "dialog"
-      }
+/* harmony default export */ __webpack_exports__["a"] = ({
+    components: { presentationCard: __WEBPACK_IMPORTED_MODULE_0__PresentationCard_vue__["a" /* default */] },
+    data: function data() {
+        return {
+            images: [],
+            articles: [],
+            colors: ["cyan", "blue", "amber"]
+        };
     },
-    [
-      _c(
-        "v-card",
-        [
-          _vm.loading
-            ? _c("v-progress-linear", { attrs: { indeterminate: true } })
-            : _vm._e(),
-          _vm._v(" "),
-          _c(
-            "v-card-title",
-            [
-              _vm._v("\n            Edit the Topic"),
-              _c("v-spacer"),
-              _c(
-                "v-btn",
-                {
-                  attrs: { icon: "" },
-                  on: {
-                    click: function($event) {
-                      _vm.dialog = false
-                    }
-                  }
-                },
-                [_c("v-icon", [_vm._v("close")])],
-                1
-              )
-            ],
-            1
-          ),
-          _vm._v(" "),
-          _c("v-divider"),
-          _vm._v(" "),
-          _c(
-            "v-card-text",
-            [
-              _c(
-                "v-layout",
-                { attrs: { column: "" } },
-                [
-                  _c(
-                    "v-flex",
-                    [
-                      _c(
-                        "v-layout",
-                        { attrs: { row: "", wrap: "" } },
-                        [
-                          _c(
-                            "v-flex",
-                            { attrs: { lg6: "" } },
-                            [
-                              _c("v-text-field", {
-                                attrs: {
-                                  label: "Title",
-                                  counter: "190",
-                                  maxlength: "190",
-                                  required: "",
-                                  box: ""
-                                },
-                                model: {
-                                  value: _vm.title,
-                                  callback: function($$v) {
-                                    _vm.title =
-                                      typeof $$v === "string" ? $$v.trim() : $$v
-                                  },
-                                  expression: "title"
-                                }
-                              })
-                            ],
-                            1
-                          ),
-                          _vm._v(" "),
-                          _c(
-                            "v-flex",
-                            { attrs: { lg6: "" } },
-                            [
-                              _c("v-select", {
-                                staticClass: "input_forum_category",
-                                attrs: {
-                                  label: "Categories",
-                                  chips: "",
-                                  tags: "",
-                                  autocomplete: "",
-                                  required: "",
-                                  clearable: "",
-                                  "deletable-chips": "",
-                                  items: _vm.defaultCatogories
-                                },
-                                model: {
-                                  value: _vm.categories,
-                                  callback: function($$v) {
-                                    _vm.categories = $$v
-                                  },
-                                  expression: "categories"
-                                }
-                              })
-                            ],
-                            1
-                          )
-                        ],
-                        1
-                      )
-                    ],
-                    1
-                  ),
-                  _vm._v(" "),
-                  _c(
-                    "v-flex",
-                    [
-                      _c("v-text-field", {
-                        attrs: {
-                          "multi-line": "",
-                          box: "",
-                          label: "Question",
-                          required: ""
-                        },
-                        model: {
-                          value: _vm.question,
-                          callback: function($$v) {
-                            _vm.question =
-                              typeof $$v === "string" ? $$v.trim() : $$v
-                          },
-                          expression: "question"
-                        }
-                      })
-                    ],
-                    1
-                  ),
-                  _vm._v(" "),
-                  _c(
-                    "v-flex",
-                    { attrs: { lg12: "" } },
-                    [
-                      _c(
-                        "v-btn",
-                        {
-                          staticStyle: { "margin-left": "0px" },
-                          attrs: { color: "success", lg: "" },
-                          on: { click: _vm.edit }
-                        },
-                        [
-                          _vm._v(
-                            "\n                        Edit Topic\n                    "
-                          )
-                        ]
-                      )
-                    ],
-                    1
-                  )
-                ],
-                1
-              )
-            ],
-            1
-          )
-        ],
-        1
-      )
-    ],
-    1
-  )
-}
-var staticRenderFns = []
-render._withStripped = true
+    mounted: function mounted() {
+        var _this = this;
 
-if (false) {
-  module.hot.accept()
-  if (module.hot.data) {
-    require("vue-hot-reload-api")      .rerender("data-v-1f8fa0a7", { render: render, staticRenderFns: staticRenderFns })
-  }
-}
+        this.$http.get('/offer').then(function (response) {
+            var _articles;
+
+            (_articles = _this.articles).push.apply(_articles, _toConsumableArray(response.body));
+        });
+    }
+});
 
 /***/ }),
 
-/***/ 324:
+/***/ 184:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return render; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return staticRenderFns; });
-var render = function() {
-  var _vm = this
-  var _h = _vm.$createElement
-  var _c = _vm._self._c || _h
-  return _c(
-    "v-layout",
-    { staticClass: "elt_topic", attrs: { row: "" } },
-    [
-      _vm.$vuetify.breakpoint.smAndUp
-        ? _c(
-            "v-flex",
-            { staticStyle: { "padding-right": "0" }, attrs: { lg1: "" } },
-            [
-              _c("img", {
-                staticStyle: {
-                  height: "48px",
-                  width: "48px",
-                  "border-radius": "50%"
-                },
-                attrs: { src: _vm.owner.avatar, alt: "avatar" }
-              })
-            ]
-          )
-        : _vm._e(),
-      _vm._v(" "),
-      _c(
-        "v-flex",
-        { staticStyle: { "padding-left": "0" }, attrs: { xs12: "", lg11: "" } },
-        [
-          _c(
-            "v-card",
-            [
-              _c(
-                "v-card-text",
-                [
-                  _c(
-                    "v-layout",
-                    { attrs: { column: "" } },
-                    [
-                      _c(
-                        "v-flex",
-                        {
-                          staticStyle: {
-                            "padding-bottom": "0",
-                            "padding-top": "0"
-                          },
-                          attrs: { lg12: "" }
-                        },
-                        [
-                          _c(
-                            "div",
-                            {
-                              staticStyle: {
-                                width: "100%",
-                                display: "flex",
-                                "justify-content": "space-between"
-                              }
-                            },
-                            [
-                              _c(
-                                "div",
-                                [
-                                  _c(
-                                    "v-menu",
-                                    {
-                                      attrs: {
-                                        "offset-x": "",
-                                        "close-on-content-click": false,
-                                        "nudge-width": 200
-                                      },
-                                      model: {
-                                        value: _vm.userPopover,
-                                        callback: function($$v) {
-                                          _vm.userPopover = $$v
-                                        },
-                                        expression: "userPopover"
-                                      }
-                                    },
-                                    [
-                                      _c(
-                                        "a",
-                                        {
-                                          attrs: { slot: "activator" },
-                                          slot: "activator"
-                                        },
-                                        [
-                                          _vm._v(
-                                            _vm._s(
-                                              _vm.owner.name +
-                                                " " +
-                                                _vm.owner.forename
-                                            )
-                                          )
-                                        ]
-                                      ),
-                                      _vm._v(" "),
-                                      _vm.userPopover
-                                        ? _c(
-                                            "v-card",
-                                            [
-                                              _c(
-                                                "v-list",
-                                                [
-                                                  _c(
-                                                    "v-list-tile",
-                                                    {
-                                                      attrs: {
-                                                        avatar: "",
-                                                        to:
-                                                          "/profile/" +
-                                                          _vm.owner.id
-                                                      }
-                                                    },
-                                                    [
-                                                      _c("v-list-tile-avatar", [
-                                                        _c("img", {
-                                                          attrs: {
-                                                            src:
-                                                              _vm.owner.avatar,
-                                                            alt: "avatar"
-                                                          }
-                                                        })
-                                                      ]),
-                                                      _vm._v(" "),
-                                                      _c(
-                                                        "v-list-tile-content",
-                                                        [
-                                                          _c(
-                                                            "v-list-tile-title",
-                                                            [
-                                                              _vm._v(
-                                                                _vm._s(
-                                                                  _vm.owner
-                                                                    .name +
-                                                                    " " +
-                                                                    _vm.owner
-                                                                      .forename
-                                                                )
-                                                              )
-                                                            ]
-                                                          ),
-                                                          _vm._v(" "),
-                                                          _vm.owner.role ===
-                                                          "admin"
-                                                            ? _c(
-                                                                "v-list-tile-sub-title",
-                                                                [
-                                                                  _vm._v(
-                                                                    "Founder of Weltimo"
-                                                                  )
-                                                                ]
-                                                              )
-                                                            : _c(
-                                                                "v-list-tile-sub-title"
-                                                              )
-                                                        ],
-                                                        1
-                                                      ),
-                                                      _vm._v(" "),
-                                                      _c(
-                                                        "v-list-tile-action",
-                                                        [
-                                                          _vm.user.id !==
-                                                          _vm.owner.id
-                                                            ? _c(
-                                                                "v-btn",
-                                                                {
-                                                                  class: _vm
-                                                                    .owner
-                                                                    .followed
-                                                                    ? "blue--text"
-                                                                    : "",
-                                                                  attrs: {
-                                                                    icon: ""
-                                                                  },
-                                                                  nativeOn: {
-                                                                    click: function(
-                                                                      $event
-                                                                    ) {
-                                                                      $event.stopPropagation()
-                                                                      $event.preventDefault()
-                                                                      _vm.follow(
-                                                                        _vm.owner
-                                                                      )
-                                                                    }
-                                                                  }
-                                                                },
-                                                                [
-                                                                  _c("v-icon", [
-                                                                    _vm._v(
-                                                                      "person_add"
-                                                                    )
-                                                                  ])
-                                                                ],
-                                                                1
-                                                              )
-                                                            : _vm._e()
-                                                        ],
-                                                        1
-                                                      )
-                                                    ],
-                                                    1
-                                                  )
-                                                ],
-                                                1
-                                              ),
-                                              _vm._v(" "),
-                                              _c("v-divider"),
-                                              _vm._v(" "),
-                                              _c(
-                                                "v-layout",
-                                                { attrs: { column: "" } },
-                                                [
-                                                  _c(
-                                                    "v-flex",
-                                                    {
-                                                      attrs: {
-                                                        lg12: "",
-                                                        xs12: ""
-                                                      }
-                                                    },
-                                                    [
-                                                      _c(
-                                                        "v-avatar",
-                                                        {
-                                                          staticClass:
-                                                            "menuCover",
-                                                          staticStyle: {
-                                                            height: "150px"
-                                                          },
-                                                          attrs: {
-                                                            size: "200px",
-                                                            tile: true
-                                                          }
-                                                        },
-                                                        [
-                                                          _c("img", {
-                                                            attrs: {
-                                                              src:
-                                                                _vm.owner.cover,
-                                                              alt:
-                                                                "cover picture"
-                                                            }
-                                                          })
-                                                        ]
-                                                      )
-                                                    ],
-                                                    1
-                                                  ),
-                                                  _vm._v(" "),
-                                                  _c(
-                                                    "v-flex",
-                                                    {
-                                                      attrs: {
-                                                        lg12: "",
-                                                        xs12: ""
-                                                      }
-                                                    },
-                                                    [
-                                                      _c(
-                                                        "v-layout",
-                                                        {
-                                                          staticStyle: {
-                                                            margin: "10px"
-                                                          },
-                                                          attrs: {
-                                                            row: "",
-                                                            wrap: "",
-                                                            "align-center": "",
-                                                            "justify-center": ""
-                                                          }
-                                                        },
-                                                        [
-                                                          _c("v-flex", [
-                                                            _c(
-                                                              "p",
-                                                              {
-                                                                staticStyle: {
-                                                                  "margin-bottom":
-                                                                    "0px"
-                                                                }
-                                                              },
-                                                              [
-                                                                _vm._v(
-                                                                  "Following"
-                                                                )
-                                                              ]
-                                                            ),
-                                                            _c(
-                                                              "span",
-                                                              {
-                                                                staticStyle: {
-                                                                  color:
-                                                                    "#1B95E0 !important",
-                                                                  "font-size":
-                                                                    "20px"
-                                                                }
-                                                              },
-                                                              [
-                                                                _vm._v(
-                                                                  _vm._s(
-                                                                    _vm.owner
-                                                                      .following_count
-                                                                  )
-                                                                )
-                                                              ]
-                                                            )
-                                                          ]),
-                                                          _vm._v(" "),
-                                                          _c("v-flex", [
-                                                            _c(
-                                                              "p",
-                                                              {
-                                                                staticStyle: {
-                                                                  "margin-bottom":
-                                                                    "0px"
-                                                                }
-                                                              },
-                                                              [
-                                                                _vm._v(
-                                                                  "Followers"
-                                                                )
-                                                              ]
-                                                            ),
-                                                            _c(
-                                                              "span",
-                                                              {
-                                                                staticStyle: {
-                                                                  color:
-                                                                    "#1B95E0 !important",
-                                                                  "font-size":
-                                                                    "20px"
-                                                                }
-                                                              },
-                                                              [
-                                                                _vm._v(
-                                                                  _vm._s(
-                                                                    _vm.owner
-                                                                      .followers_count
-                                                                  )
-                                                                )
-                                                              ]
-                                                            )
-                                                          ])
-                                                        ],
-                                                        1
-                                                      )
-                                                    ],
-                                                    1
-                                                  )
-                                                ],
-                                                1
-                                              )
-                                            ],
-                                            1
-                                          )
-                                        : _vm._e()
-                                    ],
-                                    1
-                                  ),
-                                  _vm._v(" "),
-                                  _c(
-                                    "small",
-                                    [
-                                      _c("timeago", {
-                                        attrs: {
-                                          since: _vm.topic.created_at,
-                                          "auto-update": 61,
-                                          "max-time": 86400 * 365
-                                        }
-                                      })
-                                    ],
-                                    1
-                                  )
-                                ],
-                                1
-                              ),
-                              _vm._v(" "),
-                              _c(
-                                "v-menu",
-                                [
-                                  _c(
-                                    "v-btn",
-                                    {
-                                      attrs: { slot: "activator", icon: "" },
-                                      slot: "activator"
-                                    },
-                                    [_c("v-icon", [_vm._v("more_vert")])],
-                                    1
-                                  ),
-                                  _vm._v(" "),
-                                  _c(
-                                    "v-list",
-                                    [
-                                      _c(
-                                        "v-list-tile",
-                                        { on: { click: _vm.copie } },
-                                        [
-                                          _c(
-                                            "v-list-tile-action",
-                                            [_c("v-icon", [_vm._v("link")])],
-                                            1
-                                          ),
-                                          _vm._v(" "),
-                                          _c(
-                                            "v-list-tile-content",
-                                            [
-                                              _c("v-list-tile-title", [
-                                                _vm._v("copie the link")
-                                              ])
-                                            ],
-                                            1
-                                          )
-                                        ],
-                                        1
-                                      ),
-                                      _vm._v(" "),
-                                      _c(
-                                        "v-list-tile",
-                                        {
-                                          on: {
-                                            click: function($event) {
-                                              _vm.openDialogShare = true
-                                            }
-                                          }
-                                        },
-                                        [
-                                          _c(
-                                            "v-list-tile-action",
-                                            [_c("v-icon", [_vm._v("share")])],
-                                            1
-                                          ),
-                                          _vm._v(" "),
-                                          _c(
-                                            "v-list-tile-content",
-                                            [
-                                              _c("v-list-tile-title", [
-                                                _vm._v("Share")
-                                              ])
-                                            ],
-                                            1
-                                          )
-                                        ],
-                                        1
-                                      ),
-                                      _vm._v(" "),
-                                      _vm.user.id === _vm.owner.id
-                                        ? _c(
-                                            "v-list-tile",
-                                            {
-                                              on: {
-                                                click: function($event) {
-                                                  _vm.opendialogForumEditForm = true
-                                                }
-                                              }
-                                            },
-                                            [
-                                              _c(
-                                                "v-list-tile-action",
-                                                [
-                                                  _c("v-icon", [_vm._v("edit")])
-                                                ],
-                                                1
-                                              ),
-                                              _vm._v(" "),
-                                              _c(
-                                                "v-list-tile-content",
-                                                [
-                                                  _c("v-list-tile-title", [
-                                                    _vm._v("Edit")
-                                                  ])
-                                                ],
-                                                1
-                                              )
-                                            ],
-                                            1
-                                          )
-                                        : _vm._e(),
-                                      _vm._v(" "),
-                                      _c(
-                                        "v-list-tile",
-                                        { on: { click: function($event) {} } },
-                                        [
-                                          _c(
-                                            "v-list-tile-action",
-                                            [_c("v-icon", [_vm._v("info")])],
-                                            1
-                                          ),
-                                          _vm._v(" "),
-                                          _c(
-                                            "v-list-tile-content",
-                                            [
-                                              _c("v-list-tile-title", [
-                                                _vm._v("Signal")
-                                              ])
-                                            ],
-                                            1
-                                          )
-                                        ],
-                                        1
-                                      ),
-                                      _vm._v(" "),
-                                      _vm.user.id === _vm.owner.id
-                                        ? _c(
-                                            "v-list-tile",
-                                            {
-                                              on: {
-                                                click: function($event) {
-                                                  _vm.topicDelete = true
-                                                }
-                                              }
-                                            },
-                                            [
-                                              _c(
-                                                "v-list-tile-action",
-                                                [
-                                                  _c("v-icon", [
-                                                    _vm._v("delete")
-                                                  ])
-                                                ],
-                                                1
-                                              ),
-                                              _vm._v(" "),
-                                              _c(
-                                                "v-list-tile-content",
-                                                [
-                                                  _c("v-list-tile-title", [
-                                                    _vm._v("Delete")
-                                                  ])
-                                                ],
-                                                1
-                                              )
-                                            ],
-                                            1
-                                          )
-                                        : _vm._e()
-                                    ],
-                                    1
-                                  )
-                                ],
-                                1
-                              )
-                            ],
-                            1
-                          )
-                        ]
-                      ),
-                      _vm._v(" "),
-                      _c("v-divider"),
-                      _vm._v(" "),
-                      _vm.topic.title
-                        ? _c(
-                            "v-flex",
-                            {
-                              staticStyle: {
-                                "font-size": "18px",
-                                "line-height": "20px"
-                              },
-                              attrs: { lg12: "" }
-                            },
-                            [_vm._v(_vm._s(_vm.topic.title))]
-                          )
-                        : _vm._e(),
-                      _vm._v(" "),
-                      _c(
-                        "v-flex",
-                        {
-                          staticStyle: {
-                            height: "inherit",
-                            "white-space": "pre-wrap"
-                          },
-                          attrs: { lg12: "" }
-                        },
-                        [_vm._v(_vm._s(JSON.parse(_vm.topic.question)[0].text))]
-                      )
-                    ],
-                    1
-                  )
-                ],
-                1
-              )
-            ],
-            1
-          )
-        ],
-        1
-      ),
-      _vm._v(" "),
-      _c(
-        "v-dialog",
-        {
-          attrs: { "max-width": "290" },
-          model: {
-            value: _vm.topicDelete,
-            callback: function($$v) {
-              _vm.topicDelete = $$v
-            },
-            expression: "topicDelete"
-          }
-        },
-        [
-          _c(
-            "v-card",
-            [
-              _vm.loading
-                ? _c("v-progress-linear", {
-                    staticStyle: { margin: "0" },
-                    attrs: { indeterminate: "true" }
-                  })
-                : _vm._e(),
-              _vm._v(" "),
-              _c("v-card-title", { staticClass: "headline" }, [
-                _vm._v("Deleting the  response.")
-              ]),
-              _vm._v(" "),
-              _c("v-divider"),
-              _vm._v(" "),
-              _c("v-card-text", [
-                _vm._v(
-                  "\n                Are you sure you want to delete this topic?\n            "
-                )
-              ]),
-              _vm._v(" "),
-              _c(
-                "v-card-actions",
-                [
-                  _c("v-spacer"),
-                  _vm._v(" "),
-                  _c(
-                    "v-btn",
-                    {
-                      attrs: { flat: "flat" },
-                      nativeOn: {
-                        click: function($event) {
-                          _vm.topicDelete = false
-                        }
-                      }
-                    },
-                    [_vm._v("Cancel")]
-                  ),
-                  _vm._v(" "),
-                  _c(
-                    "v-btn",
-                    {
-                      attrs: { color: "primary", flat: "flat" },
-                      nativeOn: {
-                        click: function($event) {
-                          _vm.destroy($event)
-                        }
-                      }
-                    },
-                    [_vm._v("Confirm")]
-                  )
-                ],
-                1
-              )
-            ],
-            1
-          )
-        ],
-        1
-      ),
-      _vm._v(" "),
-      _c("dialog-forum-topic-edit-form", {
-        attrs: { topic: _vm.topic, open: _vm.opendialogForumEditForm },
-        on: {
-          close: function($event) {
-            _vm.opendialogForumEditForm = false
-          }
-        }
-      }),
-      _vm._v(" "),
-      _c("dialog-share", {
-        attrs: {
-          open: _vm.openDialogShare,
-          url: _vm.urlTopic(this.topic.id),
-          message: _vm.topic.title
-        },
-        on: {
-          close: function($event) {
-            _vm.openDialogShare = false
-          }
-        }
-      })
-    ],
-    1
-  )
-}
-var staticRenderFns = []
-render._withStripped = true
-
-if (false) {
-  module.hot.accept()
-  if (module.hot.data) {
-    require("vue-hot-reload-api")      .rerender("data-v-7a3639aa", { render: render, staticRenderFns: staticRenderFns })
-  }
-}
-
-/***/ }),
-
-/***/ 325:
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__babel_loader_cacheDirectory_true_presets_env_modules_false_targets_browsers_2_uglify_true_env_modules_false_targets_browsers_last_2_versions_safari_7_debug_true_plugins_transform_object_rest_spread_transform_runtime_polyfill_false_helpers_false_syntax_dynamic_import_node_modules_vue_loader_lib_selector_type_script_index_0_TopicResponse_vue__ = __webpack_require__(203);
-/* unused harmony namespace reexport */
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_3bb005d5_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_TopicResponse_vue__ = __webpack_require__(328);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__node_modules_vue_loader_lib_runtime_component_normalizer__ = __webpack_require__(3);
-var disposed = false
-/* script */
-
-
-/* template */
-
-/* template functional */
-var __vue_template_functional__ = false
-/* styles */
-var __vue_styles__ = null
-/* scopeId */
-var __vue_scopeId__ = null
-/* moduleIdentifier (server only) */
-var __vue_module_identifier__ = null
-
-var Component = Object(__WEBPACK_IMPORTED_MODULE_2__node_modules_vue_loader_lib_runtime_component_normalizer__["a" /* default */])(
-  __WEBPACK_IMPORTED_MODULE_0__babel_loader_cacheDirectory_true_presets_env_modules_false_targets_browsers_2_uglify_true_env_modules_false_targets_browsers_last_2_versions_safari_7_debug_true_plugins_transform_object_rest_spread_transform_runtime_polyfill_false_helpers_false_syntax_dynamic_import_node_modules_vue_loader_lib_selector_type_script_index_0_TopicResponse_vue__["a" /* default */],
-  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_3bb005d5_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_TopicResponse_vue__["a" /* render */],
-  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_3bb005d5_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_TopicResponse_vue__["b" /* staticRenderFns */],
-  __vue_template_functional__,
-  __vue_styles__,
-  __vue_scopeId__,
-  __vue_module_identifier__
-)
-Component.options.__file = "resources/assets/js/components/user/forum/TopicResponse.vue"
-
-/* hot reload */
-if (false) {(function () {
-  var hotAPI = require("vue-hot-reload-api")
-  hotAPI.install(require("vue"), false)
-  if (!hotAPI.compatible) return
-  module.hot.accept()
-  if (!module.hot.data) {
-    hotAPI.createRecord("data-v-3bb005d5", Component.options)
-  } else {
-    hotAPI.reload("data-v-3bb005d5", Component.options)
-  }
-  module.hot.dispose(function (data) {
-    disposed = true
-  })
-})()}
-
-/* harmony default export */ __webpack_exports__["a"] = (Component.exports);
-
-
-/***/ }),
-
-/***/ 326:
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__babel_loader_cacheDirectory_true_presets_env_modules_false_targets_browsers_2_uglify_true_env_modules_false_targets_browsers_last_2_versions_safari_7_debug_true_plugins_transform_object_rest_spread_transform_runtime_polyfill_false_helpers_false_syntax_dynamic_import_node_modules_vue_loader_lib_selector_type_script_index_0_ForumResponseEditForm_vue__ = __webpack_require__(204);
-/* unused harmony namespace reexport */
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_0b7f5a56_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_ForumResponseEditForm_vue__ = __webpack_require__(327);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__node_modules_vue_loader_lib_runtime_component_normalizer__ = __webpack_require__(3);
-var disposed = false
-/* script */
-
-
-/* template */
-
-/* template functional */
-var __vue_template_functional__ = false
-/* styles */
-var __vue_styles__ = null
-/* scopeId */
-var __vue_scopeId__ = null
-/* moduleIdentifier (server only) */
-var __vue_module_identifier__ = null
-
-var Component = Object(__WEBPACK_IMPORTED_MODULE_2__node_modules_vue_loader_lib_runtime_component_normalizer__["a" /* default */])(
-  __WEBPACK_IMPORTED_MODULE_0__babel_loader_cacheDirectory_true_presets_env_modules_false_targets_browsers_2_uglify_true_env_modules_false_targets_browsers_last_2_versions_safari_7_debug_true_plugins_transform_object_rest_spread_transform_runtime_polyfill_false_helpers_false_syntax_dynamic_import_node_modules_vue_loader_lib_selector_type_script_index_0_ForumResponseEditForm_vue__["a" /* default */],
-  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_0b7f5a56_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_ForumResponseEditForm_vue__["a" /* render */],
-  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_0b7f5a56_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_ForumResponseEditForm_vue__["b" /* staticRenderFns */],
-  __vue_template_functional__,
-  __vue_styles__,
-  __vue_scopeId__,
-  __vue_module_identifier__
-)
-Component.options.__file = "resources/assets/js/components/user/forum/ForumResponseEditForm.vue"
-
-/* hot reload */
-if (false) {(function () {
-  var hotAPI = require("vue-hot-reload-api")
-  hotAPI.install(require("vue"), false)
-  if (!hotAPI.compatible) return
-  module.hot.accept()
-  if (!module.hot.data) {
-    hotAPI.createRecord("data-v-0b7f5a56", Component.options)
-  } else {
-    hotAPI.reload("data-v-0b7f5a56", Component.options)
-  }
-  module.hot.dispose(function (data) {
-    disposed = true
-  })
-})()}
-
-/* harmony default export */ __webpack_exports__["a"] = (Component.exports);
-
-
-/***/ }),
-
-/***/ 327:
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return render; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return staticRenderFns; });
-var render = function() {
-  var _vm = this
-  var _h = _vm.$createElement
-  var _c = _vm._self._c || _h
-  return _c(
-    "v-dialog",
-    {
-      attrs: { "max-width": "700" },
-      model: {
-        value: _vm.dialog,
-        callback: function($$v) {
-          _vm.dialog = $$v
-        },
-        expression: "dialog"
-      }
-    },
-    [
-      _c(
-        "v-card",
-        [
-          _vm.loading
-            ? _c("v-progress-linear", { attrs: { indeterminate: true } })
-            : _vm._e(),
-          _vm._v(" "),
-          _c(
-            "v-card-title",
-            [
-              _vm._v("\n            Edit the response"),
-              _c("v-spacer"),
-              _c(
-                "v-btn",
-                {
-                  attrs: { icon: "" },
-                  on: {
-                    click: function($event) {
-                      _vm.dialog = false
-                    }
-                  }
-                },
-                [_c("v-icon", [_vm._v("close")])],
-                1
-              )
-            ],
-            1
-          ),
-          _vm._v(" "),
-          _c("v-divider"),
-          _vm._v(" "),
-          _c(
-            "v-card-text",
-            [
-              _c(
-                "v-layout",
-                { attrs: { column: "" } },
-                [
-                  _c(
-                    "v-flex",
-                    { attrs: { lg12: "" } },
-                    [
-                      _c("v-text-field", {
-                        attrs: {
-                          "multi-line": "",
-                          box: "",
-                          label: "Answer",
-                          required: ""
-                        },
-                        model: {
-                          value: _vm.response,
-                          callback: function($$v) {
-                            _vm.response =
-                              typeof $$v === "string" ? $$v.trim() : $$v
-                          },
-                          expression: "response"
-                        }
-                      })
-                    ],
-                    1
-                  ),
-                  _vm._v(" "),
-                  _c(
-                    "v-flex",
-                    { attrs: { lg12: "" } },
-                    [
-                      _c(
-                        "v-btn",
-                        {
-                          staticStyle: { "margin-left": "0px" },
-                          attrs: { color: "success", lg: "" },
-                          on: { click: _vm.edit }
-                        },
-                        [
-                          _vm._v(
-                            "\n                        Edit Response\n                    "
-                          )
-                        ]
-                      )
-                    ],
-                    1
-                  )
-                ],
-                1
-              )
-            ],
-            1
-          )
-        ],
-        1
-      )
-    ],
-    1
-  )
-}
-var staticRenderFns = []
-render._withStripped = true
-
-if (false) {
-  module.hot.accept()
-  if (module.hot.data) {
-    require("vue-hot-reload-api")      .rerender("data-v-0b7f5a56", { render: render, staticRenderFns: staticRenderFns })
-  }
-}
-
-/***/ }),
-
-/***/ 328:
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return render; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return staticRenderFns; });
-var render = function() {
-  var _vm = this
-  var _h = _vm.$createElement
-  var _c = _vm._self._c || _h
-  return _c(
-    "v-layout",
-    {
-      staticClass: "elt_topic",
-      attrs: { id: "topicresponse" + _vm.topicresponse.id, row: "" }
-    },
-    [
-      _vm.$vuetify.breakpoint.smAndUp
-        ? _c(
-            "v-flex",
-            { staticStyle: { "padding-right": "0" }, attrs: { lg1: "" } },
-            [
-              _c("img", {
-                staticStyle: {
-                  height: "48px",
-                  width: "48px",
-                  "border-radius": "50%"
-                },
-                attrs: { src: _vm.owner.avatar, alt: "avatar" }
-              })
-            ]
-          )
-        : _vm._e(),
-      _vm._v(" "),
-      _c(
-        "v-flex",
-        { staticStyle: { "padding-left": "0" }, attrs: { lg11: "" } },
-        [
-          _c(
-            "v-card",
-            [
-              _c(
-                "v-card-text",
-                [
-                  _c(
-                    "v-layout",
-                    { attrs: { column: "" } },
-                    [
-                      _c(
-                        "v-flex",
-                        {
-                          staticStyle: {
-                            "padding-bottom": "0",
-                            "padding-top": "0"
-                          },
-                          attrs: { lg12: "" }
-                        },
-                        [
-                          _c(
-                            "div",
-                            {
-                              staticStyle: {
-                                width: "100%",
-                                display: "flex",
-                                "justify-content": "space-between"
-                              }
-                            },
-                            [
-                              _c(
-                                "div",
-                                [
-                                  _c(
-                                    "v-menu",
-                                    {
-                                      attrs: {
-                                        "offset-x": "",
-                                        "close-on-content-click": false,
-                                        "nudge-width": 200
-                                      },
-                                      model: {
-                                        value: _vm.userPopover,
-                                        callback: function($$v) {
-                                          _vm.userPopover = $$v
-                                        },
-                                        expression: "userPopover"
-                                      }
-                                    },
-                                    [
-                                      _c(
-                                        "a",
-                                        {
-                                          attrs: { slot: "activator" },
-                                          slot: "activator"
-                                        },
-                                        [
-                                          _vm._v(
-                                            _vm._s(
-                                              _vm.owner.name +
-                                                " " +
-                                                _vm.owner.forename
-                                            )
-                                          )
-                                        ]
-                                      ),
-                                      _vm._v(" "),
-                                      _vm.userPopover
-                                        ? _c(
-                                            "v-card",
-                                            [
-                                              _c(
-                                                "v-list",
-                                                [
-                                                  _c(
-                                                    "v-list-tile",
-                                                    {
-                                                      attrs: {
-                                                        avatar: "",
-                                                        to:
-                                                          "/profile/" +
-                                                          _vm.owner.id
-                                                      }
-                                                    },
-                                                    [
-                                                      _c("v-list-tile-avatar", [
-                                                        _c("img", {
-                                                          attrs: {
-                                                            src:
-                                                              _vm.owner.avatar,
-                                                            alt: "avatar"
-                                                          }
-                                                        })
-                                                      ]),
-                                                      _vm._v(" "),
-                                                      _c(
-                                                        "v-list-tile-content",
-                                                        [
-                                                          _c(
-                                                            "v-list-tile-title",
-                                                            [
-                                                              _vm._v(
-                                                                _vm._s(
-                                                                  _vm.owner
-                                                                    .name +
-                                                                    " " +
-                                                                    _vm.owner
-                                                                      .forename
-                                                                )
-                                                              )
-                                                            ]
-                                                          ),
-                                                          _vm._v(" "),
-                                                          _vm.owner.role ===
-                                                          "admin"
-                                                            ? _c(
-                                                                "v-list-tile-sub-title",
-                                                                [
-                                                                  _vm._v(
-                                                                    "Founder of Weltimo"
-                                                                  )
-                                                                ]
-                                                              )
-                                                            : _c(
-                                                                "v-list-tile-sub-title"
-                                                              )
-                                                        ],
-                                                        1
-                                                      ),
-                                                      _vm._v(" "),
-                                                      _c(
-                                                        "v-list-tile-action",
-                                                        [
-                                                          _vm.user.id !==
-                                                          _vm.owner.id
-                                                            ? _c(
-                                                                "v-btn",
-                                                                {
-                                                                  class: _vm
-                                                                    .owner
-                                                                    .followed
-                                                                    ? "blue--text"
-                                                                    : "",
-                                                                  attrs: {
-                                                                    icon: ""
-                                                                  },
-                                                                  nativeOn: {
-                                                                    click: function(
-                                                                      $event
-                                                                    ) {
-                                                                      $event.stopPropagation()
-                                                                      $event.preventDefault()
-                                                                      _vm.follow(
-                                                                        _vm.owner
-                                                                      )
-                                                                    }
-                                                                  }
-                                                                },
-                                                                [
-                                                                  _c("v-icon", [
-                                                                    _vm._v(
-                                                                      "person_add"
-                                                                    )
-                                                                  ])
-                                                                ],
-                                                                1
-                                                              )
-                                                            : _vm._e()
-                                                        ],
-                                                        1
-                                                      )
-                                                    ],
-                                                    1
-                                                  )
-                                                ],
-                                                1
-                                              ),
-                                              _vm._v(" "),
-                                              _c("v-divider"),
-                                              _vm._v(" "),
-                                              _c(
-                                                "v-layout",
-                                                { attrs: { column: "" } },
-                                                [
-                                                  _c(
-                                                    "v-flex",
-                                                    {
-                                                      attrs: {
-                                                        lg12: "",
-                                                        xs12: ""
-                                                      }
-                                                    },
-                                                    [
-                                                      _c(
-                                                        "v-avatar",
-                                                        {
-                                                          staticClass:
-                                                            "menuCover",
-                                                          staticStyle: {
-                                                            height: "150px"
-                                                          },
-                                                          attrs: {
-                                                            size: "200px",
-                                                            tile: true
-                                                          }
-                                                        },
-                                                        [
-                                                          _c("img", {
-                                                            attrs: {
-                                                              src:
-                                                                _vm.owner.cover,
-                                                              alt:
-                                                                "cover picture"
-                                                            }
-                                                          })
-                                                        ]
-                                                      )
-                                                    ],
-                                                    1
-                                                  ),
-                                                  _vm._v(" "),
-                                                  _c(
-                                                    "v-flex",
-                                                    {
-                                                      attrs: {
-                                                        lg12: "",
-                                                        xs12: ""
-                                                      }
-                                                    },
-                                                    [
-                                                      _c(
-                                                        "v-layout",
-                                                        {
-                                                          staticStyle: {
-                                                            margin: "10px"
-                                                          },
-                                                          attrs: {
-                                                            row: "",
-                                                            wrap: "",
-                                                            "align-center": "",
-                                                            "justify-center": ""
-                                                          }
-                                                        },
-                                                        [
-                                                          _c("v-flex", [
-                                                            _c(
-                                                              "p",
-                                                              {
-                                                                staticStyle: {
-                                                                  "margin-bottom":
-                                                                    "0px"
-                                                                }
-                                                              },
-                                                              [
-                                                                _vm._v(
-                                                                  "Following"
-                                                                )
-                                                              ]
-                                                            ),
-                                                            _c(
-                                                              "span",
-                                                              {
-                                                                staticStyle: {
-                                                                  color:
-                                                                    "#1B95E0 !important",
-                                                                  "font-size":
-                                                                    "20px"
-                                                                }
-                                                              },
-                                                              [
-                                                                _vm._v(
-                                                                  _vm._s(
-                                                                    _vm.owner
-                                                                      .following_count
-                                                                  )
-                                                                )
-                                                              ]
-                                                            )
-                                                          ]),
-                                                          _vm._v(" "),
-                                                          _c("v-flex", [
-                                                            _c(
-                                                              "p",
-                                                              {
-                                                                staticStyle: {
-                                                                  "margin-bottom":
-                                                                    "0px"
-                                                                }
-                                                              },
-                                                              [
-                                                                _vm._v(
-                                                                  "Followers"
-                                                                )
-                                                              ]
-                                                            ),
-                                                            _c(
-                                                              "span",
-                                                              {
-                                                                staticStyle: {
-                                                                  color:
-                                                                    "#1B95E0 !important",
-                                                                  "font-size":
-                                                                    "20px"
-                                                                }
-                                                              },
-                                                              [
-                                                                _vm._v(
-                                                                  _vm._s(
-                                                                    _vm.owner
-                                                                      .followers_count
-                                                                  )
-                                                                )
-                                                              ]
-                                                            )
-                                                          ])
-                                                        ],
-                                                        1
-                                                      )
-                                                    ],
-                                                    1
-                                                  )
-                                                ],
-                                                1
-                                              )
-                                            ],
-                                            1
-                                          )
-                                        : _vm._e()
-                                    ],
-                                    1
-                                  ),
-                                  _vm._v(" "),
-                                  _c(
-                                    "small",
-                                    [
-                                      _c("timeago", {
-                                        attrs: {
-                                          since: _vm.topicresponse.created_at,
-                                          "auto-update": 61,
-                                          "max-time": 86400 * 365
-                                        }
-                                      })
-                                    ],
-                                    1
-                                  )
-                                ],
-                                1
-                              ),
-                              _vm._v(" "),
-                              _c(
-                                "v-menu",
-                                [
-                                  _c(
-                                    "v-btn",
-                                    {
-                                      attrs: { slot: "activator", icon: "" },
-                                      slot: "activator"
-                                    },
-                                    [_c("v-icon", [_vm._v("more_vert")])],
-                                    1
-                                  ),
-                                  _vm._v(" "),
-                                  _c(
-                                    "v-list",
-                                    [
-                                      _c(
-                                        "v-list-tile",
-                                        { on: { click: _vm.copie } },
-                                        [
-                                          _c(
-                                            "v-list-tile-action",
-                                            [_c("v-icon", [_vm._v("link")])],
-                                            1
-                                          ),
-                                          _vm._v(" "),
-                                          _c(
-                                            "v-list-tile-content",
-                                            [
-                                              _c("v-list-tile-title", [
-                                                _vm._v("copie the link")
-                                              ])
-                                            ],
-                                            1
-                                          )
-                                        ],
-                                        1
-                                      ),
-                                      _vm._v(" "),
-                                      _c(
-                                        "v-list-tile",
-                                        {
-                                          on: {
-                                            click: function($event) {
-                                              _vm.openDialogShare = true
-                                            }
-                                          }
-                                        },
-                                        [
-                                          _c(
-                                            "v-list-tile-action",
-                                            [_c("v-icon", [_vm._v("share")])],
-                                            1
-                                          ),
-                                          _vm._v(" "),
-                                          _c(
-                                            "v-list-tile-content",
-                                            [
-                                              _c("v-list-tile-title", [
-                                                _vm._v("Share")
-                                              ])
-                                            ],
-                                            1
-                                          )
-                                        ],
-                                        1
-                                      ),
-                                      _vm._v(" "),
-                                      _vm.user.id === _vm.owner.id
-                                        ? _c(
-                                            "v-list-tile",
-                                            {
-                                              on: {
-                                                click: function($event) {
-                                                  _vm.openDialogEditForm = true
-                                                }
-                                              }
-                                            },
-                                            [
-                                              _c(
-                                                "v-list-tile-action",
-                                                [
-                                                  _c("v-icon", [_vm._v("edit")])
-                                                ],
-                                                1
-                                              ),
-                                              _vm._v(" "),
-                                              _c(
-                                                "v-list-tile-content",
-                                                [
-                                                  _c("v-list-tile-title", [
-                                                    _vm._v("Edit")
-                                                  ])
-                                                ],
-                                                1
-                                              )
-                                            ],
-                                            1
-                                          )
-                                        : _vm._e(),
-                                      _vm._v(" "),
-                                      _c(
-                                        "v-list-tile",
-                                        { on: { click: _vm.masquer } },
-                                        [
-                                          _c(
-                                            "v-list-tile-action",
-                                            [_c("v-icon", [_vm._v("cancel")])],
-                                            1
-                                          ),
-                                          _vm._v(" "),
-                                          _c(
-                                            "v-list-tile-content",
-                                            [
-                                              _c("v-list-tile-title", [
-                                                _vm._v("Hide")
-                                              ])
-                                            ],
-                                            1
-                                          )
-                                        ],
-                                        1
-                                      ),
-                                      _vm._v(" "),
-                                      _c(
-                                        "v-list-tile",
-                                        { on: { click: function($event) {} } },
-                                        [
-                                          _c(
-                                            "v-list-tile-action",
-                                            [_c("v-icon", [_vm._v("info")])],
-                                            1
-                                          ),
-                                          _vm._v(" "),
-                                          _c(
-                                            "v-list-tile-content",
-                                            [
-                                              _c("v-list-tile-title", [
-                                                _vm._v("Signal")
-                                              ])
-                                            ],
-                                            1
-                                          )
-                                        ],
-                                        1
-                                      ),
-                                      _vm._v(" "),
-                                      _vm.user.id === _vm.owner.id
-                                        ? _c(
-                                            "v-list-tile",
-                                            {
-                                              on: {
-                                                click: function($event) {
-                                                  _vm.topicDelete = true
-                                                }
-                                              }
-                                            },
-                                            [
-                                              _c(
-                                                "v-list-tile-action",
-                                                [
-                                                  _c("v-icon", [
-                                                    _vm._v("delete")
-                                                  ])
-                                                ],
-                                                1
-                                              ),
-                                              _vm._v(" "),
-                                              _c(
-                                                "v-list-tile-content",
-                                                [
-                                                  _c("v-list-tile-title", [
-                                                    _vm._v("Delete")
-                                                  ])
-                                                ],
-                                                1
-                                              )
-                                            ],
-                                            1
-                                          )
-                                        : _vm._e()
-                                    ],
-                                    1
-                                  )
-                                ],
-                                1
-                              )
-                            ],
-                            1
-                          )
-                        ]
-                      ),
-                      _vm._v(" "),
-                      _c("v-divider"),
-                      _vm._v(" "),
-                      _c(
-                        "v-flex",
-                        {
-                          staticStyle: {
-                            height: "inherit",
-                            "white-space": "pre-wrap"
-                          },
-                          attrs: { lg12: "" }
-                        },
-                        [
-                          _vm._v(
-                            _vm._s(
-                              JSON.parse(_vm.topicresponse.response)[0].text
-                            )
-                          )
-                        ]
-                      )
-                    ],
-                    1
-                  )
-                ],
-                1
-              )
-            ],
-            1
-          )
-        ],
-        1
-      ),
-      _vm._v(" "),
-      _c(
-        "v-dialog",
-        {
-          attrs: { "max-width": "290" },
-          model: {
-            value: _vm.topicDelete,
-            callback: function($$v) {
-              _vm.topicDelete = $$v
-            },
-            expression: "topicDelete"
-          }
-        },
-        [
-          _c(
-            "v-card",
-            [
-              _vm.loading
-                ? _c("v-progress-linear", {
-                    staticStyle: { margin: "0" },
-                    attrs: { indeterminate: true }
-                  })
-                : _vm._e(),
-              _vm._v(" "),
-              _c("v-card-title", { staticClass: "headline" }, [
-                _vm._v("Deleting the  response.")
-              ]),
-              _vm._v(" "),
-              _c("v-divider"),
-              _vm._v(" "),
-              _c("v-card-text", [
-                _vm._v(
-                  "\n                Are you sure you want to delete this response?\n            "
-                )
-              ]),
-              _vm._v(" "),
-              _c(
-                "v-card-actions",
-                [
-                  _c("v-spacer"),
-                  _vm._v(" "),
-                  _c(
-                    "v-btn",
-                    {
-                      attrs: { flat: "flat" },
-                      nativeOn: {
-                        click: function($event) {
-                          _vm.topicDelete = false
-                        }
-                      }
-                    },
-                    [_vm._v("Cancel")]
-                  ),
-                  _vm._v(" "),
-                  _c(
-                    "v-btn",
-                    {
-                      attrs: { color: "primary", flat: "flat" },
-                      nativeOn: {
-                        click: function($event) {
-                          _vm.destroy($event)
-                        }
-                      }
-                    },
-                    [_vm._v("Confirm")]
-                  )
-                ],
-                1
-              )
-            ],
-            1
-          )
-        ],
-        1
-      ),
-      _vm._v(" "),
-      _c("dialog-forum-response-edit-form", {
-        attrs: {
-          open: _vm.openDialogEditForm,
-          topicresponse: _vm.topicresponse
-        },
-        on: {
-          close: function($event) {
-            _vm.openDialogEditForm = false
-          }
-        }
-      }),
-      _vm._v(" "),
-      _c("dialog-share", {
-        attrs: {
-          open: _vm.openDialogShare,
-          url: _vm.urlTopicResponse(_vm.$route.params.id, _vm.topicresponse.id)
-        },
-        on: {
-          close: function($event) {
-            _vm.openDialogShare = false
-          }
-        }
-      })
-    ],
-    1
-  )
-}
-var staticRenderFns = []
-render._withStripped = true
-
-if (false) {
-  module.hot.accept()
-  if (module.hot.data) {
-    require("vue-hot-reload-api")      .rerender("data-v-3bb005d5", { render: render, staticRenderFns: staticRenderFns })
-  }
-}
-
-/***/ }),
-
-/***/ 329:
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__babel_loader_cacheDirectory_true_presets_env_modules_false_targets_browsers_2_uglify_true_env_modules_false_targets_browsers_last_2_versions_safari_7_debug_true_plugins_transform_object_rest_spread_transform_runtime_polyfill_false_helpers_false_syntax_dynamic_import_node_modules_vue_loader_lib_selector_type_script_index_0_ForumForm_vue__ = __webpack_require__(205);
-/* unused harmony namespace reexport */
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_df725e6c_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_ForumForm_vue__ = __webpack_require__(330);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__node_modules_vue_loader_lib_runtime_component_normalizer__ = __webpack_require__(3);
-var disposed = false
-/* script */
-
-
-/* template */
-
-/* template functional */
-var __vue_template_functional__ = false
-/* styles */
-var __vue_styles__ = null
-/* scopeId */
-var __vue_scopeId__ = null
-/* moduleIdentifier (server only) */
-var __vue_module_identifier__ = null
-
-var Component = Object(__WEBPACK_IMPORTED_MODULE_2__node_modules_vue_loader_lib_runtime_component_normalizer__["a" /* default */])(
-  __WEBPACK_IMPORTED_MODULE_0__babel_loader_cacheDirectory_true_presets_env_modules_false_targets_browsers_2_uglify_true_env_modules_false_targets_browsers_last_2_versions_safari_7_debug_true_plugins_transform_object_rest_spread_transform_runtime_polyfill_false_helpers_false_syntax_dynamic_import_node_modules_vue_loader_lib_selector_type_script_index_0_ForumForm_vue__["a" /* default */],
-  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_df725e6c_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_ForumForm_vue__["a" /* render */],
-  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_df725e6c_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_ForumForm_vue__["b" /* staticRenderFns */],
-  __vue_template_functional__,
-  __vue_styles__,
-  __vue_scopeId__,
-  __vue_module_identifier__
-)
-Component.options.__file = "resources/assets/js/components/user/forum/ForumForm.vue"
-
-/* hot reload */
-if (false) {(function () {
-  var hotAPI = require("vue-hot-reload-api")
-  hotAPI.install(require("vue"), false)
-  if (!hotAPI.compatible) return
-  module.hot.accept()
-  if (!module.hot.data) {
-    hotAPI.createRecord("data-v-df725e6c", Component.options)
-  } else {
-    hotAPI.reload("data-v-df725e6c", Component.options)
-  }
-  module.hot.dispose(function (data) {
-    disposed = true
-  })
-})()}
-
-/* harmony default export */ __webpack_exports__["a"] = (Component.exports);
-
-
-/***/ }),
-
-/***/ 330:
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return render; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return staticRenderFns; });
-var render = function() {
-  var _vm = this
-  var _h = _vm.$createElement
-  var _c = _vm._self._c || _h
-  return _c(
-    "v-layout",
-    { attrs: { column: "" } },
-    [
-      _c(
-        "v-flex",
-        { attrs: { lg12: "" } },
-        [
-          _c("v-text-field", {
-            attrs: { "multi-line": "", box: "", label: "Answer", required: "" },
-            model: {
-              value: _vm.response,
-              callback: function($$v) {
-                _vm.response = typeof $$v === "string" ? $$v.trim() : $$v
-              },
-              expression: "response"
-            }
-          })
-        ],
-        1
-      ),
-      _vm._v(" "),
-      _c(
-        "v-flex",
-        { attrs: { lg12: "" } },
-        [
-          _c("v-checkbox", {
-            attrs: {
-              label: "Receive an email alert when someone answers about it."
-            },
-            model: {
-              value: _vm.emailReceive,
-              callback: function($$v) {
-                _vm.emailReceive = $$v
-              },
-              expression: "emailReceive"
-            }
-          })
-        ],
-        1
-      ),
-      _vm._v(" "),
-      _c(
-        "v-flex",
-        { attrs: { lg12: "" } },
-        [
-          _c(
-            "v-btn",
-            {
-              staticStyle: { "margin-left": "0px" },
-              attrs: { color: "success", lg: "" },
-              on: { click: _vm.publish }
-            },
-            [_vm._v("\n            Reply\n        ")]
-          )
-        ],
-        1
-      )
-    ],
-    1
-  )
-}
-var staticRenderFns = []
-render._withStripped = true
-
-if (false) {
-  module.hot.accept()
-  if (module.hot.data) {
-    require("vue-hot-reload-api")      .rerender("data-v-df725e6c", { render: render, staticRenderFns: staticRenderFns })
-  }
-}
-
-/***/ }),
-
-/***/ 331:
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return render; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return staticRenderFns; });
-var render = function() {
-  var _vm = this
-  var _h = _vm.$createElement
-  var _c = _vm._self._c || _h
-  return _vm.topic.id
-    ? _c(
-        "v-container",
-        {
-          directives: [
-            {
-              name: "scroll",
-              rawName: "v-scroll",
-              value: { callback: this.loadMoreResponses },
-              expression: "{callback: this.loadMoreResponses}"
-            }
-          ],
-          attrs: { "grid-list-lg": "", fluid: "" }
-        },
-        [
-          _c(
-            "v-layout",
-            { attrs: { column: "" } },
-            [
-              _c(
-                "v-flex",
-                { attrs: { lg12: "" } },
-                [_c("header-show-topic", { attrs: { topic: _vm.topic } })],
-                1
-              ),
-              _vm._v(" "),
-              _c("v-flex", { attrs: { lg12: "" } }, [
-                _c(
-                  "h2",
-                  {
-                    staticStyle: {
-                      "font-size": "21px",
-                      "font-weight": "700",
-                      "line-height": "1.2"
-                    }
-                  },
-                  [
-                    _vm._v(
-                      _vm._s(_vm.topic.topicresponses_count) +
-                        " " +
-                        _vm._s(
-                          _vm.plural("Response", _vm.topic.topicresponses_count)
-                        )
-                    )
-                  ]
-                )
-              ]),
-              _vm._v(" "),
-              _vm.topicresponses.length > 5
-                ? _c("v-flex", { attrs: { lg12: "" } }, [_c("forum-form")], 1)
-                : _vm._e(),
-              _vm._v(" "),
-              _c(
-                "v-flex",
-                { attrs: { lg12: "" } },
-                [
-                  _c(
-                    "v-layout",
-                    { attrs: { column: "" } },
-                    _vm._l(_vm.topicresponses, function(topicresponse) {
-                      return _c(
-                        "v-flex",
-                        { key: topicresponse.id, attrs: { lg12: "" } },
-                        [
-                          _c(
-                            "blockquote",
-                            {
-                              attrs: {
-                                id:
-                                  topicresponse.id ===
-                                  parseInt(_vm.$route.params.response_id)
-                                    ? "showTopicResponse"
-                                    : null
-                              }
-                            },
-                            [
-                              _c("topic-response", {
-                                attrs: { topicresponse: topicresponse }
-                              })
-                            ],
-                            1
-                          )
-                        ]
-                      )
-                    })
-                  )
-                ],
-                1
-              ),
-              _vm._v(" "),
-              _c("v-flex", { attrs: { lg12: "" } }, [_c("forum-form")], 1)
-            ],
-            1
-          )
-        ],
-        1
-      )
-    : _vm._e()
-}
-var staticRenderFns = []
-render._withStripped = true
-
-if (false) {
-  module.hot.accept()
-  if (module.hot.data) {
-    require("vue-hot-reload-api")      .rerender("data-v-23531612", { render: render, staticRenderFns: staticRenderFns })
-  }
-}
-
-/***/ }),
-
-/***/ 89:
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
+//
+//
+//
+//
 //
 //
 //
@@ -3379,72 +266,73 @@ if (false) {
 
 /* harmony default export */ __webpack_exports__["a"] = ({
     props: {
-        open: Boolean,
-        message: String,
-        url: String
+        article: Object,
+        color: String
     },
     data: function data() {
-        return {
-            dialog: false
-        };
+        return {};
     },
-    computed: {
-        text: function text() {
-            var text = [];
-            try {
-                JSON.parse(this.message).map(function (msg) {
-                    return text.push(msg.text);
-                });
-                return text.join('');
-            } catch (e) {
-                return this.message || '';
-            }
-        }
-    },
-    methods: {
-        popupCenter: function popupCenter(url, title, width, height) {
-            var popupWidth = width || 640;
-            var popupHeight = height || 320;
-            var windowLeft = window.screenLeft || window.screenX;
-            var windowTop = window.screenTop || window.screenY;
-            var windowWidth = window.innerWidth || document.documentElement.clientWidth;
-            var windowHeight = window.innerHeight || document.documentElement.clientHeight;
-            var popupLeft = windowLeft + windowWidth / 2 - popupWidth / 2;
-            var popupTop = windowTop + windowHeight / 2 - popupHeight / 2;
-            var popup = window.open(url, title, 'scrollbars=yes, width=' + popupWidth + ', height=' + popupHeight + ', top=' + popupTop + ', left=' + popupLeft);
-            popup.focus();
-            return true;
-        },
-        twitter: function twitter() {
-            var shareUrl = "https://twitter.com/intent/tweet?text=" + this.text + "&url=" + encodeURIComponent(this.url);
-            this.popupCenter(shareUrl, "Share on Twitter");
-        },
-        facebook: function facebook() {
-            var shareUrl = "https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(this.url);
-            this.popupCenter(shareUrl, "Share on facebook");
-        }
-    },
-    watch: {
-        open: function open(data) {
-            if (data) this.dialog = true;
-        },
-        dialog: function dialog(data) {
-            if (!data) this.$emit("close");
-        }
-    }
+    mounted: function mounted() {}
 });
 
 /***/ }),
 
-/***/ 91:
+/***/ 271:
+/***/ (function(module, exports, __webpack_require__) {
+
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__(272);
+if(typeof content === 'string') content = [[module.i, content, '']];
+if(content.locals) module.exports = content.locals;
+// add the styles to the DOM
+var add = __webpack_require__(4).default
+var update = add("643c1659", content, false, {});
+// Hot Module Replacement
+if(false) {
+ // When the styles change, update the <style> tags
+ if(!content.locals) {
+   module.hot.accept("!!../../../../../node_modules/css-loader/index.js!../../../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-24ae9a78\",\"scoped\":true,\"sourceMap\":false}!../../../../../node_modules/sass-loader/lib/loader.js!../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./Home.vue", function() {
+     var newContent = require("!!../../../../../node_modules/css-loader/index.js!../../../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-24ae9a78\",\"scoped\":true,\"sourceMap\":false}!../../../../../node_modules/sass-loader/lib/loader.js!../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./Home.vue");
+     if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+     update(newContent);
+   });
+ }
+ // When the module is disposed, remove the <style> tags
+ module.hot.dispose(function() { update(); });
+}
+
+/***/ }),
+
+/***/ 272:
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(0)(undefined);
+// imports
+
+
+// module
+exports.push([module.i, "\n.noPadding[data-v-24ae9a78] {\n  padding: 0 !important;\n}\n.blogBg[data-v-24ae9a78] {\n  position: relative;\n  height: 170vh;\n  width: 100%;\n  background-image: url(\"/img/default/weltimoBackground.jpg\");\n  display: flex;\n  justify-content: center;\n  align-items: center;\n}\n.blogBg .center[data-v-24ae9a78] {\n  font-size: 28px !important;\n}\n.xsBlogBg[data-v-24ae9a78] {\n  position: relative;\n  width: 100%;\n  background-image: url(\"/img/default/weltimoBackground.jpg\");\n  background-size: cover;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n}\n.xsBlogBg .center[data-v-24ae9a78] {\n  font-size: 15px !important;\n  padding: 5px;\n}\n.logo[data-v-24ae9a78] {\n  font-size: 200px !important;\n}\n.center[data-v-24ae9a78] {\n  text-align: center;\n  margin-top: 60px;\n}\n.body[data-v-24ae9a78] {\n  background: #00b4ff;\n  color: #333;\n  font: 100% Arial, Sans Serif;\n  height: 400px;\n  margin: -10px;\n  margin-top: 55px;\n  padding: 0;\n  position: sticky;\n  overflow: hidden;\n}\n.title[data-v-24ae9a78] {\n  height: 100%;\n  font-family: monospace;\n}\n#background-wrap[data-v-24ae9a78] {\n  bottom: 0;\n  left: 0;\n  padding-top: 50px;\n  position: absolute;\n  right: 0;\n  top: 0;\n  z-index: -1;\n}\n\n/* KEYFRAMES */\n@-webkit-keyframes animateCloud-data-v-24ae9a78 {\n0% {\n    margin-left: -600px;\n}\n100% {\n    margin-left: 100%;\n}\n}\n@-moz-keyframes animateCloud-data-v-24ae9a78 {\n0% {\n    margin-left: -600px;\n}\n100% {\n    margin-left: 100%;\n}\n}\n@keyframes animateCloud-data-v-24ae9a78 {\n0% {\n    margin-left: -600px;\n}\n100% {\n    margin-left: 100%;\n}\n}\n\n/* ANIMATIONS */\n.x1[data-v-24ae9a78] {\n  -webkit-animation: animateCloud-data-v-24ae9a78 25s linear infinite;\n  -moz-animation: animateCloud-data-v-24ae9a78 25s linear infinite;\n  animation: animateCloud-data-v-24ae9a78 25s linear infinite;\n  -webkit-transform: scale(0.65);\n  -moz-transform: scale(0.65);\n  transform: scale(0.65);\n}\n.x2[data-v-24ae9a78] {\n  -webkit-animation: animateCloud-data-v-24ae9a78 15s linear infinite;\n  -moz-animation: animateCloud-data-v-24ae9a78 15s linear infinite;\n  animation: animateCloud-data-v-24ae9a78 15s linear infinite;\n  -webkit-transform: scale(0.3);\n  -moz-transform: scale(0.3);\n  transform: scale(0.3);\n}\n.x3[data-v-24ae9a78] {\n  -webkit-animation: animateCloud-data-v-24ae9a78 20s linear infinite;\n  -moz-animation: animateCloud-data-v-24ae9a78 20s linear infinite;\n  animation: animateCloud-data-v-24ae9a78 20s linear infinite;\n  -webkit-transform: scale(0.5);\n  -moz-transform: scale(0.5);\n  transform: scale(0.5);\n}\n.x4[data-v-24ae9a78] {\n  -webkit-animation: animateCloud-data-v-24ae9a78 8s linear infinite;\n  -moz-animation: animateCloud-data-v-24ae9a78 8s linear infinite;\n  animation: animateCloud-data-v-24ae9a78 8s linear infinite;\n  -webkit-transform: scale(0.4);\n  -moz-transform: scale(0.4);\n  transform: scale(0.4);\n}\n.x5[data-v-24ae9a78] {\n  -webkit-animation: animateCloud-data-v-24ae9a78 15s linear infinite;\n  -moz-animation: animateCloud-data-v-24ae9a78 15s linear infinite;\n  animation: animateCloud-data-v-24ae9a78 15s linear infinite;\n  -webkit-transform: scale(0.55);\n  -moz-transform: scale(0.55);\n  transform: scale(0.55);\n}\n\n/* OBJECTS */\n.cloud[data-v-24ae9a78] {\n  background: #fff;\n  background: -moz-linear-gradient(top, #fff 5%, #f1f1f1 100%);\n  background: -webkit-gradient(linear, left top, left bottom, color-stop(5%, #fff), color-stop(100%, #f1f1f1));\n  background: -webkit-linear-gradient(top, #fff 5%, #f1f1f1 100%);\n  background: -o-linear-gradient(top, #fff 5%, #f1f1f1 100%);\n  background: -ms-linear-gradient(top, #fff 5%, #f1f1f1 100%);\n  background: linear-gradient(top, #fff 5%, #f1f1f1 100%);\n  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#fff', endColorstr='#f1f1f1',GradientType=0 );\n  -webkit-border-radius: 100px;\n  -moz-border-radius: 100px;\n  border-radius: 100px;\n  -webkit-box-shadow: 0 8px 5px rgba(0, 0, 0, 0.1);\n  -moz-box-shadow: 0 8px 5px rgba(0, 0, 0, 0.1);\n  box-shadow: 0 8px 5px rgba(0, 0, 0, 0.1);\n  height: 120px;\n  position: relative;\n  width: 350px;\n}\n.cloud[data-v-24ae9a78]:after, .cloud[data-v-24ae9a78]:before {\n  background: #fff;\n  content: '';\n  position: absolute;\n  z-indeX: -1;\n}\n.cloud[data-v-24ae9a78]:after {\n  -webkit-border-radius: 100px;\n  -moz-border-radius: 100px;\n  border-radius: 100px;\n  height: 100px;\n  left: 50px;\n  top: -50px;\n  width: 100px;\n}\n.cloud[data-v-24ae9a78]:before {\n  -webkit-border-radius: 200px;\n  -moz-border-radius: 200px;\n  border-radius: 200px;\n  width: 180px;\n  height: 180px;\n  right: 50px;\n  top: -90px;\n}\n", ""]);
+
+// exports
+
+
+/***/ }),
+
+/***/ 273:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__babel_loader_cacheDirectory_true_presets_env_modules_false_targets_browsers_2_uglify_true_env_modules_false_targets_browsers_last_2_versions_safari_7_debug_true_plugins_transform_object_rest_spread_transform_runtime_polyfill_false_helpers_false_syntax_dynamic_import_node_modules_vue_loader_lib_selector_type_script_index_0_DialogShare_vue__ = __webpack_require__(89);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__babel_loader_cacheDirectory_true_presets_env_modules_false_targets_browsers_2_uglify_true_env_modules_false_targets_browsers_last_2_versions_safari_7_debug_true_plugins_transform_object_rest_spread_transform_runtime_polyfill_false_helpers_false_syntax_dynamic_import_node_modules_vue_loader_lib_selector_type_script_index_0_PresentationCard_vue__ = __webpack_require__(184);
 /* unused harmony namespace reexport */
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_9ea2bec0_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_DialogShare_vue__ = __webpack_require__(106);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_dc9ed3a2_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_PresentationCard_vue__ = __webpack_require__(276);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__node_modules_vue_loader_lib_runtime_component_normalizer__ = __webpack_require__(3);
 var disposed = false
+function injectStyle (context) {
+  if (disposed) return
+  __webpack_require__(274)
+}
 /* script */
 
 
@@ -3453,22 +341,22 @@ var disposed = false
 /* template functional */
 var __vue_template_functional__ = false
 /* styles */
-var __vue_styles__ = null
+var __vue_styles__ = injectStyle
 /* scopeId */
 var __vue_scopeId__ = null
 /* moduleIdentifier (server only) */
 var __vue_module_identifier__ = null
 
 var Component = Object(__WEBPACK_IMPORTED_MODULE_2__node_modules_vue_loader_lib_runtime_component_normalizer__["a" /* default */])(
-  __WEBPACK_IMPORTED_MODULE_0__babel_loader_cacheDirectory_true_presets_env_modules_false_targets_browsers_2_uglify_true_env_modules_false_targets_browsers_last_2_versions_safari_7_debug_true_plugins_transform_object_rest_spread_transform_runtime_polyfill_false_helpers_false_syntax_dynamic_import_node_modules_vue_loader_lib_selector_type_script_index_0_DialogShare_vue__["a" /* default */],
-  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_9ea2bec0_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_DialogShare_vue__["a" /* render */],
-  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_9ea2bec0_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_DialogShare_vue__["b" /* staticRenderFns */],
+  __WEBPACK_IMPORTED_MODULE_0__babel_loader_cacheDirectory_true_presets_env_modules_false_targets_browsers_2_uglify_true_env_modules_false_targets_browsers_last_2_versions_safari_7_debug_true_plugins_transform_object_rest_spread_transform_runtime_polyfill_false_helpers_false_syntax_dynamic_import_node_modules_vue_loader_lib_selector_type_script_index_0_PresentationCard_vue__["a" /* default */],
+  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_dc9ed3a2_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_PresentationCard_vue__["a" /* render */],
+  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_dc9ed3a2_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_PresentationCard_vue__["b" /* staticRenderFns */],
   __vue_template_functional__,
   __vue_styles__,
   __vue_scopeId__,
   __vue_module_identifier__
 )
-Component.options.__file = "resources/assets/js/components/share/DialogShare.vue"
+Component.options.__file = "resources/assets/js/components/app/PresentationCard.vue"
 
 /* hot reload */
 if (false) {(function () {
@@ -3477,9 +365,9 @@ if (false) {(function () {
   if (!hotAPI.compatible) return
   module.hot.accept()
   if (!module.hot.data) {
-    hotAPI.createRecord("data-v-9ea2bec0", Component.options)
+    hotAPI.createRecord("data-v-dc9ed3a2", Component.options)
   } else {
-    hotAPI.reload("data-v-9ea2bec0", Component.options)
+    hotAPI.reload("data-v-dc9ed3a2", Component.options)
   }
   module.hot.dispose(function (data) {
     disposed = true
@@ -3488,6 +376,715 @@ if (false) {(function () {
 
 /* harmony default export */ __webpack_exports__["a"] = (Component.exports);
 
+
+/***/ }),
+
+/***/ 274:
+/***/ (function(module, exports, __webpack_require__) {
+
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__(275);
+if(typeof content === 'string') content = [[module.i, content, '']];
+if(content.locals) module.exports = content.locals;
+// add the styles to the DOM
+var add = __webpack_require__(4).default
+var update = add("badeca78", content, false, {});
+// Hot Module Replacement
+if(false) {
+ // When the styles change, update the <style> tags
+ if(!content.locals) {
+   module.hot.accept("!!../../../../../node_modules/css-loader/index.js!../../../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-dc9ed3a2\",\"scoped\":false,\"sourceMap\":false}!../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./PresentationCard.vue", function() {
+     var newContent = require("!!../../../../../node_modules/css-loader/index.js!../../../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-dc9ed3a2\",\"scoped\":false,\"sourceMap\":false}!../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./PresentationCard.vue");
+     if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+     update(newContent);
+   });
+ }
+ // When the module is disposed, remove the <style> tags
+ module.hot.dispose(function() { update(); });
+}
+
+/***/ }),
+
+/***/ 275:
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(0)(undefined);
+// imports
+
+
+// module
+exports.push([module.i, "\n.presentation_card .card__media__content{\n    justify-content: center;\n    height: inherit;\n}\n.presentation_card{\n    height: 100%;\n    display: flex;\n    flex-direction: column;\n    justify-content: space-between;\n}\n.presentation_card .card__media__content .chip{\n    align-self: center;\n}\n", ""]);
+
+// exports
+
+
+/***/ }),
+
+/***/ 276:
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return render; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return staticRenderFns; });
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c(
+    "v-card",
+    { staticClass: "presentation_card", attrs: { height: "100%" } },
+    [
+      _vm.article.image
+        ? _c("v-card-media", {
+            attrs: { src: _vm.article.image.path, height: "200px" }
+          })
+        : _c(
+            "v-card-media",
+            {
+              class: _vm.color,
+              staticStyle: { display: "block" },
+              attrs: { height: "100px" }
+            },
+            [
+              _c(
+                "v-chip",
+                { attrs: { color: "orange", "text-color": "white" } },
+                [
+                  _vm._v("\n            Special offer\n            "),
+                  _c("v-icon", { attrs: { right: "" } }, [_vm._v("star")])
+                ],
+                1
+              )
+            ],
+            1
+          ),
+      _vm._v(" "),
+      _c("v-card-title", { attrs: { "primary-title": "" } }, [
+        _c("div", [
+          _c("h3", { staticClass: "headline mb-0" }, [
+            _vm._v(_vm._s(_vm.article.title))
+          ]),
+          _vm._v(" "),
+          _c("div", [_vm._v(_vm._s(JSON.parse(_vm.article.message)[0].text))])
+        ])
+      ]),
+      _vm._v(" "),
+      _c(
+        "v-card-actions",
+        [
+          _c("v-spacer"),
+          _vm._v(" "),
+          _c(
+            "v-btn",
+            { attrs: { flat: "", color: "primary", to: "log_in" } },
+            [_vm._v("Los geht! "), _c("v-icon", [_vm._v("chevron_right")])],
+            1
+          )
+        ],
+        1
+      )
+    ],
+    1
+  )
+}
+var staticRenderFns = []
+render._withStripped = true
+
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+    require("vue-hot-reload-api")      .rerender("data-v-dc9ed3a2", { render: render, staticRenderFns: staticRenderFns })
+  }
+}
+
+/***/ }),
+
+/***/ 277:
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return render; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return staticRenderFns; });
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c("div", [
+    _c(
+      "div",
+      [
+        _c(
+          "div",
+          { class: _vm.$vuetify.breakpoint.smAndUp ? "blogBg" : "xsBlogBg" },
+          [
+            _c("div", {
+              staticStyle: {
+                "background-size": "100%",
+                "z-index": "1",
+                height: "100%",
+                width: "100%",
+                background: "black",
+                opacity: ".4",
+                position: "absolute",
+                top: "0",
+                bottom: "0",
+                right: "0",
+                left: "0"
+              }
+            }),
+            _vm._v(" "),
+            _c(
+              "v-layout",
+              {
+                staticStyle: { "z-index": "2", height: "100%" },
+                attrs: { column: "" }
+              },
+              [
+                _c(
+                  "v-flex",
+                  { staticStyle: { height: "100%" } },
+                  [
+                    _c(
+                      "v-layout",
+                      {
+                        staticClass: "title center",
+                        staticStyle: { height: "60%", "z-index": "2" },
+                        attrs: {
+                          column: "",
+                          "align-center": "",
+                          "justify-center": ""
+                        }
+                      },
+                      [
+                        _c("h1", { staticClass: "white--text" }, [
+                          _vm._v("Hello and welcome on Weltimo")
+                        ]),
+                        _vm._v(" "),
+                        _c("h3", { staticClass: "white--text" }, [
+                          _vm._v("Travel to Germany with confidence thanks to")
+                        ]),
+                        _vm._v(" "),
+                        _c("h3", { staticClass: "white--text" }, [
+                          _vm._v("our courses and follow-up offers.")
+                        ]),
+                        _vm._v(" "),
+                        _c(
+                          "div",
+                          { staticStyle: { "margin-top": "50px" } },
+                          [
+                            _c(
+                              "v-btn",
+                              {
+                                attrs: {
+                                  href: "/login/facebook",
+                                  color: "primary",
+                                  outline: "",
+                                  large: ""
+                                }
+                              },
+                              [_vm._v("Log in with Facebook")]
+                            ),
+                            _c("br"),
+                            _vm._v(" "),
+                            _c(
+                              "v-btn",
+                              {
+                                attrs: {
+                                  href: "/login/google",
+                                  color: "red",
+                                  outline: "",
+                                  large: ""
+                                }
+                              },
+                              [_vm._v("Log in with Google")]
+                            ),
+                            _c("br"),
+                            _vm._v(" "),
+                            _c(
+                              "v-btn",
+                              { attrs: { href: "/login/github", large: "" } },
+                              [_vm._v("Log in with Github")]
+                            ),
+                            _c("br"),
+                            _vm._v(" "),
+                            _c(
+                              "v-btn",
+                              {
+                                attrs: {
+                                  color: "primary",
+                                  to: "sign_in",
+                                  large: ""
+                                }
+                              },
+                              [_vm._v("Sign in")]
+                            )
+                          ],
+                          1
+                        )
+                      ]
+                    )
+                  ],
+                  1
+                )
+              ],
+              1
+            )
+          ],
+          1
+        ),
+        _vm._v(" "),
+        _c(
+          "v-layout",
+          { attrs: { column: "" } },
+          [
+            _c(
+              "v-flex",
+              [
+                _c(
+                  "v-container",
+                  {
+                    class: _vm.$vuetify.breakpoint.smAndUp || "noPadding",
+                    attrs: {
+                      "grid-list-lg": "",
+                      "text-xs-center": "",
+                      fluid: ""
+                    }
+                  },
+                  [
+                    _c(
+                      "v-layout",
+                      { attrs: { column: "" } },
+                      [
+                        _c(
+                          "v-flex",
+                          { attrs: { lg12: "" } },
+                          [
+                            _c(
+                              "v-container",
+                              {
+                                class:
+                                  _vm.$vuetify.breakpoint.smAndUp ||
+                                  "noPadding",
+                                attrs: {
+                                  "grid-list-lg": "",
+                                  "text-xs-center": "",
+                                  fluid: ""
+                                }
+                              },
+                              [
+                                _c(
+                                  "v-layout",
+                                  { attrs: { column: "" } },
+                                  [
+                                    _c(
+                                      "v-flex",
+                                      {
+                                        staticStyle: { background: "#f1f1f1" },
+                                        attrs: { lg12: "" }
+                                      },
+                                      [
+                                        _c(
+                                          "v-container",
+                                          { attrs: { fluid: "" } },
+                                          [
+                                            _c(
+                                              "v-layout",
+                                              {
+                                                staticStyle: {
+                                                  "flex-wrap": "wrap-reverse"
+                                                },
+                                                attrs: { row: "" }
+                                              },
+                                              [
+                                                _c("v-flex", {
+                                                  attrs: { lg1: "" }
+                                                }),
+                                                _vm._v(" "),
+                                                _c(
+                                                  "v-flex",
+                                                  { attrs: { lg5: "" } },
+                                                  [
+                                                    _c(
+                                                      "v-card-text",
+                                                      {
+                                                        staticStyle: {
+                                                          "text-align": "left"
+                                                        }
+                                                      },
+                                                      [
+                                                        _c("h1", [
+                                                          _vm._v(
+                                                            "Prise en charge de dossiers"
+                                                          )
+                                                        ]),
+                                                        _vm._v(
+                                                          "\n                                                        Grâce à nos contactes dans les universités allemandes\n                                                        nos sommes capable de vous offrir des preinscriptions,\n                                                        des inscriptions... mais aussi les foyés d'accueil pour\n                                                        les filles oper et les comptes bloqués pour les cautions.\n                                                        Tout ceux ci dans le but de planifier et d'organiser vos\n                                                        etudes en allemagne.\n                                                    "
+                                                        )
+                                                      ]
+                                                    )
+                                                  ],
+                                                  1
+                                                ),
+                                                _vm._v(" "),
+                                                _c(
+                                                  "v-flex",
+                                                  { attrs: { lg5: "" } },
+                                                  [
+                                                    _c("img", {
+                                                      attrs: {
+                                                        src:
+                                                          "/img/default/dossier.jpg",
+                                                        width: "100%",
+                                                        height: "200px"
+                                                      }
+                                                    })
+                                                  ]
+                                                ),
+                                                _vm._v(" "),
+                                                _c("v-flex", {
+                                                  attrs: { lg1: "" }
+                                                })
+                                              ],
+                                              1
+                                            )
+                                          ],
+                                          1
+                                        )
+                                      ],
+                                      1
+                                    ),
+                                    _vm._v(" "),
+                                    _c(
+                                      "v-flex",
+                                      { attrs: { lg12: "" } },
+                                      [
+                                        _c(
+                                          "v-container",
+                                          { attrs: { fluid: "" } },
+                                          [
+                                            _c(
+                                              "v-layout",
+                                              { attrs: { wrap: "", row: "" } },
+                                              [
+                                                _c("v-flex", {
+                                                  attrs: { lg1: "" }
+                                                }),
+                                                _vm._v(" "),
+                                                _c(
+                                                  "v-flex",
+                                                  { attrs: { lg5: "" } },
+                                                  [
+                                                    _c("img", {
+                                                      attrs: {
+                                                        src:
+                                                          "/img/default/ebook.jpg",
+                                                        width: "100%",
+                                                        height: "200px"
+                                                      }
+                                                    })
+                                                  ]
+                                                ),
+                                                _vm._v(" "),
+                                                _c(
+                                                  "v-flex",
+                                                  { attrs: { lg5: "" } },
+                                                  [
+                                                    _c(
+                                                      "v-card-text",
+                                                      {
+                                                        staticStyle: {
+                                                          "text-align": "left"
+                                                        }
+                                                      },
+                                                      [
+                                                        _c("h1", [
+                                                          _vm._v(
+                                                            "Cours d'allemand"
+                                                          )
+                                                        ]),
+                                                        _vm._v(
+                                                          "\n                                                        Avec nos nombreux livres et exercices  la prise en main\n                                                        de la langue allemande n'a jamais été aussi facile. De\n                                                        plus nos programmes allant du A1 au C2 vous permet d'apprendre\n                                                        la grammaire allemande de la base jusqu'au sommet. Ce qui vous\n                                                        prépare ainsi pour vos differents examens (ZDAF,Mittelstufe, DSH).\n                                                    "
+                                                        )
+                                                      ]
+                                                    )
+                                                  ],
+                                                  1
+                                                ),
+                                                _vm._v(" "),
+                                                _c("v-flex", {
+                                                  attrs: { lg1: "" }
+                                                })
+                                              ],
+                                              1
+                                            )
+                                          ],
+                                          1
+                                        )
+                                      ],
+                                      1
+                                    ),
+                                    _vm._v(" "),
+                                    _c(
+                                      "v-flex",
+                                      {
+                                        staticStyle: { background: "#f1f1f1" },
+                                        attrs: { lg12: "" }
+                                      },
+                                      [
+                                        _c(
+                                          "v-container",
+                                          { attrs: { fluid: "" } },
+                                          [
+                                            _c(
+                                              "v-layout",
+                                              {
+                                                staticStyle: {
+                                                  "flex-wrap": "wrap-reverse"
+                                                },
+                                                attrs: { row: "" }
+                                              },
+                                              [
+                                                _c("v-flex", {
+                                                  attrs: { lg1: "" }
+                                                }),
+                                                _vm._v(" "),
+                                                _c(
+                                                  "v-flex",
+                                                  { attrs: { lg5: "" } },
+                                                  [
+                                                    _c(
+                                                      "v-card-text",
+                                                      {
+                                                        staticStyle: {
+                                                          "text-align": "left"
+                                                        }
+                                                      },
+                                                      [
+                                                        _c("h1", [
+                                                          _vm._v(
+                                                            "Reseau social"
+                                                          )
+                                                        ]),
+                                                        _vm._v(
+                                                          "\n                                                        Toujours dans la même optique de vous offir\n                                                        un cadre convenable et adequa pour l'apprentissage\n                                                        de la langue allemande, nous avons mis sur pied\n                                                        un reseau social dans lequel vous pourriez non seulement\n                                                        partager les moments favoris de votre vie mais aussi rencontrer\n                                                        d'autres apprenants de la langue allemande du monde entier. Ce qui\n                                                        facilitera l'apprentissage des allemands termes simple qui nous\n                                                        sont utile dans la vie de tous les jours.\n                                                    "
+                                                        )
+                                                      ]
+                                                    )
+                                                  ],
+                                                  1
+                                                ),
+                                                _vm._v(" "),
+                                                _c(
+                                                  "v-flex",
+                                                  { attrs: { lg5: "" } },
+                                                  [
+                                                    _c("img", {
+                                                      attrs: {
+                                                        src:
+                                                          "/img/default/network.jpg",
+                                                        width: "100%",
+                                                        height: "200px"
+                                                      }
+                                                    })
+                                                  ]
+                                                ),
+                                                _vm._v(" "),
+                                                _c("v-flex", {
+                                                  attrs: { lg1: "" }
+                                                })
+                                              ],
+                                              1
+                                            )
+                                          ],
+                                          1
+                                        )
+                                      ],
+                                      1
+                                    ),
+                                    _vm._v(" "),
+                                    _c(
+                                      "v-flex",
+                                      { attrs: { lg12: "" } },
+                                      [
+                                        _c(
+                                          "v-container",
+                                          { attrs: { fluid: "" } },
+                                          [
+                                            _c(
+                                              "v-layout",
+                                              { attrs: { wrap: "", row: "" } },
+                                              [
+                                                _c("v-flex", {
+                                                  attrs: { lg1: "" }
+                                                }),
+                                                _vm._v(" "),
+                                                _c(
+                                                  "v-flex",
+                                                  { attrs: { lg5: "" } },
+                                                  [
+                                                    _c("img", {
+                                                      attrs: {
+                                                        src:
+                                                          "/img/default/forum.jpg",
+                                                        width: "100%",
+                                                        height: "200px"
+                                                      }
+                                                    })
+                                                  ]
+                                                ),
+                                                _vm._v(" "),
+                                                _c(
+                                                  "v-flex",
+                                                  { attrs: { lg5: "" } },
+                                                  [
+                                                    _c(
+                                                      "v-card-text",
+                                                      {
+                                                        staticStyle: {
+                                                          "text-align": "left"
+                                                        }
+                                                      },
+                                                      [
+                                                        _c("h1", [
+                                                          _vm._v("Forum")
+                                                        ]),
+                                                        _vm._v(
+                                                          "\n                                                        Pour vos questions et problemes au sujet de la\n                                                        langue allemande ou des dossiers, vous pouvez\n                                                        les poser sur notre forum afin de beneficier des\n                                                        réponses et des conseils de toute la communauté\n                                                        Weltimo.\n                                                    "
+                                                        )
+                                                      ]
+                                                    )
+                                                  ],
+                                                  1
+                                                ),
+                                                _vm._v(" "),
+                                                _c("v-flex", {
+                                                  attrs: { lg1: "" }
+                                                })
+                                              ],
+                                              1
+                                            )
+                                          ],
+                                          1
+                                        )
+                                      ],
+                                      1
+                                    )
+                                  ],
+                                  1
+                                )
+                              ],
+                              1
+                            )
+                          ],
+                          1
+                        ),
+                        _vm._v(" "),
+                        _c(
+                          "v-flex",
+                          { attrs: { lg12: "" } },
+                          [
+                            _c(
+                              "v-container",
+                              {
+                                attrs: {
+                                  "grid-list-lg": "",
+                                  "text-xs-center": "",
+                                  fluid: ""
+                                }
+                              },
+                              [
+                                _c(
+                                  "v-layout",
+                                  { attrs: { wrap: "", row: "" } },
+                                  _vm._l(_vm.articles, function(article, i) {
+                                    return _c(
+                                      "v-flex",
+                                      { key: i, attrs: { lg4: "" } },
+                                      [
+                                        _c("presentation-card", {
+                                          attrs: {
+                                            color: _vm.colors[i] || "",
+                                            article: article
+                                          }
+                                        })
+                                      ],
+                                      1
+                                    )
+                                  })
+                                )
+                              ],
+                              1
+                            )
+                          ],
+                          1
+                        ),
+                        _vm._v(" "),
+                        _c(
+                          "v-flex",
+                          [
+                            _c(
+                              "v-flex",
+                              {
+                                staticStyle: {
+                                  "align-items": "center",
+                                  "margin-top": "80px"
+                                }
+                              },
+                              [
+                                _vm._v(
+                                  "\n                                Join us and discover a new way to learn German.\n                                #German in a fun way :)"
+                                ),
+                                _c("br"),
+                                _c("br"),
+                                _c("br"),
+                                _c("br"),
+                                _vm._v(" "),
+                                _c(
+                                  "v-btn",
+                                  {
+                                    attrs: {
+                                      color: "orange",
+                                      to: "sign_in",
+                                      outline: "",
+                                      large: ""
+                                    }
+                                  },
+                                  [_vm._v("Sign in")]
+                                )
+                              ],
+                              1
+                            )
+                          ],
+                          1
+                        )
+                      ],
+                      1
+                    )
+                  ],
+                  1
+                )
+              ],
+              1
+            )
+          ],
+          1
+        )
+      ],
+      1
+    )
+  ])
+}
+var staticRenderFns = []
+render._withStripped = true
+
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+    require("vue-hot-reload-api")      .rerender("data-v-24ae9a78", { render: render, staticRenderFns: staticRenderFns })
+  }
+}
 
 /***/ })
 

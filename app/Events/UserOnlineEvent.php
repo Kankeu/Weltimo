@@ -3,9 +3,7 @@
 namespace App\Events;
 
 use App\User;
-use Illuminate\Broadcasting\Channel;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
@@ -36,15 +34,7 @@ class UserOnlineEvent implements ShouldBroadcast
      */
     public function broadcastOn()
     {
-        $channels = [];
-        foreach ($this->user->followers as $follower) {
-            array_push($channels, new PresenceChannel('user.online.21'));
-        }
-        return $channels;
+        return new PresenceChannel('users.online');
     }
 
-    public function broadcastWhen()
-    {
-        return $this->user->followers()->count() > 0;
-    }
 }

@@ -14,11 +14,6 @@ class Book extends Model
         "published_at" => "datetime"
     ];
 
-    public function image()
-    {
-        return $this->morphOne('App\Image','imagable');
-    }
-
     public function user()
     {
         return $this->BelongsTo("App\User")

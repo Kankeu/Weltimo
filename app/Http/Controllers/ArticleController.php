@@ -22,7 +22,6 @@ class ArticleController extends Controller
     {
         $articles = Article::with('image','liked','user')
             ->orderBy("id","desc")
-            ->whereNull('type')
             ->withCount('likes','comments')
             ->paginate(10);
         return new Response($articles);
@@ -46,13 +45,14 @@ class ArticleController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'message' => 'required_without:image',
-            'image' => 'required_without:message|image',
+       $request->validate([
+           'message' => 'required_without:image',
+           'image' => $request->hasFile('image') ? 'required_without:message|nullable|mimes:jpeg,png,bmp,gif' : '',
         ]);
         if($request->hasFile('image')){
             return $this->storeWithFile($request);
         }else{
+
             return $this->storeWithoutFile($request);
         }
     }

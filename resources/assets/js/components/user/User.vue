@@ -90,10 +90,10 @@
             </v-toolbar>
             <dialog-comment :open="openDialogComment" @close="openDialogComment=!openDialogComment" :article="article" :articles="articles"></dialog-comment>
             <v-layout style="margin-bottom: 65px;" row>
-                <v-flex xs12 lg8 offset-lg2>
+                <v-flex sm10 xs12 lg8 md8 offset-lg2 offset-sm1 offset-md2>
                     <v-card :dark="darked" :color="(darked) ? 'theme--dark' : 'theme--light bg_app'" style="height: 100%"  class="card--flex-toolbar">
                         <v-progress-linear v-bind:indeterminate="true" v-if="loading && !$vuetify.breakpoint.smAndUp" style="z-index: 8;margin-left: 0;top: 50px;position:fixed"></v-progress-linear>
-                        <v-toolbar v-if="$vuetify.breakpoint.smAndUp" dark card style="z-index:8;width:66.66666666666666%;position:fixed" prominent>
+                        <v-toolbar v-if="$vuetify.breakpoint.smAndUp" dark card :style="$vuetify.breakpoint.smAndDown ? 'z-index:8;width:83.5%;position:fixed' :'z-index:8;width:66.66666666666666%;position:fixed'" prominent>
                             <v-progress-linear v-bind:indeterminate="true" v-if="loading" style="margin-left: 0;top:-14px;position:absolute"></v-progress-linear>
                             <v-toolbar-title class="body-2 grey--text">{{$route.name}}</v-toolbar-title>
                             <v-spacer></v-spacer>
@@ -147,7 +147,7 @@
                         </div>
                     </v-card>
                 </v-flex>
-                <v-flex  lg2 xs0>
+                <v-flex  lg2 sm1 md2>
                     <v-speed-dial
                             bottom
                             right
@@ -218,7 +218,7 @@
                         </v-list>
                         <v-list class="pt-0" dense>
                             <v-divider></v-divider>
-                            <v-list-tile @click="" avatar v-for="user,i in users" :key="i">
+                            <v-list-tile @click="" :to="'/profile/'+user.id" avatar v-for="user,i in users" :key="i">
                                 <v-list-tile-action>
                                     <v-icon :style="(user.online) ? 'color:green': null">fiber_manual_record</v-icon>
                                 </v-list-tile-action>
@@ -234,7 +234,7 @@
                 </v-flex>
             </v-layout>
         </v-card>
-        <v-navigation-drawer  stateless  fixed app :style="!$vuetify.breakpoint.smAndUp || 'margin-top:63px'" clipped :class="$vuetify.breakpoint.smAndUp ? 'menuDrawer' : null"  :dark="darked" :mini-variant.sync="mini" v-model="drawer">
+        <v-navigation-drawer :mobile-break-point="700" fixed app :style="!$vuetify.breakpoint.smAndUp || 'margin-top:63px'" clipped :class="$vuetify.breakpoint.smAndUp ? 'menuDrawer' : null"  :dark="darked" :mini-variant.sync="mini" v-model="drawer">
             <v-toolbar flat class="transparent">
                 <v-list class="pa-0">
                     <v-list-tile avatar>
@@ -273,7 +273,7 @@
                             <v-list-tile-title>Home</v-list-tile-title>
                         </v-list-tile-content>
                     </v-list-tile>
-                    <v-list-tile @click="">
+                    <v-list-tile to="/box">
                         <v-list-tile-action>
                             <v-icon>email</v-icon>
                         </v-list-tile-action>
@@ -306,17 +306,9 @@
                             <v-icon>keyboard_arrow_down</v-icon>
                         </v-list-tile-action>
                     </v-list-tile>
-                    <v-list-tile @click="">
+                    <v-list-tile to="/exercises">
                         <v-list-tile-content>
                             <v-list-tile-title>Exercises</v-list-tile-title>
-                        </v-list-tile-content>
-                        <v-list-tile-action>
-                            <v-icon></v-icon>
-                        </v-list-tile-action>
-                    </v-list-tile>
-                    <v-list-tile @click="">
-                        <v-list-tile-content>
-                            <v-list-tile-title>Tests</v-list-tile-title>
                         </v-list-tile-content>
                         <v-list-tile-action>
                             <v-icon></v-icon>
@@ -337,31 +329,39 @@
                             <v-icon>school</v-icon>
                         </v-list-tile-action>
                         <v-list-tile-content>
-                            <v-list-tile-title>Universities</v-list-tile-title>
+                            <v-list-tile-title>Germany and some universities</v-list-tile-title>
                         </v-list-tile-content>
                         <v-list-tile-action>
                             <v-icon>keyboard_arrow_down</v-icon>
                         </v-list-tile-action>
                     </v-list-tile>
+                    <v-list-tile to=" ">
+                        <v-list-tile-content>
+                            <v-list-tile-title>About Germany</v-list-tile-title>
+                        </v-list-tile-content>
+                        <v-list-tile-action>
+                            <v-icon></v-icon>
+                        </v-list-tile-action>
+                    </v-list-tile>
+                    <v-list-tile to=" ">
+                        <v-list-tile-content>
+                            <v-list-tile-title>Why Germany for study</v-list-tile-title>
+                        </v-list-tile-content>
+                        <v-list-tile-action>
+                            <v-icon></v-icon>
+                        </v-list-tile-action>
+                    </v-list-tile>
+                    <v-list-tile @click="">
+                        <v-list-tile-content>
+                            <v-list-tile-title>Life in Germany</v-list-tile-title>
+                        </v-list-tile-content>
+                        <v-list-tile-action>
+                            <v-icon></v-icon>
+                        </v-list-tile-action>
+                    </v-list-tile>
                     <v-list-tile to="/university">
                         <v-list-tile-content>
-                            <v-list-tile-title>Germany</v-list-tile-title>
-                        </v-list-tile-content>
-                        <v-list-tile-action>
-                            <v-icon></v-icon>
-                        </v-list-tile-action>
-                    </v-list-tile>
-                    <v-list-tile @click="">
-                        <v-list-tile-content>
-                            <v-list-tile-title>Austria</v-list-tile-title>
-                        </v-list-tile-content>
-                        <v-list-tile-action>
-                            <v-icon></v-icon>
-                        </v-list-tile-action>
-                    </v-list-tile>
-                    <v-list-tile @click="">
-                        <v-list-tile-content>
-                            <v-list-tile-title>Swiss</v-list-tile-title>
+                            <v-list-tile-title>Universities</v-list-tile-title>
                         </v-list-tile-content>
                         <v-list-tile-action>
                             <v-icon></v-icon>
@@ -386,14 +386,6 @@
                         </v-list-tile-action>
                         <v-list-tile-content>
                             <v-list-tile-title>Actualities</v-list-tile-title>
-                        </v-list-tile-content>
-                    </v-list-tile>
-                    <v-list-tile @click="">
-                        <v-list-tile-action>
-                            <v-icon>school</v-icon>
-                        </v-list-tile-action>
-                        <v-list-tile-content>
-                            <v-list-tile-title>Scholarship</v-list-tile-title>
                         </v-list-tile-content>
                     </v-list-tile>
                     <v-list-tile to="/forum">
@@ -591,7 +583,7 @@
         },
         methods:{
             logout(){
-                this.$http.get('/log_out',).then(response => {
+                this.$http.get('/logout',).then(response => {
                     if (response.body.status === 1) {
                         this.$store.dispatch("user/delete")
                         window.location.href = window.location.host
@@ -683,9 +675,9 @@
     .input-group--solo .input-group__input .input-group__append-icon{display:none !important}
 </style>
 <style>
-    .bg_app{
-        background-color: #e6ecf0 !important;
-    }
+    /*.bg_app{
+       background-color: #e6ecf0 !important;
+    }*/
     #showTop{
         overflow-x: hidden;
     }
@@ -783,6 +775,7 @@
     }
     .background2{
         background-color:rgba(0,244,255,1.00);background-image:-webkit-linear-gradient(45deg,rgba(0,244,255,1.00) 0%,rgba(17,55,173,1.00) 100%);background-image:-moz-linear-gradient(45deg,rgba(0,244,255,1.00) 0%,rgba(17,55,173,1.00) 100%);background-image:-ms-linear-gradient(45deg,rgba(0,244,255,1.00) 0%,rgba(17,55,173,1.00) 100%);background-image:-o-linear-gradient(45deg,rgba(0,244,255,1.00) 0%,rgba(17,55,173,1.00) 100%);background-image:-webkit-gradient(left bottom,color-stop(rgba(0,244,255,1.00) 0%),color-stop(rgba(17,55,173,1.00) 100%));background-image:linear-gradient(45deg,rgba(0,244,255,1.00) 0%,rgba(17,55,173,1.00) 100%) !important;
+        display: flex;
         color: white !important;
         text-align: center !important;
         justify-content: center;

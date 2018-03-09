@@ -38,7 +38,7 @@
                                         <v-select
                                                 v-bind:items="levels"
                                                 v-model="level"
-                                                label="Niveau"
+                                                label="Level"
                                                 single-line
                                                 bottom
                                         ></v-select>
@@ -140,7 +140,7 @@
                 return new Date(this.date+" "+time)
             },
             messageParsed(){
-                return JSON.stringify([{text:this.message}])
+                return this.message
             },
         },
         methods:{

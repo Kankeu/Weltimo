@@ -1,5 +1,5 @@
 <template>
-    <v-card>
+    <v-card :to="$route.fullPath+'/'+level" hover>
        <v-card-text :style="{backgroundColor:colors.squareBg}" class="squareBg">
            <v-avatar size="200px" :style="{backgroundColor:colors.circleBg}" class="circleBg">
                <span :style="{color:colors.color}">{{level}}</span>
@@ -12,7 +12,7 @@
             </div>
         </v-card-title>
         <v-card-actions>
-            <v-btn flat :to="'/courses/'+level" color="purple">Explore</v-btn>
+            <v-btn flat :to="$route.fullPath+'/'+level" color="purple">Explore</v-btn>
             <v-spacer></v-spacer>
             <v-btn icon @click.native="show = !show">
                 <v-icon>{{ show ? 'keyboard_arrow_down' : 'keyboard_arrow_up' }}</v-icon>

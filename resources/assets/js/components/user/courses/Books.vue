@@ -21,21 +21,31 @@
                 return this.$store.state.user.user
             },
             books(){
-                return this.$store.state.book.books.filter(book => book.level === this.level && book.type==='course')
+                return this.$store.state.book.books.filter(book => book.level === this.level && book.type===this.name)
             },
             end(){
-                return this.$store.state.query.queries.find(e=>(e.name==="courses" && !e.next && e.id===this.level))
+                return this.$store.state.query.queries.find(e=>(e.name===this.name && !e.next && e.id===this.level))
             },
             query(){
-                return this.$store.state.query.queries.find(e=>(e.name==="courses" && e.id===this.level))
+                return this.$store.state.query.queries.find(e=>(e.name===this.name && e.id===this.level))
             },
             scrollTop(){
-                let scroll = this.$store.state.setting.scrollTops.find(e=>e.name==="books") || {}
+                let scroll = this.$store.state.setting.scrollTops.find(e=>e.name===this.name) || {}
                 return scroll.scrollTop
             },
             level(){
                 return this.$route.params.level
             },
+            url(){
+                let pathItems = this.$route.fullPath.substring(1,this.$route.fullPath.length).split('/')
+                pathItems[0] = pathItems[0].substring(0,pathItems[0].length-1)
+                pathItems.unshift("/user/book")
+                return pathItems.join("/")
+            },
+            name(){
+                let pathItems = this.$route.fullPath.substring(1,this.$route.fullPath.length).split('/')
+                return pathItems[0].substring(0,pathItems[0].length-1)
+            }
         },
         methods:{
             loadMore(){
@@ -47,7 +57,7 @@
                             if(typeof response.body === "object"){
                                 this.$store.dispatch("book/save", response.body.data)
                                 this.$store.dispatch("users/save", response.body.data[0].user)
-                                this.$store.dispatch("query/save",{name:'courses',next:response.body.next_page_url,id:this.level})
+                                this.$store.dispatch("query/save",{name:this.name,next:response.body.next_page_url,id:this.level})
                             }
                             this.ready = true
                             this.$store.dispatch('setting/setLoading',false)
@@ -59,11 +69,11 @@
                 if(!this.query && this.ready){
                     this.ready = false
                     this.$store.dispatch('setting/setLoading',true)
-                    this.$http.get('/user/book/course/'+this.level).then(response=>{
-                        if(typeof response.body.data[0] === "object"){
+                    this.$http.get(this.url).then(response=>{
+                        if(Array.isArray(response.body.data) && response.body.data.length>0){
                             this.$store.dispatch("book/save", response.body.data)
                             this.$store.dispatch("users/save", response.body.data[0].user)
-                            this.$store.dispatch("query/save",{name:'courses',next:response.body.next_page_url,id:this.level})
+                            this.$store.dispatch("query/save",{name:this.name,next:response.body.next_page_url,id:this.level})
                         }
                         this.ready = true
                         this.$store.dispatch('setting/setLoading',false)

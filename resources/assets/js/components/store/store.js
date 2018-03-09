@@ -14,6 +14,10 @@ import book from './modules/Book'
 import topic from './modules/Topic'
 import category from './modules/Category'
 import topicresponse from './modules/Topicresponse'
+import boxmessage from './modules/Boxmessage'
+import message from './modules/Message'
+import discussionstate from './modules/Discussionstate'
+
 
 export default new Vuex.Store({
     //strict: process.env.NODE_ENV !== 'production',
@@ -30,7 +34,10 @@ export default new Vuex.Store({
         book,
         topic,
         category,
-        topicresponse
+        topicresponse,
+        boxmessage,
+        message,
+        discussionstate
     },
     plugins:[webSocketPlugin()]
 })

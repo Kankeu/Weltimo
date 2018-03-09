@@ -48,7 +48,7 @@ const router = new vueRouter({
                 if(connected===1){
                     next()
                 }else{
-                    Vue.http.get('/log_in').then(response=>{
+                    Vue.http.get('/login').then(response=>{
                         if(parseInt(response.body.confirmated) === 1){
                             store.default.dispatch("user/save", response.body)
                             store.default.dispatch("users/save", response.body)
@@ -117,6 +117,27 @@ const router = new vueRouter({
                     ]
                 },
                 {
+                    path: "exercises",
+                    component: resolve => require(['./components/user/Courses.vue'], resolve),
+                    children:[
+                        {
+                            path:"/",
+                            component: resolve => require(['./components/user/courses/Overview.vue'], resolve),
+                            name: "Exercises"
+                        },
+                        {
+                            path:":level/:book?",
+                            component: resolve => require(['./components/user/courses/Books.vue'], resolve),
+                            name: "Books"
+                        }
+                    ]
+                },
+                {
+                    path: "box",
+                    component: resolve => require(['./components/user/Box.vue'], resolve),
+                    name: "Box"
+                },
+                {
                     path: "forum",
                     component: resolve => require(['./components/user/Forum.vue'], resolve),
                     name: "Forum",
@@ -146,6 +167,60 @@ const router = new vueRouter({
                         {
                             path: '/',
                             component: resolve => require(['./components/user/university/Home.vue'], resolve),
+                        },
+                        {
+                            path: 'berlin',
+                            component: resolve => require(['./components/user/university/Berlin.vue'], resolve),
+                            name: 'Berlin'
+                        },
+                        {
+                            path: 'ilmenau',
+                            component: resolve => require(['./components/user/university/Ilmenau.vue'], resolve),
+                            name: 'Ilmenau'
+                        },
+                        {
+                            path: 'bochum',
+                            component: resolve => require(['./components/user/university/Bochum.vue'], resolve),
+                            name: 'Bochum'
+                        },
+                        {
+                            path: 'bremen',
+                            component: resolve => require(['./components/user/university/Bremen.vue'], resolve),
+                            name: 'Bremen'
+                        },
+                        {
+                            path: 'clausthal',
+                            component: resolve => require(['./components/user/university/Clausthal.vue'], resolve),
+                            name: 'Clausthal'
+                        },
+                        {
+                            path: 'mannheim',
+                            component: resolve => require(['./components/user/university/Mannheim.vue'], resolve),
+                            name: 'Mannheim'
+                        },
+                        {
+                            path: 'kaiserslautern',
+                            component: resolve => require(['./components/user/university/Kaiserslautern.vue'], resolve),
+                            name: 'Kaiserslautern'
+                        },
+                        {
+                            path: 'paderborn',
+                            component: resolve => require(['./components/user/university/Paderborn.vue'], resolve),
+                            name: 'Paderborn'
+                        },
+                        {
+                            path: 'munich',
+                            component: resolve => require(['./components/user/university/Munich.vue'], resolve),
+                            name: 'Munich'
+                        },
+                        {
+                            path: 'siegen',
+                            component: resolve => require(['./components/user/university/Siegen.vue'], resolve),
+                            name: 'Siegen'
+                        },
+                        {
+                            path: "*",
+                            redirect: "/university"
                         }
                     ]
                 },
@@ -190,7 +265,7 @@ const router = new vueRouter({
                         },
                         {
                             path: "*",
-                            redirect: "/user"
+                            redirect: "/"
                         }
                     ]
                 },

@@ -59,7 +59,7 @@
                 this.index = this.articles.indexOf(article)
             },
             index(index){
-                this.$scrollTo('#article'+this.articles[index].id,10,{container:'body'})
+                if(this.articles[index]) this.$scrollTo('#article'+this.articles[index].id,10,{container:'body'})
             }
         }
     }

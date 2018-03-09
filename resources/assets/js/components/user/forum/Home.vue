@@ -8,14 +8,6 @@
                 </v-alert>
             </v-flex>
             <v-flex lg12>
-                <v-container fluid>
-                    <v-text-field
-                        prepend-icon="search"
-                        label="search topics in the forum"
-                    ></v-text-field>
-                </v-container>
-            </v-flex>
-            <v-flex lg12>
                 <card-my-topics></card-my-topics>
             </v-flex>
             <v-flex lg12>

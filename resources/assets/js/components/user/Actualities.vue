@@ -1,9 +1,9 @@
 <template>
     <v-layout>
-        <v-flex xs0 lg3></v-flex>
-        <v-flex xs12 lg6>
+        <v-flex xs0 sm2 lg3></v-flex>
+        <v-flex xs12 sm8 lg6>
             <v-container grid-list-md text-xs-center fluid>
-                <v-layout v-scroll="{callback: this.loadMore}" column>
+                <v-layout v-scroll="{callback: this.loadMore}" v-if="actualities.length>0" column>
                     <v-flex lg12></v-flex>
                     <v-flex lg12 v-for="actuality,i in actualities" :key="i">
                         <actu-card :actuality="actuality"  @like="openLike" @edit="openFormEdit" @comment="openComment"></actu-card>
@@ -13,9 +13,12 @@
                     <dialog-like v-if="openDialogLike" :open="openDialogLike" @close="openDialogLike=!openDialogLike" :article="actuality"></dialog-like>
                     <dialog-form-edit :article="actuality" :open="dialogFormEdit" @close="dialogFormEdit=false"></dialog-form-edit>
                 </v-layout>
+                <v-layout column style="height: 200px" align-center justify-center v-else>
+                    <h1>No actualities</h1>
+                </v-layout>
             </v-container>
         </v-flex>
-        <v-flex xs0 lg3></v-flex>
+        <v-flex xs0 sm2 lg3></v-flex>
     </v-layout>
 </template>
 

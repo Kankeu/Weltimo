@@ -14,14 +14,14 @@
                                         <v-btn
                                                 :loading="following.loadingSubs"
                                                 :color="following.followed ? null :'primary'"
-                                                @click.stop.prevent="follow(following)"
-                                                v-if="following.followed"
+                                                @click.native="follow(following)"
+                                                v-if="user.id!==following.id"
                                                 slot="activator"
                                                 outline
                                         >
                                             <v-icon v-if="!following.followed">person_add</v-icon>{{following.followed ? "Unfollow" : "Follow"}}
                                         </v-btn>
-                                        <span v-if="!following.followed">Click here to unfollow</span><span v-else>Click here to follow</span>
+                                        <span v-if="following.followed">Click here to unfollow</span><span v-else>Click here to follow</span>
                                     </v-tooltip>
                                 </div>
                             </div>
@@ -37,7 +37,15 @@
                 </v-container>
             </v-card>
         </v-flex>
-
+        <v-snackbar
+                :timeout="6000"
+                top
+                right
+                v-model="snackbar"
+        >
+            {{text}}
+            <v-btn flat color="pink" @click.native="snackbar = false">Close</v-btn>
+        </v-snackbar>
     </v-layout>
 </template>
 
@@ -45,7 +53,9 @@
     export default{
         data(){
             return {
-                followings: []
+                followings: [],
+                snackbar: false,
+                text: ''
             }
         },
         computed:{
@@ -83,10 +93,24 @@
                             let index = this.followings.indexOf(this.followings.find(following=>following.id===user.id))
                             if(index>-1) this.followings.splice(index,1)
                             this.$store.dispatch('users/removeFollowing', this.user)
+                            this.text = 'You follow no longer '+user.forename+'!'
+                            this.snackbar = true
                         }
                     })
+                }else{
+                    this.$http.post('user/subscription',{receiver_id:user.id}).then(response=>{
+                        if(response.body.id){
+                            this.$set(user, "loadingSubs",false)
+                            user.followed = response.body
+                            this.$set(user, "loadingSubs",false)
+                            this.$store.dispatch('users/addFollowing', this.user)
+                            this.text = 'You follow '+user.forename+'!'
+                            this.snackbar = true
+                        }
+
+                    })
                 }
-            },
+            }
         },
         mounted(){
             this.load()

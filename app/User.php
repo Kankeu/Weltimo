@@ -2,6 +2,7 @@
 
 namespace App;
 
+use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Support\Facades\Auth;
@@ -66,6 +67,17 @@ class User extends Authenticatable
     public function follower_of()
     {
         return $this->hasOne("App\Subscription", "sender_id");
+    }
+
+    /**
+     * Send the password reset notification.
+     *
+     * @param  string  $token
+     * @return void
+     */
+    public function sendPasswordResetNotification($token)
+    {
+        $this->notify(new ResetPassword($token, $this));
     }
 
 }

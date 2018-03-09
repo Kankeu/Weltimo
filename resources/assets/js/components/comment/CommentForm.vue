@@ -114,6 +114,7 @@
         destroyed(){
             $(this.$el.querySelector(".emojionearea-editor")).unbind();
             $('.commentForm .emojionearea-editor').unbind("keypress")
+            this.clear()
         },
         watch:{
             replyUser(data){
@@ -122,13 +123,15 @@
                     if(last) last.remove()
                     let elt = this.$el.querySelector('.emojionearea-editor')
                     elt.focus()
-                    elt.innerHTML = '<span class="replyUser">@'+data.name+'_'+data.forename+'&nbsp;</span>'+elt.innerHTML
+                    elt.insertAdjacentHTML('afterbegin', '<span class="replyUser">@'+data.name+'_'+data.forename+'&nbsp;</span><br>')
+                    console.log(elt.innerHTML)
                     let range = document.createRange()
                     range.selectNodeContents(elt)
                     range.collapse(false)
                     let sel = window.getSelection()
                     sel.removeAllRanges()
                     sel.addRange(range)
+                    console.log(elt)
                 }
             }
         }

@@ -1,3 +1,4 @@
+
 <template>
     <v-layout column>
         <v-flex>
@@ -68,7 +69,7 @@
                                     <v-list-tile-title>Signal</v-list-tile-title>
                                 </v-list-tile-content>
                             </v-list-tile>
-                            <v-list-tile  @click="destroy" v-if="user.id===owner.id">
+                            <v-list-tile  @click="articleDelete=true" v-if="user.id===owner.id">
                                 <v-list-tile-action>
                                     <v-icon>delete</v-icon>
                                 </v-list-tile-action>
@@ -133,6 +134,21 @@
         <v-flex>
             <comment-form :article="article"></comment-form>
         </v-flex>
+        <v-dialog v-model="articleDelete" max-width="290">
+            <v-card>
+                <v-progress-linear v-bind:indeterminate="true" v-if="loading" style="margin:0"></v-progress-linear>
+                <v-card-title class="headline">Deleting the article</v-card-title>
+                <v-divider></v-divider>
+                <v-card-text>
+                    Are you sure you want to delete this article?
+                </v-card-text>
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn flat="flat" @click.native="articleDelete = false">Cancel</v-btn>
+                    <v-btn color="primary" flat="flat" @click.native="destroy">Confirm</v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
         <dialog-share :open="openDialogShare" :url="urlArticle(article.id,article.user_id)" @close="openDialogShare=false"></dialog-share>
         <dialog-like v-if="openDialogLike" :open="openDialogLike" @close="openDialogLike=!openDialogLike" :article="article"></dialog-like>
         <dialog-form-edit :article="article" :open="dialogFormEdit" @close="dialogFormEdit=false"></dialog-form-edit>

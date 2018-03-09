@@ -1,4 +1,4 @@
-webpackJsonp([30],[
+webpackJsonp([41],[
 /* 0 */,
 /* 1 */
 /***/ (function(module, exports) {
@@ -526,28 +526,35 @@ if (false) {
 /* 17 */,
 /* 18 */,
 /* 19 */,
-/* 20 */
+/* 20 */,
+/* 21 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_vuex__ = __webpack_require__(21);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__modules_User__ = __webpack_require__(42);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__modules_Users__ = __webpack_require__(43);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__modules_Setting__ = __webpack_require__(44);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__modules_Article__ = __webpack_require__(45);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__modules_Actuality__ = __webpack_require__(46);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__modules_Comment__ = __webpack_require__(47);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__modules_Query__ = __webpack_require__(48);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__modules_MsgFlash__ = __webpack_require__(49);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__webSocket_webSocketPlugin__ = __webpack_require__(50);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__modules_Like__ = __webpack_require__(51);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__modules_Book__ = __webpack_require__(52);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_12__modules_Topic__ = __webpack_require__(53);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_13__modules_Category__ = __webpack_require__(54);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_14__modules_Topicresponse__ = __webpack_require__(55);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_vuex__ = __webpack_require__(22);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__modules_User__ = __webpack_require__(46);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__modules_Users__ = __webpack_require__(47);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__modules_Setting__ = __webpack_require__(48);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__modules_Article__ = __webpack_require__(49);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__modules_Actuality__ = __webpack_require__(50);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__modules_Comment__ = __webpack_require__(51);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__modules_Query__ = __webpack_require__(52);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__modules_MsgFlash__ = __webpack_require__(53);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__webSocket_webSocketPlugin__ = __webpack_require__(54);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__modules_Like__ = __webpack_require__(55);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__modules_Book__ = __webpack_require__(56);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_12__modules_Topic__ = __webpack_require__(57);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_13__modules_Category__ = __webpack_require__(58);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_14__modules_Topicresponse__ = __webpack_require__(59);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_15__modules_Boxmessage__ = __webpack_require__(60);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_16__modules_Message__ = __webpack_require__(61);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_17__modules_Discussionstate__ = __webpack_require__(62);
 
 Vue.use(__WEBPACK_IMPORTED_MODULE_0_vuex__["default"]);
+
+
+
 
 
 
@@ -578,13 +585,15 @@ Vue.use(__WEBPACK_IMPORTED_MODULE_0_vuex__["default"]);
         book: __WEBPACK_IMPORTED_MODULE_11__modules_Book__["a" /* default */],
         topic: __WEBPACK_IMPORTED_MODULE_12__modules_Topic__["a" /* default */],
         category: __WEBPACK_IMPORTED_MODULE_13__modules_Category__["a" /* default */],
-        topicresponse: __WEBPACK_IMPORTED_MODULE_14__modules_Topicresponse__["a" /* default */]
+        topicresponse: __WEBPACK_IMPORTED_MODULE_14__modules_Topicresponse__["a" /* default */],
+        boxmessage: __WEBPACK_IMPORTED_MODULE_15__modules_Boxmessage__["a" /* default */],
+        message: __WEBPACK_IMPORTED_MODULE_16__modules_Message__["a" /* default */],
+        discussionstate: __WEBPACK_IMPORTED_MODULE_17__modules_Discussionstate__["a" /* default */]
     },
     plugins: [Object(__WEBPACK_IMPORTED_MODULE_9__webSocket_webSocketPlugin__["a" /* default */])()]
 }));
 
 /***/ }),
-/* 21 */,
 /* 22 */,
 /* 23 */,
 /* 24 */,
@@ -594,21 +603,25 @@ Vue.use(__WEBPACK_IMPORTED_MODULE_0_vuex__["default"]);
 /* 28 */,
 /* 29 */,
 /* 30 */,
-/* 31 */
+/* 31 */,
+/* 32 */,
+/* 33 */,
+/* 34 */,
+/* 35 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(32);
+module.exports = __webpack_require__(36);
 
 
 /***/ }),
-/* 32 */
+/* 36 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__bootstrap__ = __webpack_require__(33);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__bootstrap__ = __webpack_require__(37);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__components_route_Route_vue__ = __webpack_require__(5);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__components_store_store__ = __webpack_require__(20);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__components_store_store__ = __webpack_require__(21);
 
 
 
@@ -621,7 +634,7 @@ var app = new Vue({
 });
 
 /***/ }),
-/* 33 */
+/* 37 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -632,20 +645,20 @@ var app = new Vue({
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_vuetify_dist_vuetify_min_css__ = __webpack_require__(9);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_vuetify_dist_vuetify_min_css___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_vuetify_dist_vuetify_min_css__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_vue_resource__ = __webpack_require__(11);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_emojionearea_dist_emojionearea_css__ = __webpack_require__(34);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_emojionearea_dist_emojionearea_css__ = __webpack_require__(38);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_emojionearea_dist_emojionearea_css___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_4_emojionearea_dist_emojionearea_css__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_emojionearea__ = __webpack_require__(36);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_emojionearea__ = __webpack_require__(40);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_emojionearea___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_5_emojionearea__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__components_mixin_config__ = __webpack_require__(38);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__components_mixin_config__ = __webpack_require__(42);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__components_mixin_config___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_6__components_mixin_config__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__components_mixin_GlobalMixin__ = __webpack_require__(39);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__components_faceMotion_FaceMotion_css__ = __webpack_require__(40);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__components_mixin_GlobalMixin__ = __webpack_require__(43);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__components_faceMotion_FaceMotion_css__ = __webpack_require__(44);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__components_faceMotion_FaceMotion_css___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_8__components_faceMotion_FaceMotion_css__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9_vue_scrollto__ = __webpack_require__(16);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9_vue_scrollto__ = __webpack_require__(17);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_9_vue_scrollto___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_9_vue_scrollto__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10_vue_timeago__ = __webpack_require__(17);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10_vue_timeago__ = __webpack_require__(18);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_10_vue_timeago___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_10_vue_timeago__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11_laravel_echo__ = __webpack_require__(18);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11_laravel_echo__ = __webpack_require__(19);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_11_laravel_echo___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_11_laravel_echo__);
 window.Vue = __webpack_require__(6);
 
@@ -661,14 +674,14 @@ window.Vue = __webpack_require__(6);
 
 
 
-window.Pusher = __webpack_require__(19);
+window.Pusher = __webpack_require__(20);
 window.Echo = new __WEBPACK_IMPORTED_MODULE_11_laravel_echo___default.a({
     broadcaster: 'pusher',
     key: 'c44c08157a6c9f6414cf',
     secret: "b3e43f210686fa6a90ff",
     cluster: "eu"
 });
-var store = __webpack_require__(20);
+var store = __webpack_require__(21);
 Vue.use(__WEBPACK_IMPORTED_MODULE_9_vue_scrollto___default.a);
 Vue.use(__WEBPACK_IMPORTED_MODULE_1_vuetify___default.a);
 Vue.use(__WEBPACK_IMPORTED_MODULE_0_vue_router__["default"]);
@@ -683,7 +696,7 @@ Vue.use(__WEBPACK_IMPORTED_MODULE_10_vue_timeago___default.a, {
     name: 'timeago',
     locale: 'en-US',
     locales: {
-        'en-US': __webpack_require__(56)
+        'en-US': __webpack_require__(63)
     }
 });
 var router = new __WEBPACK_IMPORTED_MODULE_0_vue_router__["default"]({
@@ -691,14 +704,14 @@ var router = new __WEBPACK_IMPORTED_MODULE_0_vue_router__["default"]({
     routes: [{
         path: "/",
         component: function component(resolve) {
-            return __webpack_require__.e/* require */(2).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(62)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
+            return __webpack_require__.e/* require */(6).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(68)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
         },
         beforeEnter: function beforeEnter(to, from, next) {
             var connected = store.default.state.user.user ? store.default.state.user.user.confirmated : 0;
             if (connected === 1) {
                 next();
             } else {
-                Vue.http.get('/log_in').then(function (response) {
+                Vue.http.get('/login').then(function (response) {
                     if (parseInt(response.body.confirmated) === 1) {
                         store.default.dispatch("user/save", response.body);
                         store.default.dispatch("users/save", response.body);
@@ -710,158 +723,245 @@ var router = new __WEBPACK_IMPORTED_MODULE_0_vue_router__["default"]({
         children: [{
             path: "/",
             component: function component(resolve) {
-                return __webpack_require__.e/* require */(3).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(63)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
+                return __webpack_require__.e/* require */(7).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(69)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
             },
             name: "Home"
         }, {
             path: "actualities",
             component: function component(resolve) {
-                return __webpack_require__.e/* require */(4).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(64)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
+                return __webpack_require__.e/* require */(8).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(70)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
             },
             name: "Actualities"
         }, {
             path: "profile/:id",
             component: function component(resolve) {
-                return __webpack_require__.e/* require */(7).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(65)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
+                return __webpack_require__.e/* require */(12).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(71)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
             },
             name: "Profile",
             children: [{
                 path: "/",
                 component: function component(resolve) {
-                    return __webpack_require__.e/* require */(1).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(66)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
+                    return __webpack_require__.e/* require */(5).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(72)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
                 },
                 children: [{
                     path: "article/:article",
                     component: function component(resolve) {
-                        return __webpack_require__.e/* require */(5).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(67)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
+                        return __webpack_require__.e/* require */(9).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(73)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
                     }
                 }]
             }, {
                 path: "following",
                 component: function component(resolve) {
-                    return __webpack_require__.e/* require */(21).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(68)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
+                    return __webpack_require__.e/* require */(34).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(74)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
                 },
                 name: "Following"
             }, {
                 path: "followers",
                 component: function component(resolve) {
-                    return __webpack_require__.e/* require */(22).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(69)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
+                    return __webpack_require__.e/* require */(35).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(75)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
                 },
                 name: "Followers"
             }, {
                 path: "albums",
                 component: function component(resolve) {
-                    return __webpack_require__.e/* require */(23).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(70)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
+                    return __webpack_require__.e/* require */(18).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(76)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
                 },
                 name: "Albums"
             }]
         }, {
             path: "courses",
             component: function component(resolve) {
-                return __webpack_require__.e/* require */(26).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(71)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
+                return __webpack_require__.e/* require */(4/* duplicate */).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(23)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
             },
             children: [{
                 path: "/",
                 component: function component(resolve) {
-                    return __webpack_require__.e/* require */(14).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(72)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
+                    return __webpack_require__.e/* require */(2/* duplicate */).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(24)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
                 },
                 name: "Courses"
             }, {
                 path: ":level/:book?",
                 component: function component(resolve) {
-                    return __webpack_require__.e/* require */(15).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(73)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
+                    return __webpack_require__.e/* require */(3/* duplicate */).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(25)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
                 },
                 name: "Books"
             }]
         }, {
+            path: "exercises",
+            component: function component(resolve) {
+                return __webpack_require__.e/* require */(4/* duplicate */).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(23)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
+            },
+            children: [{
+                path: "/",
+                component: function component(resolve) {
+                    return __webpack_require__.e/* require */(2/* duplicate */).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(24)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
+                },
+                name: "Exercises"
+            }, {
+                path: ":level/:book?",
+                component: function component(resolve) {
+                    return __webpack_require__.e/* require */(3/* duplicate */).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(25)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
+                },
+                name: "Books"
+            }]
+        }, {
+            path: "box",
+            component: function component(resolve) {
+                return __webpack_require__.e/* require */(10).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(77)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
+            },
+            name: "Box"
+        }, {
             path: "forum",
             component: function component(resolve) {
-                return __webpack_require__.e/* require */(25).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(74)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
+                return __webpack_require__.e/* require */(37).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(78)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
             },
             name: "Forum",
             children: [{
                 path: "/",
                 component: function component(resolve) {
-                    return __webpack_require__.e/* require */(11).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(75)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
+                    return __webpack_require__.e/* require */(16).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(79)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
                 }
             }, {
                 path: ":type",
                 component: function component(resolve) {
-                    return __webpack_require__.e/* require */(16).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(76)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
+                    return __webpack_require__.e/* require */(29).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(80)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
                 }
             }, {
                 path: "topic/:id",
                 component: function component(resolve) {
-                    return __webpack_require__.e/* require */(0/* duplicate */).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(22)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
+                    return __webpack_require__.e/* require */(1/* duplicate */).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(26)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
                 }
             }, {
                 path: "topic/:id/response/:response_id",
                 component: function component(resolve) {
-                    return __webpack_require__.e/* require */(0/* duplicate */).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(22)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
+                    return __webpack_require__.e/* require */(1/* duplicate */).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(26)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
                 }
             }]
         }, {
             path: 'university',
             component: function component(resolve) {
-                return __webpack_require__.e/* require */(24).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(77)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
+                return __webpack_require__.e/* require */(36).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(81)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
             },
             children: [{
                 path: '/',
                 component: function component(resolve) {
-                    return __webpack_require__.e/* require */(20).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(78)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
+                    return __webpack_require__.e/* require */(33).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(82)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
                 }
+            }, {
+                path: 'berlin',
+                component: function component(resolve) {
+                    return __webpack_require__.e/* require */(28).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(83)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
+                },
+                name: 'Berlin'
+            }, {
+                path: 'ilmenau',
+                component: function component(resolve) {
+                    return __webpack_require__.e/* require */(24).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(84)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
+                },
+                name: 'Ilmenau'
+            }, {
+                path: 'bochum',
+                component: function component(resolve) {
+                    return __webpack_require__.e/* require */(27).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(85)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
+                },
+                name: 'Bochum'
+            }, {
+                path: 'bremen',
+                component: function component(resolve) {
+                    return __webpack_require__.e/* require */(26).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(86)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
+                },
+                name: 'Bremen'
+            }, {
+                path: 'clausthal',
+                component: function component(resolve) {
+                    return __webpack_require__.e/* require */(25).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(87)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
+                },
+                name: 'Clausthal'
+            }, {
+                path: 'mannheim',
+                component: function component(resolve) {
+                    return __webpack_require__.e/* require */(22).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(88)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
+                },
+                name: 'Mannheim'
+            }, {
+                path: 'kaiserslautern',
+                component: function component(resolve) {
+                    return __webpack_require__.e/* require */(23).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(89)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
+                },
+                name: 'Kaiserslautern'
+            }, {
+                path: 'paderborn',
+                component: function component(resolve) {
+                    return __webpack_require__.e/* require */(20).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(90)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
+                },
+                name: 'Paderborn'
+            }, {
+                path: 'munich',
+                component: function component(resolve) {
+                    return __webpack_require__.e/* require */(21).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(91)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
+                },
+                name: 'Munich'
+            }, {
+                path: 'siegen',
+                component: function component(resolve) {
+                    return __webpack_require__.e/* require */(19).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(92)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
+                },
+                name: 'Siegen'
+            }, {
+                path: "*",
+                redirect: "/university"
             }]
         }, {
             path: "account",
             component: function component(resolve) {
-                return __webpack_require__.e/* require */(12).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(79)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
+                return __webpack_require__.e/* require */(17).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(93)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
             },
             name: "Account"
         }, {
             path: "about",
             component: function component(resolve) {
-                return __webpack_require__.e/* require */(18).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(80)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
+                return __webpack_require__.e/* require */(31).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(94)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
             },
             name: "About"
         }, {
             path: "admin",
             component: function component(resolve) {
-                return __webpack_require__.e/* require */(19).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(81)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
+                return __webpack_require__.e/* require */(32).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(95)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
             },
             name: "Admin",
             children: [{
                 path: "/",
                 component: function component(resolve) {
-                    return __webpack_require__.e/* require */(10).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(82)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
+                    return __webpack_require__.e/* require */(15).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(96)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
                 }
             }, {
                 path: "users",
                 component: function component(resolve) {
-                    return __webpack_require__.e/* require */(8).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(83)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
+                    return __webpack_require__.e/* require */(14).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(97)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
                 }
             }, {
                 path: "books",
                 component: function component(resolve) {
-                    return __webpack_require__.e/* require */(29).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(84)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
+                    return __webpack_require__.e/* require */(40).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(98)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
                 }
             }, {
                 path: "edit",
                 component: function component(resolve) {
-                    return __webpack_require__.e/* require */(28).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(85)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
+                    return __webpack_require__.e/* require */(39).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(99)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
                 }
             }, {
                 path: "server",
                 component: function component(resolve) {
-                    return __webpack_require__.e/* require */(27).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(86)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
+                    return __webpack_require__.e/* require */(38).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(100)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
                 }
             }, {
                 path: "university",
                 component: function component(resolve) {
-                    return __webpack_require__.e/* require */(6).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(87)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
+                    return __webpack_require__.e/* require */(11).then(function() { var __WEBPACK_AMD_REQUIRE_ARRAY__ = [__webpack_require__(101)]; ((resolve).apply(null, __WEBPACK_AMD_REQUIRE_ARRAY__));}.bind(this)).catch(__webpack_require__.oe);
                 }
             }, {
                 path: "*",
-                redirect: "/user"
+                redirect: "/"
             }]
         }, {
             path: "*",
@@ -881,13 +981,13 @@ router.beforeEach(function (to, from, next) {
 
 
 /***/ }),
-/* 34 */
+/* 38 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(35);
+var content = __webpack_require__(39);
 if(typeof content === 'string') content = [[module.i, content, '']];
 // Prepare cssTransformation
 var transform;
@@ -912,7 +1012,7 @@ if(false) {
 }
 
 /***/ }),
-/* 35 */
+/* 39 */
 /***/ (function(module, exports, __webpack_require__) {
 
 exports = module.exports = __webpack_require__(0)(undefined);
@@ -920,23 +1020,23 @@ exports = module.exports = __webpack_require__(0)(undefined);
 
 
 // module
-exports.push([module.i, ".dropdown-menu.textcomplete-dropdown[data-strategy=\"emojionearea\"] {\n  position: absolute;\n  z-index: 1000;\n  min-width: 160px;\n  padding: 5px 0;\n  margin: 2px 0 0;\n  font-size: 14px;\n  text-align: left;\n  list-style: none;\n  background-color: #fff;\n  -webkit-background-clip: padding-box;\n  background-clip: padding-box;\n  border: 1px solid #ccc;\n  border: 1px solid rgba(0, 0, 0, 0.15);\n  -moz-border-radius: 4px;\n  -webkit-border-radius: 4px;\n  border-radius: 4px;\n  -moz-box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);\n  -webkit-box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);\n  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175); }\n  .dropdown-menu.textcomplete-dropdown[data-strategy=\"emojionearea\"] li.textcomplete-item {\n    font-size: 14px;\n    padding: 1px 3px;\n    border: 0; }\n    .dropdown-menu.textcomplete-dropdown[data-strategy=\"emojionearea\"] li.textcomplete-item a {\n      text-decoration: none;\n      display: block;\n      height: 100%;\n      line-height: 1.8em;\n      padding: 0 1.54em 0 .615em;\n      color: #4f4f4f; }\n    .dropdown-menu.textcomplete-dropdown[data-strategy=\"emojionearea\"] li.textcomplete-item:hover, .dropdown-menu.textcomplete-dropdown[data-strategy=\"emojionearea\"] li.textcomplete-item.active {\n      background-color: #e4e4e4; }\n      .dropdown-menu.textcomplete-dropdown[data-strategy=\"emojionearea\"] li.textcomplete-item:hover a, .dropdown-menu.textcomplete-dropdown[data-strategy=\"emojionearea\"] li.textcomplete-item.active a {\n        color: #333; }\n    .dropdown-menu.textcomplete-dropdown[data-strategy=\"emojionearea\"] li.textcomplete-item .emojioneemoji {\n      font-size: inherit;\n      height: 2ex;\n      width: 2.1ex;\n      min-height: 20px;\n      min-width: 20px;\n      display: inline-block;\n      margin: 0 5px .2ex 0;\n      line-height: normal;\n      vertical-align: middle;\n      max-width: 100%;\n      top: 0; }\n\n.emojionearea-text [class*=emojione-], .emojionearea-text .emojioneemoji {\n  font-size: inherit;\n  height: 2ex;\n  width: 2.1ex;\n  min-height: 20px;\n  min-width: 20px;\n  display: inline-block;\n  margin: -.2ex .15em .2ex;\n  line-height: normal;\n  vertical-align: middle;\n  max-width: 100%;\n  top: 0; }\n\n.emojionearea, .emojionearea * {\n  -moz-box-sizing: border-box;\n  -webkit-box-sizing: border-box;\n  box-sizing: border-box; }\n.emojionearea.emojionearea-disable {\n  position: relative;\n  background-color: #eee;\n  -moz-user-select: -moz-none;\n  -ms-user-select: none;\n  -webkit-user-select: none;\n  user-select: none; }\n  .emojionearea.emojionearea-disable:before {\n    content: \"\";\n    display: block;\n    top: 0;\n    left: 0;\n    right: 0;\n    bottom: 0;\n    z-index: 1;\n    opacity: 0.3;\n    position: absolute;\n    background-color: #eee; }\n.emojionearea, .emojionearea.form-control {\n  display: block;\n  position: relative !important;\n  width: 100%;\n  height: auto;\n  padding: 0;\n  font-size: 14px;\n  border: 0;\n  background-color: #FFFFFF;\n  border: 1px solid #CCCCCC;\n  -moz-border-radius: 3px;\n  -webkit-border-radius: 3px;\n  border-radius: 3px;\n  -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);\n  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);\n  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);\n  -moz-transition: border-color 0.15s ease-in-out,    -moz-box-shadow 0.15s ease-in-out;\n  -o-transition: border-color 0.15s ease-in-out,         box-shadow 0.15s ease-in-out;\n  -webkit-transition: border-color 0.15s ease-in-out, -webkit-box-shadow 0.15s ease-in-out;\n  transition: border-color 0.15s ease-in-out,         box-shadow 0.15s ease-in-out; }\n.emojionearea.focused {\n  border-color: #66AFE9;\n  outline: 0;\n  -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(102, 175, 233, 0.6);\n  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(102, 175, 233, 0.6);\n  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(102, 175, 233, 0.6); }\n.emojionearea .emojionearea-editor {\n  display: block;\n  height: auto;\n  min-height: 8em;\n  max-height: 15em;\n  overflow: auto;\n  padding: 6px 24px 6px 12px;\n  line-height: 1.42857143;\n  font-size: inherit;\n  color: #555555;\n  background-color: transparent;\n  border: 0;\n  cursor: text;\n  margin-right: 1px;\n  -moz-border-radius: 0;\n  -webkit-border-radius: 0;\n  border-radius: 0;\n  -moz-box-shadow: none;\n  -webkit-box-shadow: none;\n  box-shadow: none; }\n  .emojionearea .emojionearea-editor:empty:before {\n    content: attr(placeholder);\n    display: block;\n    color: #BBBBBB; }\n  .emojionearea .emojionearea-editor:focus {\n    border: 0;\n    outline: 0;\n    -moz-box-shadow: none;\n    -webkit-box-shadow: none;\n    box-shadow: none; }\n  .emojionearea .emojionearea-editor [class*=emojione-], .emojionearea .emojionearea-editor .emojioneemoji {\n    font-size: inherit;\n    height: 2ex;\n    width: 2.1ex;\n    min-height: 20px;\n    min-width: 20px;\n    display: inline-block;\n    margin: -.2ex .15em .2ex;\n    line-height: normal;\n    vertical-align: middle;\n    max-width: 100%;\n    top: 0; }\n.emojionearea.emojionearea-inline {\n  height: 34px; }\n  .emojionearea.emojionearea-inline > .emojionearea-editor {\n    height: 32px;\n    min-height: 20px;\n    overflow: hidden;\n    white-space: nowrap;\n    position: absolute;\n    top: 0;\n    left: 12px;\n    right: 24px;\n    padding: 6px 0; }\n  .emojionearea.emojionearea-inline > .emojionearea-button {\n    top: 4px; }\n.emojionearea .emojionearea-button {\n  z-index: 5;\n  position: absolute;\n  right: 3px;\n  top: 3px;\n  width: 24px;\n  height: 24px;\n  opacity: 0.6;\n  cursor: pointer;\n  -moz-transition: opacity 300ms ease-in-out;\n  -o-transition: opacity 300ms ease-in-out;\n  -webkit-transition: opacity 300ms ease-in-out;\n  transition: opacity 300ms ease-in-out; }\n  .emojionearea .emojionearea-button:hover {\n    opacity: 1; }\n  .emojionearea .emojionearea-button > div {\n    display: block;\n    width: 24px;\n    height: 24px;\n    position: absolute;\n    -moz-transition: all 400ms ease-in-out;\n    -o-transition: all 400ms ease-in-out;\n    -webkit-transition: all 400ms ease-in-out;\n    transition: all 400ms ease-in-out; }\n    .emojionearea .emojionearea-button > div.emojionearea-button-open {\n      background-position: 0 -24px;\n      filter: progid:DXImageTransform.Microsoft.Alpha(enabled=false);\n      opacity: 1; }\n    .emojionearea .emojionearea-button > div.emojionearea-button-close {\n      background-position: 0 0;\n      -webkit-transform: rotate(-45deg);\n      -o-transform: rotate(-45deg);\n      transform: rotate(-45deg);\n      filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=0);\n      opacity: 0; }\n  .emojionearea .emojionearea-button.active > div.emojionearea-button-open {\n    -webkit-transform: rotate(45deg);\n    -o-transform: rotate(45deg);\n    transform: rotate(45deg);\n    filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=0);\n    opacity: 0; }\n  .emojionearea .emojionearea-button.active > div.emojionearea-button-close {\n    -webkit-transform: rotate(0deg);\n    -o-transform: rotate(0deg);\n    transform: rotate(0deg);\n    filter: progid:DXImageTransform.Microsoft.Alpha(enabled=false);\n    opacity: 1; }\n.emojionearea .emojionearea-picker {\n  background: #FFFFFF;\n  position: absolute;\n  -moz-box-shadow: 0 1px 5px rgba(0, 0, 0, 0.32);\n  -webkit-box-shadow: 0 1px 5px rgba(0, 0, 0, 0.32);\n  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.32);\n  -moz-border-radius: 5px;\n  -webkit-border-radius: 5px;\n  border-radius: 5px;\n  height: 276px;\n  width: 316px;\n  top: -15px;\n  right: -15px;\n  z-index: 90;\n  -moz-transition: all 0.25s ease-in-out;\n  -o-transition: all 0.25s ease-in-out;\n  -webkit-transition: all 0.25s ease-in-out;\n  transition: all 0.25s ease-in-out;\n  filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=0);\n  opacity: 0;\n  -moz-user-select: -moz-none;\n  -ms-user-select: none;\n  -webkit-user-select: none;\n  user-select: none; }\n  .emojionearea .emojionearea-picker.hidden {\n    display: none; }\n  .emojionearea .emojionearea-picker .emojionearea-wrapper {\n    position: relative;\n    height: 276px;\n    width: 316px; }\n    .emojionearea .emojionearea-picker .emojionearea-wrapper:after {\n      content: \"\";\n      display: block;\n      position: absolute;\n      background-repeat: no-repeat;\n      z-index: 91; }\n  .emojionearea .emojionearea-picker .emojionearea-filters {\n    width: 100%;\n    position: absolute;\n    z-index: 95; }\n  .emojionearea .emojionearea-picker .emojionearea-filters {\n    background: #F5F7F9;\n    padding: 0 0 0 7px;\n    height: 40px; }\n    .emojionearea .emojionearea-picker .emojionearea-filters .emojionearea-filter {\n      display: block;\n      float: left;\n      height: 40px;\n      width: 32px;\n      filter: inherit;\n      padding: 7px 1px 0;\n      cursor: pointer;\n      -webkit-filter: grayscale(1);\n      filter: grayscale(1); }\n      .emojionearea .emojionearea-picker .emojionearea-filters .emojionearea-filter.active {\n        background: #fff; }\n      .emojionearea .emojionearea-picker .emojionearea-filters .emojionearea-filter.active, .emojionearea .emojionearea-picker .emojionearea-filters .emojionearea-filter:hover {\n        -webkit-filter: grayscale(0);\n        filter: grayscale(0); }\n      .emojionearea .emojionearea-picker .emojionearea-filters .emojionearea-filter > i {\n        width: 24px;\n        height: 24px;\n        top: 0; }\n      .emojionearea .emojionearea-picker .emojionearea-filters .emojionearea-filter > img {\n        width: 24px;\n        height: 24px;\n        margin: 0 3px; }\n  .emojionearea .emojionearea-picker .emojionearea-search-panel {\n    height: 30px;\n    position: absolute;\n    z-index: 95;\n    top: 40px;\n    left: 0;\n    right: 0;\n    padding: 5px 0 5px 8px; }\n    .emojionearea .emojionearea-picker .emojionearea-search-panel .emojionearea-tones {\n      float: right;\n      margin-right: 10px;\n      margin-top: -1px; }\n  .emojionearea .emojionearea-picker .emojionearea-tones-panel .emojionearea-tones {\n    position: absolute;\n    top: 4px;\n    left: 171px; }\n  .emojionearea .emojionearea-picker .emojionearea-search {\n    float: left;\n    padding: 0;\n    height: 20px;\n    width: 160px; }\n    .emojionearea .emojionearea-picker .emojionearea-search > input {\n      outline: none;\n      width: 160px;\n      min-width: 160px;\n      height: 20px; }\n  .emojionearea .emojionearea-picker .emojionearea-tones {\n    padding: 0;\n    width: 120px;\n    height: 20px; }\n    .emojionearea .emojionearea-picker .emojionearea-tones > .btn-tone {\n      display: inline-block;\n      padding: 0;\n      border: 0;\n      vertical-align: middle;\n      outline: none;\n      background: transparent;\n      cursor: pointer;\n      position: relative; }\n      .emojionearea .emojionearea-picker .emojionearea-tones > .btn-tone.btn-tone-0, .emojionearea .emojionearea-picker .emojionearea-tones > .btn-tone.btn-tone-0:after {\n        background-color: #ffcf3e; }\n      .emojionearea .emojionearea-picker .emojionearea-tones > .btn-tone.btn-tone-1, .emojionearea .emojionearea-picker .emojionearea-tones > .btn-tone.btn-tone-1:after {\n        background-color: #fae3c5; }\n      .emojionearea .emojionearea-picker .emojionearea-tones > .btn-tone.btn-tone-2, .emojionearea .emojionearea-picker .emojionearea-tones > .btn-tone.btn-tone-2:after {\n        background-color: #e2cfa5; }\n      .emojionearea .emojionearea-picker .emojionearea-tones > .btn-tone.btn-tone-3, .emojionearea .emojionearea-picker .emojionearea-tones > .btn-tone.btn-tone-3:after {\n        background-color: #daa478; }\n      .emojionearea .emojionearea-picker .emojionearea-tones > .btn-tone.btn-tone-4, .emojionearea .emojionearea-picker .emojionearea-tones > .btn-tone.btn-tone-4:after {\n        background-color: #a78058; }\n      .emojionearea .emojionearea-picker .emojionearea-tones > .btn-tone.btn-tone-5, .emojionearea .emojionearea-picker .emojionearea-tones > .btn-tone.btn-tone-5:after {\n        background-color: #5e4d43; }\n    .emojionearea .emojionearea-picker .emojionearea-tones.emojionearea-tones-bullet > .btn-tone, .emojionearea .emojionearea-picker .emojionearea-tones.emojionearea-tones-square > .btn-tone {\n      width: 20px;\n      height: 20px;\n      margin: 0;\n      background-color: transparent; }\n      .emojionearea .emojionearea-picker .emojionearea-tones.emojionearea-tones-bullet > .btn-tone:after, .emojionearea .emojionearea-picker .emojionearea-tones.emojionearea-tones-square > .btn-tone:after {\n        content: \"\";\n        position: absolute;\n        display: block;\n        top: 4px;\n        left: 4px;\n        width: 12px;\n        height: 12px; }\n      .emojionearea .emojionearea-picker .emojionearea-tones.emojionearea-tones-bullet > .btn-tone.active:after, .emojionearea .emojionearea-picker .emojionearea-tones.emojionearea-tones-square > .btn-tone.active:after {\n        top: 0;\n        left: 0;\n        width: 20px;\n        height: 20px; }\n    .emojionearea .emojionearea-picker .emojionearea-tones.emojionearea-tones-radio > .btn-tone, .emojionearea .emojionearea-picker .emojionearea-tones.emojionearea-tones-checkbox > .btn-tone {\n      width: 16px;\n      height: 16px;\n      margin: 0px 2px; }\n      .emojionearea .emojionearea-picker .emojionearea-tones.emojionearea-tones-radio > .btn-tone.active:after, .emojionearea .emojionearea-picker .emojionearea-tones.emojionearea-tones-checkbox > .btn-tone.active:after {\n        content: \"\";\n        position: absolute;\n        display: block;\n        background-color: transparent;\n        border: 2px solid #fff;\n        width: 8px;\n        height: 8px;\n        top: 2px;\n        left: 2px;\n        box-sizing: initial; }\n    .emojionearea .emojionearea-picker .emojionearea-tones.emojionearea-tones-bullet > .btn-tone, .emojionearea .emojionearea-picker .emojionearea-tones.emojionearea-tones-bullet > .btn-tone:after, .emojionearea .emojionearea-picker .emojionearea-tones.emojionearea-tones-radio > .btn-tone, .emojionearea .emojionearea-picker .emojionearea-tones.emojionearea-tones-radio > .btn-tone:after {\n      -moz-border-radius: 100%;\n      -webkit-border-radius: 100%;\n      border-radius: 100%; }\n    .emojionearea .emojionearea-picker .emojionearea-tones.emojionearea-tones-square > .btn-tone, .emojionearea .emojionearea-picker .emojionearea-tones.emojionearea-tones-square > .btn-tone:after, .emojionearea .emojionearea-picker .emojionearea-tones.emojionearea-tones-checkbox > .btn-tone, .emojionearea .emojionearea-picker .emojionearea-tones.emojionearea-tones-checkbox > .btn-tone:after {\n      -moz-border-radius: 1px;\n      -webkit-border-radius: 1px;\n      border-radius: 1px; }\n  .emojionearea .emojionearea-picker .emojionearea-scroll-area {\n    height: 236px; }\n  .emojionearea .emojionearea-picker .emojionearea-search-panel + .emojionearea-scroll-area {\n    height: 206px; }\n  .emojionearea .emojionearea-picker .emojionearea-scroll-area {\n    overflow: auto;\n    overflow-x: hidden;\n    width: 100%;\n    position: absolute;\n    padding: 0 0 5px; }\n    .emojionearea .emojionearea-picker .emojionearea-scroll-area .emojionearea-emojis-list {\n      z-index: 1; }\n    .emojionearea .emojionearea-picker .emojionearea-scroll-area .emojionearea-category-title {\n      display: block;\n      font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;\n      font-size: 13px;\n      font-weight: normal;\n      color: #b2b2b2;\n      background: #FFFFFF;\n      line-height: 20px;\n      margin: 0;\n      padding: 7px 0 5px 6px; }\n      .emojionearea .emojionearea-picker .emojionearea-scroll-area .emojionearea-category-title:after, .emojionearea .emojionearea-picker .emojionearea-scroll-area .emojionearea-category-title:before {\n        content: \" \";\n        display: block;\n        clear: both; }\n    .emojionearea .emojionearea-picker .emojionearea-scroll-area .emojionearea-category-block {\n      padding: 0 0 0 7px; }\n      .emojionearea .emojionearea-picker .emojionearea-scroll-area .emojionearea-category-block > .emojionearea-category {\n        padding: 0 !important; }\n        .emojionearea .emojionearea-picker .emojionearea-scroll-area .emojionearea-category-block > .emojionearea-category:after, .emojionearea .emojionearea-picker .emojionearea-scroll-area .emojionearea-category-block > .emojionearea-category:before {\n          content: \" \";\n          display: block;\n          clear: both; }\n      .emojionearea .emojionearea-picker .emojionearea-scroll-area .emojionearea-category-block:after, .emojionearea .emojionearea-picker .emojionearea-scroll-area .emojionearea-category-block:before {\n        content: \" \";\n        display: block;\n        clear: both; }\n    .emojionearea .emojionearea-picker .emojionearea-scroll-area [class*=emojione-] {\n      -moz-box-sizing: content-box;\n      -webkit-box-sizing: content-box;\n      box-sizing: content-box;\n      margin: 0;\n      width: 24px;\n      height: 24px;\n      top: 0; }\n    .emojionearea .emojionearea-picker .emojionearea-scroll-area .emojibtn {\n      -moz-box-sizing: content-box;\n      -webkit-box-sizing: content-box;\n      box-sizing: content-box;\n      width: 24px;\n      height: 24px;\n      float: left;\n      display: block;\n      margin: 1px;\n      padding: 3px; }\n      .emojionearea .emojionearea-picker .emojionearea-scroll-area .emojibtn:hover {\n        -moz-border-radius: 4px;\n        -webkit-border-radius: 4px;\n        border-radius: 4px;\n        background-color: #e4e4e4;\n        cursor: pointer; }\n      .emojionearea .emojionearea-picker .emojionearea-scroll-area .emojibtn i, .emojionearea .emojionearea-picker .emojionearea-scroll-area .emojibtn img {\n        float: left;\n        display: block;\n        width: 24px;\n        height: 24px; }\n      .emojionearea .emojionearea-picker .emojionearea-scroll-area .emojibtn img.lazy-emoji {\n        filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=0);\n        opacity: 0; }\n  .emojionearea .emojionearea-picker.emojionearea-filters-position-top .emojionearea-filters {\n    top: 0;\n    -moz-border-radius-topleft: 5px;\n    -webkit-border-top-left-radius: 5px;\n    border-top-left-radius: 5px;\n    -moz-border-radius-topright: 5px;\n    -webkit-border-top-right-radius: 5px;\n    border-top-right-radius: 5px; }\n  .emojionearea .emojionearea-picker.emojionearea-filters-position-top.emojionearea-search-position-top .emojionearea-scroll-area {\n    bottom: 0; }\n  .emojionearea .emojionearea-picker.emojionearea-filters-position-top.emojionearea-search-position-bottom .emojionearea-scroll-area {\n    top: 40px; }\n  .emojionearea .emojionearea-picker.emojionearea-filters-position-top.emojionearea-search-position-bottom .emojionearea-search-panel {\n    top: initial;\n    bottom: 0; }\n  .emojionearea .emojionearea-picker.emojionearea-filters-position-bottom .emojionearea-filters {\n    bottom: 0;\n    -moz-border-radius-bottomleft: 5px;\n    -webkit-border-bottom-left-radius: 5px;\n    border-bottom-left-radius: 5px;\n    -moz-border-radius-bottomright: 5px;\n    -webkit-border-bottom-right-radius: 5px;\n    border-bottom-right-radius: 5px; }\n  .emojionearea .emojionearea-picker.emojionearea-filters-position-bottom.emojionearea-search-position-bottom .emojionearea-scroll-area {\n    top: 0; }\n  .emojionearea .emojionearea-picker.emojionearea-filters-position-bottom.emojionearea-search-position-bottom .emojionearea-search-panel {\n    top: initial;\n    bottom: 40px; }\n  .emojionearea .emojionearea-picker.emojionearea-filters-position-bottom.emojionearea-search-position-top .emojionearea-scroll-area {\n    top: initial;\n    bottom: 40px; }\n  .emojionearea .emojionearea-picker.emojionearea-filters-position-bottom.emojionearea-search-position-top .emojionearea-search-panel {\n    top: 0; }\n  .emojionearea .emojionearea-picker.emojionearea-picker-position-top {\n    margin-top: -286px;\n    right: -14px; }\n    .emojionearea .emojionearea-picker.emojionearea-picker-position-top .emojionearea-wrapper:after {\n      width: 19px;\n      height: 10px;\n      background-position: -2px -49px;\n      bottom: -10px;\n      right: 20px; }\n    .emojionearea .emojionearea-picker.emojionearea-picker-position-top.emojionearea-filters-position-bottom .emojionearea-wrapper:after {\n      background-position: -2px -80px; }\n  .emojionearea .emojionearea-picker.emojionearea-picker-position-left, .emojionearea .emojionearea-picker.emojionearea-picker-position-right {\n    margin-right: -326px;\n    top: -8px; }\n    .emojionearea .emojionearea-picker.emojionearea-picker-position-left .emojionearea-wrapper:after, .emojionearea .emojionearea-picker.emojionearea-picker-position-right .emojionearea-wrapper:after {\n      width: 10px;\n      height: 19px;\n      background-position: 0px -60px;\n      top: 13px;\n      left: -10px; }\n    .emojionearea .emojionearea-picker.emojionearea-picker-position-left.emojionearea-filters-position-bottom .emojionearea-wrapper:after, .emojionearea .emojionearea-picker.emojionearea-picker-position-right.emojionearea-filters-position-bottom .emojionearea-wrapper:after {\n      background-position: right -60px; }\n  .emojionearea .emojionearea-picker.emojionearea-picker-position-bottom {\n    margin-top: 10px;\n    right: -14px;\n    top: 47px; }\n    .emojionearea .emojionearea-picker.emojionearea-picker-position-bottom .emojionearea-wrapper:after {\n      width: 19px;\n      height: 10px;\n      background-position: -2px -100px;\n      top: -10px;\n      right: 20px; }\n    .emojionearea .emojionearea-picker.emojionearea-picker-position-bottom.emojionearea-filters-position-bottom .emojionearea-wrapper:after {\n      background-position: -2px -90px; }\n.emojionearea .emojionearea-button.active + .emojionearea-picker {\n  filter: progid:DXImageTransform.Microsoft.Alpha(enabled=false);\n  opacity: 1; }\n.emojionearea .emojionearea-button.active + .emojionearea-picker-position-top {\n  margin-top: -269px; }\n.emojionearea .emojionearea-button.active + .emojionearea-picker-position-left,\n.emojionearea .emojionearea-button.active + .emojionearea-picker-position-right {\n  margin-right: -309px; }\n.emojionearea .emojionearea-button.active + .emojionearea-picker-position-bottom {\n  margin-top: -7px; }\n.emojionearea.emojionearea-standalone {\n  display: inline-block;\n  width: auto;\n  box-shadow: none; }\n  .emojionearea.emojionearea-standalone .emojionearea-editor {\n    min-height: 33px;\n    position: relative;\n    padding: 6px 42px 6px 6px; }\n    .emojionearea.emojionearea-standalone .emojionearea-editor::before {\n      content: \"\";\n      position: absolute;\n      top: 4px;\n      left: 50%;\n      bottom: 4px;\n      border-left: 1px solid #e6e6e6; }\n    .emojionearea.emojionearea-standalone .emojionearea-editor.has-placeholder {\n      background-repeat: no-repeat;\n      background-position: 20px 4px; }\n      .emojionearea.emojionearea-standalone .emojionearea-editor.has-placeholder .emojioneemoji {\n        opacity: 0.4; }\n  .emojionearea.emojionearea-standalone .emojionearea-button {\n    top: 0;\n    right: 0;\n    bottom: 0;\n    left: 0;\n    width: auto;\n    height: auto; }\n    .emojionearea.emojionearea-standalone .emojionearea-button > div {\n      right: 6px;\n      top: 5px; }\n  .emojionearea.emojionearea-standalone .emojionearea-picker.emojionearea-picker-position-bottom .emojionearea-wrapper:after, .emojionearea.emojionearea-standalone .emojionearea-picker.emojionearea-picker-position-top .emojionearea-wrapper:after {\n    right: 23px; }\n  .emojionearea.emojionearea-standalone .emojionearea-picker.emojionearea-picker-position-left .emojionearea-wrapper:after, .emojionearea.emojionearea-standalone .emojionearea-picker.emojionearea-picker-position-right .emojionearea-wrapper:after {\n    top: 15px; }\n\n.emojionearea .emojionearea-button > div, .emojionearea .emojionearea-picker .emojionearea-wrapper:after {\n  background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABcAAABuCAYAAADMB4ipAAAHfElEQVRo3u1XS1NT2Rb+9uOcQF4YlAJzLymFUHaLrdxKULvEUNpdTnRqD532f+AHMLMc94gqR1Zbt8rBnUh3YXipPGKwRDoWgXvrYiFUlEdIkPPYZ/dAkwox5yQCVt/bzRrBPnt9e+211/etFeDQDu3ArL+/X37OeqmRWoH7+vpItfWawStF1tfXR+zW9xW5ne0p8loOcAKuCdwpRft60C8a+X5zTvebCqcAvmidf1GGHtqhHdpf1qqKzsrKipyensbi4iKWl5cBAMFgEG1tbYhGo2hpadlbmxseHpaDg4MAgI6ODng8HgBAPp/H/Pw8AODatWvo7e2tvUHrui7v3r2L+fl5XL58GVeuXIHH49m1N5/Py0ePHmF0dBQdHR24desWVFXdtYdXAn/48CHm5+dx8+ZNRKPRigEUDpuenpb3799H4YaOnWh5eVmOj48jFoshGo0STdPkwMCAXF5elqV7BgYGpKZpMhqNklgshrGxMbx580Y6gicSCTDGEIvFAADpdBqpVArJZLK4J5lMIpVKIZ1OAwBisRgYY0gkEs6Rp1IphMNh+Hw+AgCGYQAANE0r7in8Xfjm8/lIOBzGq1evnMHX19fR1NRU/D8UCoFzjnA4XFwLh8PgnCMUChXXmpqakM1mUfVBS62xsZHk83lZWi1nz579ZA0AhBDO4A0NDchkMsWSJIRAURRiVy26rktVVUkmk0EgEHAGP3XqFKamppDP56Vpmrhz5w5u374t/X4/OP+w3TRNZLNZ6LoO0zSRz+dlf38/Ll686Jzz8+fPQwiBeDwOt9tNrl+/jkwmU6yaQpVkMhncuHEDbrebxONxCCEQiUScIw8Gg+TBgwdyZGQEyWRSdnV1kVQqJYeGhrC6ugrGGEKhEHp7e3Hy5EmSTCblvXv30NPTg2AwSA6M/vF4HCMjI7b0/yzh8vv9AIBsNrt34aokuQsLC7skt729varkHtqftUFf++FHsrq0QN3eBvp68Tfvf9Mv12oFCYU7G//e9nVuO7dpNbe2W4M//yQr0p8yRvyBo1Zr++lwLcCt7afD/sBRizJGavrB1dDYYh47Htrq+Kb7jBNwxzfdZ44dD201NLaYVUkU7ozQpuAJBkARwnRZpunN5zaa5hJjiXLH05GeiMd7JEM5zzHGNQBGZvk/Iv0yYVWMvK0zKk1Dl6ahW5RQobjqdjy+wEZn9PKF0n2d0csXPL7AhuKq26GECtPQLdPQZVtn1LlB69p7yRVVSEiDEGJwRd12e4+8PR3piRQidnuPvOWKuk0IMSSkwRVV6Np7WVVbSqvGsgSnlKkAFNPQXdrOtuKqcxtcUTUAhmUJnVJmlleJo3CVHmAaOlPUOmYJkxFKibQsSRkXhr4juKIKO2BHVSwcoLrqCVdUYho6K3YYRRWmoUtdey/tgKtK7rUffiQAsLq08MnbNLe2WwBgB/zHzueFyD8nwlIfbvdx8eU0WV1aKD1cVAMs9+F2j9gUPEEKemEJIe3AnXy4XfkBoNKSZHNthWfX31EA69VKttyHVyIOY1wRwmS6tqNsrr31vXo5k/bUu4gT2cp9lhbm0rzCJpeUUrE0vS63+c7/6uXMbDUWl/ssLczNFrVFddUT09AZpUy1LKvO0DVfPrfR9HxqfNbuEe185l9MFX3o6tIC5YpKFLWOfdQQ93Zu49j0+FDCDtjOp1yaOQCYhs4Y40wI05XfWj8yPT40Ua2ey33mEmMTtp2IUEq0nW3FKeJPGPjRp1Iz2QUuLUu66txG9NLVSK3gBZ+C1lcE54oqKOOCK6rm8QU2unu+u1ANuNynvFsBAG1ubbdMQ5eGviMAFDuP0w3sfMpvQEtb24fOQncU1bXl8R7JnOu+ZNv97XxKJwY6+PNPsrm13drObVqUMlMIU5OWpVHOc96Go5lTnV2fzC/VfAozD7HTCa6olBBa1Imlhbmq2lLuQ5xaW6nCPfnln0Yt7bDUhzhps8cfKH5//uTXmvS81OeLdqI/ZoROzSZrHqG/OvOPzxuhK5VgJTvV2bW3EdqJRABwrvvS/kfoSkoZvXT1YEbociHr7vnuYEfogpBFL109HKH/h0fomnXg3Lff79r7/MmvVbWG7gX4QObzc99+Tz7mHKah05KcW6ahQ9feS6cbMCdgt7eBWJagjCuUAC5tZzuouuo0Spm0hElc9R4cbf4bVl8v1p6WUmCuqEwIs34ruxaeeTy4uJVd67As08UVlVmWoG5vA7FLG3WMmHEupVTyW+vh2cn4DADMTsaTuc21LiGEhzHOnQ6gNtMrJSBMCKHkNt999WLi0S7hejEZH81n174WpukiIMw0dKq66p3Bw50RwhUVXFGJKUy28Xal48VkfKrSlWenhsc23q2cEB9SR7iiItwZIbbgHn8AlDFCCMW7laXjqZnHjkNpaubJzNuVpWZCKChjxOMPVH/QlaW0f/G3ZLqWWl6ce/bvlddp7yFD/w8Z+njoX1+GoZMjgzMAMDkyeLAMnRh+uKveJ0YGD4ahEyODFRk6OfrL/hj67GnckaHPng7vjaGzyYmaGDr77KktQ38H8tqx8Wja+WIAAAAASUVORK5CYII=') !important; }\n\n.emojionearea.emojionearea-standalone .emojionearea-editor.has-placeholder {\n  background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMAQMAAABsu86kAAAABlBMVEUAAAC/v79T5hyIAAAAAXRSTlMAQObYZgAAABNJREFUCNdjYGNgQEb/P4AQqiAASiUEG6Vit44AAAAASUVORK5CYII=') !important; }\n", ""]);
+exports.push([module.i, "/* line 3, ../scss/_text-complete.scss */\n.dropdown-menu.textcomplete-dropdown[data-strategy=\"emojionearea\"] {\n  position: absolute;\n  z-index: 1000;\n  min-width: 160px;\n  padding: 5px 0;\n  margin: 2px 0 0;\n  font-size: 14px;\n  text-align: left;\n  list-style: none;\n  background-color: #fff;\n  -webkit-background-clip: padding-box;\n  background-clip: padding-box;\n  border: 1px solid #ccc;\n  border: 1px solid rgba(0, 0, 0, 0.15);\n  -moz-border-radius: 4px;\n  -webkit-border-radius: 4px;\n  border-radius: 4px;\n  -moz-box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);\n  -webkit-box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);\n  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175); }\n  /* line 20, ../scss/_text-complete.scss */\n  .dropdown-menu.textcomplete-dropdown[data-strategy=\"emojionearea\"] li.textcomplete-item {\n    font-size: 14px;\n    padding: 1px 3px;\n    border: 0; }\n    /* line 25, ../scss/_text-complete.scss */\n    .dropdown-menu.textcomplete-dropdown[data-strategy=\"emojionearea\"] li.textcomplete-item a {\n      text-decoration: none;\n      display: block;\n      height: 100%;\n      line-height: 1.8em;\n      padding: 0 1.54em 0 .615em;\n      color: #4f4f4f; }\n    /* line 34, ../scss/_text-complete.scss */\n    .dropdown-menu.textcomplete-dropdown[data-strategy=\"emojionearea\"] li.textcomplete-item:hover, .dropdown-menu.textcomplete-dropdown[data-strategy=\"emojionearea\"] li.textcomplete-item.active {\n      background-color: #e4e4e4; }\n      /* line 39, ../scss/_text-complete.scss */\n      .dropdown-menu.textcomplete-dropdown[data-strategy=\"emojionearea\"] li.textcomplete-item:hover a, .dropdown-menu.textcomplete-dropdown[data-strategy=\"emojionearea\"] li.textcomplete-item.active a {\n        color: #333; }\n    /* line 44, ../scss/_text-complete.scss */\n    .dropdown-menu.textcomplete-dropdown[data-strategy=\"emojionearea\"] li.textcomplete-item .emojioneemoji {\n      font-size: inherit;\n      height: 2ex;\n      width: 2.1ex;\n      min-height: 20px;\n      min-width: 20px;\n      display: inline-block;\n      margin: 0 5px .2ex 0;\n      line-height: normal;\n      vertical-align: middle;\n      max-width: 100%;\n      top: 0; }\n\n/* line 7, ../scss/emojionearea.scss */\n.emojionearea-text [class*=emojione-], .emojionearea-text .emojioneemoji {\n  font-size: inherit;\n  height: 2ex;\n  width: 2.1ex;\n  min-height: 20px;\n  min-width: 20px;\n  display: inline-block;\n  margin: -.2ex .15em .2ex;\n  line-height: normal;\n  vertical-align: middle;\n  max-width: 100%;\n  top: 0; }\n\n/* line 23, ../scss/emojionearea.scss */\n.emojionearea, .emojionearea * {\n  -moz-box-sizing: border-box;\n  -webkit-box-sizing: border-box;\n  box-sizing: border-box; }\n/* line 27, ../scss/emojionearea.scss */\n.emojionearea.emojionearea-disable {\n  position: relative;\n  background-color: #eee;\n  -moz-user-select: -moz-none;\n  -ms-user-select: none;\n  -webkit-user-select: none;\n  user-select: none; }\n  /* line 31, ../scss/emojionearea.scss */\n  .emojionearea.emojionearea-disable:before {\n    content: \"\";\n    display: block;\n    top: 0;\n    left: 0;\n    right: 0;\n    bottom: 0;\n    z-index: 1;\n    opacity: 0.3;\n    position: absolute;\n    background-color: #eee; }\n/* line 45, ../scss/emojionearea.scss */\n.emojionearea, .emojionearea.form-control {\n  display: block;\n  position: relative !important;\n  width: 100%;\n  height: auto;\n  padding: 0;\n  font-size: 14px;\n  border: 0;\n  background-color: #FFFFFF;\n  border: 1px solid #CCCCCC;\n  -moz-border-radius: 3px;\n  -webkit-border-radius: 3px;\n  border-radius: 3px;\n  -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);\n  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);\n  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);\n  -moz-transition: border-color 0.15s ease-in-out,    -moz-box-shadow 0.15s ease-in-out;\n  -o-transition: border-color 0.15s ease-in-out,         box-shadow 0.15s ease-in-out;\n  -webkit-transition: border-color 0.15s ease-in-out, -webkit-box-shadow 0.15s ease-in-out;\n  transition: border-color 0.15s ease-in-out,         box-shadow 0.15s ease-in-out; }\n/* line 63, ../scss/emojionearea.scss */\n.emojionearea.focused {\n  border-color: #66AFE9;\n  outline: 0;\n  -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(102, 175, 233, 0.6);\n  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(102, 175, 233, 0.6);\n  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(102, 175, 233, 0.6); }\n/* line 69, ../scss/emojionearea.scss */\n.emojionearea .emojionearea-editor {\n  display: block;\n  height: auto;\n  min-height: 8em;\n  max-height: 15em;\n  overflow: auto;\n  padding: 6px 24px 6px 12px;\n  line-height: 1.42857143;\n  font-size: inherit;\n  color: #555555;\n  background-color: transparent;\n  border: 0;\n  cursor: text;\n  margin-right: 1px;\n  -moz-border-radius: 0;\n  -webkit-border-radius: 0;\n  border-radius: 0;\n  -moz-box-shadow: none;\n  -webkit-box-shadow: none;\n  box-shadow: none; }\n  /* line 86, ../scss/emojionearea.scss */\n  .emojionearea .emojionearea-editor:empty:before {\n    content: attr(placeholder);\n    display: block;\n    color: #BBBBBB; }\n  /* line 92, ../scss/emojionearea.scss */\n  .emojionearea .emojionearea-editor:focus {\n    border: 0;\n    outline: 0;\n    -moz-box-shadow: none;\n    -webkit-box-shadow: none;\n    box-shadow: none; }\n  /* line 98, ../scss/emojionearea.scss */\n  .emojionearea .emojionearea-editor [class*=emojione-], .emojionearea .emojionearea-editor .emojioneemoji {\n    font-size: inherit;\n    height: 2ex;\n    width: 2.1ex;\n    min-height: 20px;\n    min-width: 20px;\n    display: inline-block;\n    margin: -.2ex .15em .2ex;\n    line-height: normal;\n    vertical-align: middle;\n    max-width: 100%;\n    top: 0; }\n/* line 113, ../scss/emojionearea.scss */\n.emojionearea.emojionearea-inline {\n  height: 34px; }\n  /* line 116, ../scss/emojionearea.scss */\n  .emojionearea.emojionearea-inline > .emojionearea-editor {\n    height: 32px;\n    min-height: 20px;\n    overflow: hidden;\n    white-space: nowrap;\n    position: absolute;\n    top: 0;\n    left: 12px;\n    right: 24px;\n    padding: 6px 0; }\n  /* line 127, ../scss/emojionearea.scss */\n  .emojionearea.emojionearea-inline > .emojionearea-button {\n    top: 4px; }\n/* line 132, ../scss/emojionearea.scss */\n.emojionearea .emojionearea-button {\n  z-index: 5;\n  position: absolute;\n  right: 3px;\n  top: 3px;\n  width: 24px;\n  height: 24px;\n  opacity: 0.6;\n  cursor: pointer;\n  -moz-transition: opacity 300ms ease-in-out;\n  -o-transition: opacity 300ms ease-in-out;\n  -webkit-transition: opacity 300ms ease-in-out;\n  transition: opacity 300ms ease-in-out; }\n  /* line 143, ../scss/emojionearea.scss */\n  .emojionearea .emojionearea-button:hover {\n    opacity: 1; }\n  /* line 147, ../scss/emojionearea.scss */\n  .emojionearea .emojionearea-button > div {\n    display: block;\n    width: 24px;\n    height: 24px;\n    position: absolute;\n    -moz-transition: all 400ms ease-in-out;\n    -o-transition: all 400ms ease-in-out;\n    -webkit-transition: all 400ms ease-in-out;\n    transition: all 400ms ease-in-out; }\n    /* line 155, ../scss/emojionearea.scss */\n    .emojionearea .emojionearea-button > div.emojionearea-button-open {\n      background-position: 0 -24px;\n      filter: progid:DXImageTransform.Microsoft.Alpha(enabled=false);\n      opacity: 1; }\n    /* line 160, ../scss/emojionearea.scss */\n    .emojionearea .emojionearea-button > div.emojionearea-button-close {\n      background-position: 0 0;\n      -webkit-transform: rotate(-45deg);\n      -o-transform: rotate(-45deg);\n      transform: rotate(-45deg);\n      filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=0);\n      opacity: 0; }\n  /* line 170, ../scss/emojionearea.scss */\n  .emojionearea .emojionearea-button.active > div.emojionearea-button-open {\n    -webkit-transform: rotate(45deg);\n    -o-transform: rotate(45deg);\n    transform: rotate(45deg);\n    filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=0);\n    opacity: 0; }\n  /* line 177, ../scss/emojionearea.scss */\n  .emojionearea .emojionearea-button.active > div.emojionearea-button-close {\n    -webkit-transform: rotate(0deg);\n    -o-transform: rotate(0deg);\n    transform: rotate(0deg);\n    filter: progid:DXImageTransform.Microsoft.Alpha(enabled=false);\n    opacity: 1; }\n/* line 187, ../scss/emojionearea.scss */\n.emojionearea .emojionearea-picker {\n  background: #FFFFFF;\n  position: absolute;\n  -moz-box-shadow: 0 1px 5px rgba(0, 0, 0, 0.32);\n  -webkit-box-shadow: 0 1px 5px rgba(0, 0, 0, 0.32);\n  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.32);\n  -moz-border-radius: 5px;\n  -webkit-border-radius: 5px;\n  border-radius: 5px;\n  height: 276px;\n  width: 316px;\n  top: -15px;\n  right: -15px;\n  z-index: 90;\n  -moz-transition: all 0.25s ease-in-out;\n  -o-transition: all 0.25s ease-in-out;\n  -webkit-transition: all 0.25s ease-in-out;\n  transition: all 0.25s ease-in-out;\n  filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=0);\n  opacity: 0;\n  -moz-user-select: -moz-none;\n  -ms-user-select: none;\n  -webkit-user-select: none;\n  user-select: none; }\n  /* line 201, ../scss/emojionearea.scss */\n  .emojionearea .emojionearea-picker.hidden {\n    display: none; }\n  /* line 205, ../scss/emojionearea.scss */\n  .emojionearea .emojionearea-picker .emojionearea-wrapper {\n    position: relative;\n    height: 276px;\n    width: 316px; }\n    /* line 210, ../scss/emojionearea.scss */\n    .emojionearea .emojionearea-picker .emojionearea-wrapper:after {\n      content: \"\";\n      display: block;\n      position: absolute;\n      background-repeat: no-repeat;\n      z-index: 91; }\n  /* line 220, ../scss/emojionearea.scss */\n  .emojionearea .emojionearea-picker .emojionearea-filters, .emojionearea .emojionearea-picker .emojionearea-search {\n    width: 100%;\n    position: absolute;\n    z-index: 95; }\n  /* line 226, ../scss/emojionearea.scss */\n  .emojionearea .emojionearea-picker .emojionearea-search {\n    padding: 5px 0 0 8px;\n    height: 40px;\n    width: 160px; }\n    /* line 230, ../scss/emojionearea.scss */\n    .emojionearea .emojionearea-picker .emojionearea-search > input {\n      outline: none;\n      width: 160px;\n      min-width: 160px; }\n  /* line 237, ../scss/emojionearea.scss */\n  .emojionearea .emojionearea-picker .emojionearea-filters {\n    background: #F5F7F9;\n    padding: 0 0 0 7px;\n    height: 40px; }\n    /* line 242, ../scss/emojionearea.scss */\n    .emojionearea .emojionearea-picker .emojionearea-filters .emojionearea-filter {\n      display: block;\n      float: left;\n      height: 40px;\n      width: 32px;\n      filter: inherit;\n      padding: 7px 1px 0;\n      cursor: pointer;\n      -webkit-filter: grayscale(1);\n      filter: grayscale(1); }\n      /* line 252, ../scss/emojionearea.scss */\n      .emojionearea .emojionearea-picker .emojionearea-filters .emojionearea-filter.active {\n        background: #fff; }\n      /* line 256, ../scss/emojionearea.scss */\n      .emojionearea .emojionearea-picker .emojionearea-filters .emojionearea-filter.active, .emojionearea .emojionearea-picker .emojionearea-filters .emojionearea-filter:hover {\n        -webkit-filter: grayscale(0);\n        filter: grayscale(0); }\n      /* line 260, ../scss/emojionearea.scss */\n      .emojionearea .emojionearea-picker .emojionearea-filters .emojionearea-filter > i {\n        width: 24px;\n        height: 24px;\n        top: 0; }\n      /* line 266, ../scss/emojionearea.scss */\n      .emojionearea .emojionearea-picker .emojionearea-filters .emojionearea-filter > img {\n        width: 24px;\n        height: 24px;\n        margin: 0 3px; }\n  /* line 274, ../scss/emojionearea.scss */\n  .emojionearea .emojionearea-picker .emojionearea-tones {\n    position: absolute;\n    top: 46px;\n    right: 10px;\n    height: 22px;\n    z-index: 95; }\n    /* line 281, ../scss/emojionearea.scss */\n    .emojionearea .emojionearea-picker .emojionearea-tones > .btn-tone {\n      display: inline-block;\n      padding: 0;\n      border: 0;\n      vertical-align: middle;\n      outline: none;\n      background: transparent;\n      cursor: pointer;\n      position: relative; }\n      /* line 292, ../scss/emojionearea.scss */\n      .emojionearea .emojionearea-picker .emojionearea-tones > .btn-tone.btn-tone-0, .emojionearea .emojionearea-picker .emojionearea-tones > .btn-tone.btn-tone-0:after {\n        background-color: #ffcf3e; }\n      /* line 297, ../scss/emojionearea.scss */\n      .emojionearea .emojionearea-picker .emojionearea-tones > .btn-tone.btn-tone-1, .emojionearea .emojionearea-picker .emojionearea-tones > .btn-tone.btn-tone-1:after {\n        background-color: #fae3c5; }\n      /* line 302, ../scss/emojionearea.scss */\n      .emojionearea .emojionearea-picker .emojionearea-tones > .btn-tone.btn-tone-2, .emojionearea .emojionearea-picker .emojionearea-tones > .btn-tone.btn-tone-2:after {\n        background-color: #e2cfa5; }\n      /* line 307, ../scss/emojionearea.scss */\n      .emojionearea .emojionearea-picker .emojionearea-tones > .btn-tone.btn-tone-3, .emojionearea .emojionearea-picker .emojionearea-tones > .btn-tone.btn-tone-3:after {\n        background-color: #daa478; }\n      /* line 312, ../scss/emojionearea.scss */\n      .emojionearea .emojionearea-picker .emojionearea-tones > .btn-tone.btn-tone-4, .emojionearea .emojionearea-picker .emojionearea-tones > .btn-tone.btn-tone-4:after {\n        background-color: #a78058; }\n      /* line 317, ../scss/emojionearea.scss */\n      .emojionearea .emojionearea-picker .emojionearea-tones > .btn-tone.btn-tone-5, .emojionearea .emojionearea-picker .emojionearea-tones > .btn-tone.btn-tone-5:after {\n        background-color: #5e4d43; }\n    /* line 325, ../scss/emojionearea.scss */\n    .emojionearea .emojionearea-picker .emojionearea-tones.emojionearea-tones-bullet > .btn-tone, .emojionearea .emojionearea-picker .emojionearea-tones.emojionearea-tones-square > .btn-tone {\n      width: 20px;\n      height: 20px;\n      margin: 0;\n      background-color: transparent; }\n      /* line 330, ../scss/emojionearea.scss */\n      .emojionearea .emojionearea-picker .emojionearea-tones.emojionearea-tones-bullet > .btn-tone:after, .emojionearea .emojionearea-picker .emojionearea-tones.emojionearea-tones-square > .btn-tone:after {\n        content: \"\";\n        position: absolute;\n        display: block;\n        top: 4px;\n        left: 4px;\n        width: 12px;\n        height: 12px; }\n      /* line 339, ../scss/emojionearea.scss */\n      .emojionearea .emojionearea-picker .emojionearea-tones.emojionearea-tones-bullet > .btn-tone.active:after, .emojionearea .emojionearea-picker .emojionearea-tones.emojionearea-tones-square > .btn-tone.active:after {\n        top: 0;\n        left: 0;\n        width: 20px;\n        height: 20px; }\n    /* line 351, ../scss/emojionearea.scss */\n    .emojionearea .emojionearea-picker .emojionearea-tones.emojionearea-tones-radio > .btn-tone, .emojionearea .emojionearea-picker .emojionearea-tones.emojionearea-tones-checkbox > .btn-tone {\n      width: 16px;\n      height: 16px;\n      margin: 0px 2px; }\n      /* line 356, ../scss/emojionearea.scss */\n      .emojionearea .emojionearea-picker .emojionearea-tones.emojionearea-tones-radio > .btn-tone.active:after, .emojionearea .emojionearea-picker .emojionearea-tones.emojionearea-tones-checkbox > .btn-tone.active:after {\n        content: \"\";\n        position: absolute;\n        display: block;\n        background-color: transparent;\n        border: 2px solid #fff;\n        width: 8px;\n        height: 8px;\n        top: 2px;\n        left: 2px;\n        box-sizing: initial; }\n    /* line 375, ../scss/emojionearea.scss */\n    .emojionearea .emojionearea-picker .emojionearea-tones.emojionearea-tones-bullet > .btn-tone, .emojionearea .emojionearea-picker .emojionearea-tones.emojionearea-tones-bullet > .btn-tone:after, .emojionearea .emojionearea-picker .emojionearea-tones.emojionearea-tones-radio > .btn-tone, .emojionearea .emojionearea-picker .emojionearea-tones.emojionearea-tones-radio > .btn-tone:after {\n      -moz-border-radius: 100%;\n      -webkit-border-radius: 100%;\n      border-radius: 100%; }\n    /* line 384, ../scss/emojionearea.scss */\n    .emojionearea .emojionearea-picker .emojionearea-tones.emojionearea-tones-square > .btn-tone, .emojionearea .emojionearea-picker .emojionearea-tones.emojionearea-tones-square > .btn-tone:after, .emojionearea .emojionearea-picker .emojionearea-tones.emojionearea-tones-checkbox > .btn-tone, .emojionearea .emojionearea-picker .emojionearea-tones.emojionearea-tones-checkbox > .btn-tone:after {\n      -moz-border-radius: 1px;\n      -webkit-border-radius: 1px;\n      border-radius: 1px; }\n  /* line 391, ../scss/emojionearea.scss */\n  .emojionearea .emojionearea-picker .emojionearea-scroll-area {\n    height: 196px;\n    overflow: auto;\n    overflow-x: hidden;\n    width: 100%;\n    position: absolute;\n    padding: 0 0 5px; }\n    /* line 399, ../scss/emojionearea.scss */\n    .emojionearea .emojionearea-picker .emojionearea-scroll-area .emojionearea-emojis-list {\n      z-index: 1; }\n    /* line 403, ../scss/emojionearea.scss */\n    .emojionearea .emojionearea-picker .emojionearea-scroll-area .emojionearea-category-title {\n      display: block;\n      font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;\n      font-size: 13px;\n      font-weight: normal;\n      color: #b2b2b2;\n      background: #FFFFFF;\n      line-height: 20px;\n      margin: 0;\n      padding: 7px 0 5px 6px; }\n      /* line 414, ../scss/emojionearea.scss */\n      .emojionearea .emojionearea-picker .emojionearea-scroll-area .emojionearea-category-title:after, .emojionearea .emojionearea-picker .emojionearea-scroll-area .emojionearea-category-title:before {\n        content: \" \";\n        display: block;\n        clear: both; }\n    /* line 421, ../scss/emojionearea.scss */\n    .emojionearea .emojionearea-picker .emojionearea-scroll-area .emojionearea-category {\n      padding: 0 0 0 7px; }\n      /* line 424, ../scss/emojionearea.scss */\n      .emojionearea .emojionearea-picker .emojionearea-scroll-area .emojionearea-category > .emojionearea-category {\n        padding: 0 !important; }\n      /* line 428, ../scss/emojionearea.scss */\n      .emojionearea .emojionearea-picker .emojionearea-scroll-area .emojionearea-category:after, .emojionearea .emojionearea-picker .emojionearea-scroll-area .emojionearea-category:before {\n        content: \" \";\n        display: block;\n        clear: both; }\n    /* line 435, ../scss/emojionearea.scss */\n    .emojionearea .emojionearea-picker .emojionearea-scroll-area [class*=emojione-] {\n      -moz-box-sizing: content-box;\n      -webkit-box-sizing: content-box;\n      box-sizing: content-box;\n      margin: 0;\n      width: 24px;\n      height: 24px;\n      top: 0; }\n    /* line 443, ../scss/emojionearea.scss */\n    .emojionearea .emojionearea-picker .emojionearea-scroll-area .emojibtn {\n      -moz-box-sizing: content-box;\n      -webkit-box-sizing: content-box;\n      box-sizing: content-box;\n      width: 24px;\n      height: 24px;\n      float: left;\n      display: block;\n      margin: 1px;\n      padding: 3px; }\n      /* line 452, ../scss/emojionearea.scss */\n      .emojionearea .emojionearea-picker .emojionearea-scroll-area .emojibtn:hover {\n        -moz-border-radius: 4px;\n        -webkit-border-radius: 4px;\n        border-radius: 4px;\n        background-color: #e4e4e4;\n        cursor: pointer; }\n      /* line 458, ../scss/emojionearea.scss */\n      .emojionearea .emojionearea-picker .emojionearea-scroll-area .emojibtn i, .emojionearea .emojionearea-picker .emojionearea-scroll-area .emojibtn img {\n        float: left;\n        display: block;\n        width: 24px;\n        height: 24px; }\n      /* line 465, ../scss/emojionearea.scss */\n      .emojionearea .emojionearea-picker .emojionearea-scroll-area .emojibtn img.lazy-emoji {\n        filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=0);\n        opacity: 0; }\n  /* line 472, ../scss/emojionearea.scss */\n  .emojionearea .emojionearea-picker.emojionearea-filters-position-top .emojionearea-filters {\n    top: 0;\n    -moz-border-radius-topleft: 5px;\n    -webkit-border-top-left-radius: 5px;\n    border-top-left-radius: 5px;\n    -moz-border-radius-topright: 5px;\n    -webkit-border-top-right-radius: 5px;\n    border-top-right-radius: 5px; }\n  /* line 477, ../scss/emojionearea.scss */\n  .emojionearea .emojionearea-picker.emojionearea-filters-position-top .emojionearea-search {\n    top: 40px; }\n  /* line 480, ../scss/emojionearea.scss */\n  .emojionearea .emojionearea-picker.emojionearea-filters-position-top .emojionearea-scroll-area {\n    bottom: 0; }\n  /* line 486, ../scss/emojionearea.scss */\n  .emojionearea .emojionearea-picker.emojionearea-filters-position-bottom .emojionearea-filters {\n    bottom: 0;\n    -moz-border-radius-bottomleft: 5px;\n    -webkit-border-bottom-left-radius: 5px;\n    border-bottom-left-radius: 5px;\n    -moz-border-radius-bottomright: 5px;\n    -webkit-border-bottom-right-radius: 5px;\n    border-bottom-right-radius: 5px; }\n  /* line 491, ../scss/emojionearea.scss */\n  .emojionearea .emojionearea-picker.emojionearea-filters-position-bottom .emojionearea-search {\n    bottom: 40px; }\n  /* line 494, ../scss/emojionearea.scss */\n  .emojionearea .emojionearea-picker.emojionearea-filters-position-bottom .emojionearea-tones {\n    top: initial;\n    bottom: 53px; }\n  /* line 498, ../scss/emojionearea.scss */\n  .emojionearea .emojionearea-picker.emojionearea-filters-position-bottom .emojionearea-scroll-area {\n    top: 0; }\n  /* line 503, ../scss/emojionearea.scss */\n  .emojionearea .emojionearea-picker.emojionearea-picker-position-top {\n    margin-top: -286px;\n    right: -14px; }\n    /* line 507, ../scss/emojionearea.scss */\n    .emojionearea .emojionearea-picker.emojionearea-picker-position-top .emojionearea-wrapper:after {\n      width: 19px;\n      height: 10px;\n      background-position: -2px -49px;\n      bottom: -10px;\n      right: 20px; }\n    /* line 516, ../scss/emojionearea.scss */\n    .emojionearea .emojionearea-picker.emojionearea-picker-position-top.emojionearea-filters-position-bottom .emojionearea-wrapper:after {\n      background-position: -2px -80px; }\n  /* line 522, ../scss/emojionearea.scss */\n  .emojionearea .emojionearea-picker.emojionearea-picker-position-left, .emojionearea .emojionearea-picker.emojionearea-picker-position-right {\n    margin-right: -326px;\n    top: -8px; }\n    /* line 527, ../scss/emojionearea.scss */\n    .emojionearea .emojionearea-picker.emojionearea-picker-position-left .emojionearea-wrapper:after, .emojionearea .emojionearea-picker.emojionearea-picker-position-right .emojionearea-wrapper:after {\n      width: 10px;\n      height: 19px;\n      background-position: 0px -60px;\n      top: 13px;\n      left: -10px; }\n    /* line 536, ../scss/emojionearea.scss */\n    .emojionearea .emojionearea-picker.emojionearea-picker-position-left.emojionearea-filters-position-bottom .emojionearea-wrapper:after, .emojionearea .emojionearea-picker.emojionearea-picker-position-right.emojionearea-filters-position-bottom .emojionearea-wrapper:after {\n      background-position: right -60px; }\n  /* line 542, ../scss/emojionearea.scss */\n  .emojionearea .emojionearea-picker.emojionearea-picker-position-bottom {\n    margin-top: 10px;\n    right: -14px;\n    top: 47px; }\n    /* line 547, ../scss/emojionearea.scss */\n    .emojionearea .emojionearea-picker.emojionearea-picker-position-bottom .emojionearea-wrapper:after {\n      width: 19px;\n      height: 10px;\n      background-position: -2px -100px;\n      top: -10px;\n      right: 20px; }\n    /* line 556, ../scss/emojionearea.scss */\n    .emojionearea .emojionearea-picker.emojionearea-picker-position-bottom.emojionearea-filters-position-bottom .emojionearea-wrapper:after {\n      background-position: -2px -90px; }\n/* line 564, ../scss/emojionearea.scss */\n.emojionearea .emojionearea-button.active + .emojionearea-picker {\n  filter: progid:DXImageTransform.Microsoft.Alpha(enabled=false);\n  opacity: 1; }\n/* line 568, ../scss/emojionearea.scss */\n.emojionearea .emojionearea-button.active + .emojionearea-picker-position-top {\n  margin-top: -269px; }\n/* line 572, ../scss/emojionearea.scss */\n.emojionearea .emojionearea-button.active + .emojionearea-picker-position-left,\n.emojionearea .emojionearea-button.active + .emojionearea-picker-position-right {\n  margin-right: -309px; }\n/* line 577, ../scss/emojionearea.scss */\n.emojionearea .emojionearea-button.active + .emojionearea-picker-position-bottom {\n  margin-top: -7px; }\n/* line 582, ../scss/emojionearea.scss */\n.emojionearea.emojionearea-standalone {\n  display: inline-block;\n  width: auto;\n  box-shadow: none; }\n  /* line 587, ../scss/emojionearea.scss */\n  .emojionearea.emojionearea-standalone .emojionearea-editor {\n    min-height: 33px;\n    position: relative;\n    padding: 6px 42px 6px 6px; }\n    /* line 591, ../scss/emojionearea.scss */\n    .emojionearea.emojionearea-standalone .emojionearea-editor::before {\n      content: \"\";\n      position: absolute;\n      top: 4px;\n      left: 50%;\n      bottom: 4px;\n      border-left: 1px solid #e6e6e6; }\n    /* line 599, ../scss/emojionearea.scss */\n    .emojionearea.emojionearea-standalone .emojionearea-editor.has-placeholder {\n      background-repeat: no-repeat;\n      background-position: 20px 4px; }\n      /* line 604, ../scss/emojionearea.scss */\n      .emojionearea.emojionearea-standalone .emojionearea-editor.has-placeholder .emojioneemoji {\n        opacity: 0.4; }\n  /* line 610, ../scss/emojionearea.scss */\n  .emojionearea.emojionearea-standalone .emojionearea-button {\n    top: 0;\n    right: 0;\n    bottom: 0;\n    left: 0;\n    width: auto;\n    height: auto; }\n    /* line 617, ../scss/emojionearea.scss */\n    .emojionearea.emojionearea-standalone .emojionearea-button > div {\n      right: 6px;\n      top: 5px; }\n  /* line 626, ../scss/emojionearea.scss */\n  .emojionearea.emojionearea-standalone .emojionearea-picker.emojionearea-picker-position-bottom .emojionearea-wrapper:after, .emojionearea.emojionearea-standalone .emojionearea-picker.emojionearea-picker-position-top .emojionearea-wrapper:after {\n    right: 23px; }\n  /* line 633, ../scss/emojionearea.scss */\n  .emojionearea.emojionearea-standalone .emojionearea-picker.emojionearea-picker-position-left .emojionearea-wrapper:after, .emojionearea.emojionearea-standalone .emojionearea-picker.emojionearea-picker-position-right .emojionearea-wrapper:after {\n    top: 15px; }\n\n/* line 32, ../scss/_image.scss */\n.emojionearea .emojionearea-button > div, .emojionearea .emojionearea-picker .emojionearea-wrapper:after {\n  background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABcAAABuCAYAAADMB4ipAAAHfElEQVRo3u1XS1NT2Rb+9uOcQF4YlAJzLymFUHaLrdxKULvEUNpdTnRqD532f+AHMLMc94gqR1Zbt8rBnUh3YXipPGKwRDoWgXvrYiFUlEdIkPPYZ/dAkwox5yQCVt/bzRrBPnt9e+211/etFeDQDu3ArL+/X37OeqmRWoH7+vpItfWawStF1tfXR+zW9xW5ne0p8loOcAKuCdwpRft60C8a+X5zTvebCqcAvmidf1GGHtqhHdpf1qqKzsrKipyensbi4iKWl5cBAMFgEG1tbYhGo2hpadlbmxseHpaDg4MAgI6ODng8HgBAPp/H/Pw8AODatWvo7e2tvUHrui7v3r2L+fl5XL58GVeuXIHH49m1N5/Py0ePHmF0dBQdHR24desWVFXdtYdXAn/48CHm5+dx8+ZNRKPRigEUDpuenpb3799H4YaOnWh5eVmOj48jFoshGo0STdPkwMCAXF5elqV7BgYGpKZpMhqNklgshrGxMbx580Y6gicSCTDGEIvFAADpdBqpVArJZLK4J5lMIpVKIZ1OAwBisRgYY0gkEs6Rp1IphMNh+Hw+AgCGYQAANE0r7in8Xfjm8/lIOBzGq1evnMHX19fR1NRU/D8UCoFzjnA4XFwLh8PgnCMUChXXmpqakM1mUfVBS62xsZHk83lZWi1nz579ZA0AhBDO4A0NDchkMsWSJIRAURRiVy26rktVVUkmk0EgEHAGP3XqFKamppDP56Vpmrhz5w5u374t/X4/OP+w3TRNZLNZ6LoO0zSRz+dlf38/Ll686Jzz8+fPQwiBeDwOt9tNrl+/jkwmU6yaQpVkMhncuHEDbrebxONxCCEQiUScIw8Gg+TBgwdyZGQEyWRSdnV1kVQqJYeGhrC6ugrGGEKhEHp7e3Hy5EmSTCblvXv30NPTg2AwSA6M/vF4HCMjI7b0/yzh8vv9AIBsNrt34aokuQsLC7skt729varkHtqftUFf++FHsrq0QN3eBvp68Tfvf9Mv12oFCYU7G//e9nVuO7dpNbe2W4M//yQr0p8yRvyBo1Zr++lwLcCt7afD/sBRizJGavrB1dDYYh47Htrq+Kb7jBNwxzfdZ44dD201NLaYVUkU7ozQpuAJBkARwnRZpunN5zaa5hJjiXLH05GeiMd7JEM5zzHGNQBGZvk/Iv0yYVWMvK0zKk1Dl6ahW5RQobjqdjy+wEZn9PKF0n2d0csXPL7AhuKq26GECtPQLdPQZVtn1LlB69p7yRVVSEiDEGJwRd12e4+8PR3piRQidnuPvOWKuk0IMSSkwRVV6Np7WVVbSqvGsgSnlKkAFNPQXdrOtuKqcxtcUTUAhmUJnVJmlleJo3CVHmAaOlPUOmYJkxFKibQsSRkXhr4juKIKO2BHVSwcoLrqCVdUYho6K3YYRRWmoUtdey/tgKtK7rUffiQAsLq08MnbNLe2WwBgB/zHzueFyD8nwlIfbvdx8eU0WV1aKD1cVAMs9+F2j9gUPEEKemEJIe3AnXy4XfkBoNKSZHNthWfX31EA69VKttyHVyIOY1wRwmS6tqNsrr31vXo5k/bUu4gT2cp9lhbm0rzCJpeUUrE0vS63+c7/6uXMbDUWl/ssLczNFrVFddUT09AZpUy1LKvO0DVfPrfR9HxqfNbuEe185l9MFX3o6tIC5YpKFLWOfdQQ93Zu49j0+FDCDtjOp1yaOQCYhs4Y40wI05XfWj8yPT40Ua2ey33mEmMTtp2IUEq0nW3FKeJPGPjRp1Iz2QUuLUu66txG9NLVSK3gBZ+C1lcE54oqKOOCK6rm8QU2unu+u1ANuNynvFsBAG1ubbdMQ5eGviMAFDuP0w3sfMpvQEtb24fOQncU1bXl8R7JnOu+ZNv97XxKJwY6+PNPsrm13drObVqUMlMIU5OWpVHOc96Go5lTnV2fzC/VfAozD7HTCa6olBBa1Imlhbmq2lLuQ5xaW6nCPfnln0Yt7bDUhzhps8cfKH5//uTXmvS81OeLdqI/ZoROzSZrHqG/OvOPzxuhK5VgJTvV2bW3EdqJRABwrvvS/kfoSkoZvXT1YEbociHr7vnuYEfogpBFL109HKH/h0fomnXg3Lff79r7/MmvVbWG7gX4QObzc99+Tz7mHKah05KcW6ahQ9feS6cbMCdgt7eBWJagjCuUAC5tZzuouuo0Spm0hElc9R4cbf4bVl8v1p6WUmCuqEwIs34ruxaeeTy4uJVd67As08UVlVmWoG5vA7FLG3WMmHEupVTyW+vh2cn4DADMTsaTuc21LiGEhzHOnQ6gNtMrJSBMCKHkNt999WLi0S7hejEZH81n174WpukiIMw0dKq66p3Bw50RwhUVXFGJKUy28Xal48VkfKrSlWenhsc23q2cEB9SR7iiItwZIbbgHn8AlDFCCMW7laXjqZnHjkNpaubJzNuVpWZCKChjxOMPVH/QlaW0f/G3ZLqWWl6ce/bvlddp7yFD/w8Z+njoX1+GoZMjgzMAMDkyeLAMnRh+uKveJ0YGD4ahEyODFRk6OfrL/hj67GnckaHPng7vjaGzyYmaGDr77KktQ38H8tqx8Wja+WIAAAAASUVORK5CYII=') !important; }\n\n/* line 32, ../scss/_image.scss */\n.emojionearea.emojionearea-standalone .emojionearea-editor.has-placeholder {\n  background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMAQMAAABsu86kAAAABlBMVEUAAAC/v79T5hyIAAAAAXRSTlMAQObYZgAAABNJREFUCNdjYGNgQEb/P4AQqiAASiUEG6Vit44AAAAASUVORK5CYII=') !important; }\n", ""]);
 
 // exports
 
 
 /***/ }),
-/* 36 */
+/* 40 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global) {/*!
- * EmojioneArea v3.4.0
+ * EmojioneArea v3.2.6
  * https://github.com/mervick/emojionearea
  * Copyright Andrey Izman and other contributors
  * Released under the MIT license
- * Date: 2018-02-09T22:42Z
+ * Date: 2017-11-11T03:58Z
  */
-window.$ = __webpack_require__( 37 )
+window.$ = __webpack_require__( 41 )
 window = ( typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {} );
 document = window.document || {};
 
@@ -944,7 +1044,7 @@ document = window.document || {};
     if ( true ) {
 
         // CommonJS
-        factory( $ );
+        factory( window.$ );
     } else if ( typeof define === "function" && define.amd ) {
 
         // AMD
@@ -963,12 +1063,12 @@ document = window.document || {};
     var emojione = window.emojione;
     var readyCallbacks = [];
     function emojioneReady (fn) {
-        if (emojione) {
-            fn();
-        } else {
-            readyCallbacks.push(fn);
-        }
-    };
+		if (emojione) {
+			fn();
+		} else {
+			readyCallbacks.push(fn);
+		}
+	};
     var blankImg = 'data:image/gif;base64,R0lGODlhAQABAJH/AP///wAAAMDAwAAAACH5BAEAAAIALAAAAAABAAEAAAICVAEAOw==';
     var slice = [].slice;
     var css_class = "emojionearea";
@@ -990,13 +1090,13 @@ document = window.document || {};
         return result;
     }
     function attach(self, element, events, target) {
-        target = target || function (event, callerEvent) { return $(callerEvent.currentTarget) };
-        $.each(events, function(event, link) {
-            event = $.isArray(events) ? link : event;
-            (possibleEvents[self.id][link] || (possibleEvents[self.id][link] = []))
-                .push([element, event, target]);
-        });
-    }
+		target = target || function (event, callerEvent) { return $(callerEvent.currentTarget) };
+		$.each(events, function(event, link) {
+			event = $.isArray(events) ? link : event;
+			(possibleEvents[self.id][link] || (possibleEvents[self.id][link] = []))
+				.push([element, event, target]);
+		});
+	}
     function getTemplate(template, unicode, shortname) {
         var imageType = emojione.imageType, imagePath;
         if (imageType=='svg'){
@@ -1038,37 +1138,35 @@ document = window.document || {};
         });
     };
     function pasteHtmlAtCaret(html) {
-        var sel, range;
-        if (window.getSelection) {
-            sel = window.getSelection();
-            if (sel.getRangeAt && sel.rangeCount) {
-                range = sel.getRangeAt(0);
-                range.deleteContents();
-                var el = document.createElement("div");
-                el.innerHTML = html;
-                var frag = document.createDocumentFragment(), node, lastNode;
-                while ( (node = el.firstChild) ) {
-                    lastNode = frag.appendChild(node);
-                }
-                range.insertNode(frag);
-                if (lastNode) {
-                    range = range.cloneRange();
-                    range.setStartAfter(lastNode);
-                    range.collapse(true);
-                    sel.removeAllRanges();
-                    sel.addRange(range);
-                }
-            }
-        } else if (document.selection && document.selection.type != "Control") {
-            document.selection.createRange().pasteHTML(html);
-        }
-    }
-    function getEmojioneVersion() {
-        return window.emojioneVersion || '3.1.2';
-    };
+		var sel, range;
+		if (window.getSelection) {
+			sel = window.getSelection();
+			if (sel.getRangeAt && sel.rangeCount) {
+				range = sel.getRangeAt(0);
+				range.deleteContents();
+				var el = document.createElement("div");
+				el.innerHTML = html;
+				var frag = document.createDocumentFragment(), node, lastNode;
+				while ( (node = el.firstChild) ) {
+					lastNode = frag.appendChild(node);
+				}
+				range.insertNode(frag);
+				if (lastNode) {
+					range = range.cloneRange();
+					range.setStartAfter(lastNode);
+					range.collapse(true);
+					sel.removeAllRanges();
+					sel.addRange(range);
+				}
+			}
+		} else if (document.selection && document.selection.type != "Control") {
+			document.selection.createRange().pasteHTML(html);
+		}
+	}
+    var emojioneVersion = window.emojioneVersion || '2.2.7';
     function isObject(variable) {
-        return typeof variable === 'object';
-    };
+		return typeof variable === 'object';
+	};
     function detectVersion(emojione) {
         var version;
         if (emojione.cacheBustParam) {
@@ -1107,7 +1205,7 @@ document = window.document || {};
             default: return 6;
         }
     };
-    function getDefaultOptions () {
+    var getDefaultOptions = function () {
         if ($.fn.emojioneArea && $.fn.emojioneArea.defaults) {
             return $.fn.emojioneArea.defaults;
         }
@@ -1130,7 +1228,6 @@ document = window.document || {};
             sprite            : true,
             pickerPosition    : "top", // top | bottom | right
             filtersPosition   : "top", // top | bottom
-            searchPosition    : "top", // top | bottom
             hidePickerOnBlur  : true,
             buttonTitle       : "Use the TAB key to insert emoji faster",
             tones             : true,
@@ -1150,7 +1247,7 @@ document = window.document || {};
             }
         };
 
-        var supportMode = !emojione ? getSupportMode(getEmojioneVersion()) : getSupportMode(detectVersion(emojione));
+        var supportMode = !emojione ? getSupportMode(emojioneVersion) : getSupportMode(detectVersion(emojione));
 
         if (supportMode > 4) {
             defaultOptions.filters = {
@@ -1556,22 +1653,22 @@ document = window.document || {};
         return defaultOptions;
     };
     function getOptions(options) {
-        var default_options = getDefaultOptions();
-        if (options && options['filters']) {
-            var filters = default_options.filters;
-            $.each(options['filters'], function(filter, data) {
-                if (!isObject(data) || $.isEmptyObject(data)) {
-                    delete filters[filter];
-                    return;
-                }
-                $.each(data, function(key, val) {
-                    filters[filter][key] = val;
-                });
-            });
-            options['filters'] = filters;
-        }
-        return $.extend({}, default_options, options);
-    };
+		var default_options = getDefaultOptions();
+		if (options && options['filters']) {
+			var filters = default_options.filters;
+			$.each(options['filters'], function(filter, data) {
+				if (!isObject(data) || $.isEmptyObject(data)) {
+					delete filters[filter];
+					return;
+				}
+				$.each(data, function(key, val) {
+					filters[filter][key] = val;
+				});
+			});
+			options['filters'] = filters;
+		}
+		return $.extend({}, default_options, options);
+	};
 
     var saveSelection, restoreSelection;
     if (window.getSelection && document.createRange) {
@@ -1608,33 +1705,33 @@ document = window.document || {};
 
     var uniRegexp;
     function unicodeTo(str, template) {
-        return str.replace(uniRegexp, function(unicodeChar) {
-            var map = emojione[(emojioneSupportMode === 0 ? 'jsecapeMap' : 'jsEscapeMap')];
-            if (typeof unicodeChar !== 'undefined' && unicodeChar in map) {
-                return getTemplate(template, map[unicodeChar]);
-            }
-            return unicodeChar;
-        });
-    }
+		return str.replace(uniRegexp, function(unicodeChar) {
+			var map = emojione[(emojioneSupportMode === 0 ? 'jsecapeMap' : 'jsEscapeMap')];
+			if (typeof unicodeChar !== 'undefined' && unicodeChar in map) {
+				return getTemplate(template, map[unicodeChar]);
+			}
+			return unicodeChar;
+		});
+	}
     function htmlFromText(str, self) {
-        str = str
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&#x27;')
-            .replace(/`/g, '&#x60;')
-            .replace(/(?:\r\n|\r|\n)/g, '\n')
-            .replace(/(\n+)/g, '<div>$1</div>')
-            .replace(/\n/g, '<br/>')
-            .replace(/<br\/><\/div>/g, '</div>');
-        if (self.shortnames) {
-            str = emojione.shortnameToUnicode(str);
-        }
-        return unicodeTo(str, self.emojiTemplate)
-            .replace(/\t/g, '&nbsp;&nbsp;&nbsp;&nbsp;')
-            .replace(/  /g, '&nbsp;&nbsp;');
-    }
+		str = str
+			.replace(/&/g, '&amp;')
+			.replace(/</g, '&lt;')
+			.replace(/>/g, '&gt;')
+			.replace(/"/g, '&quot;')
+			.replace(/'/g, '&#x27;')
+			.replace(/`/g, '&#x60;')
+			.replace(/(?:\r\n|\r|\n)/g, '\n')
+			.replace(/(\n+)/g, '<div>$1</div>')
+			.replace(/\n/g, '<br/>')
+			.replace(/<br\/><\/div>/g, '</div>');
+		if (self.shortnames) {
+			str = emojione.shortnameToUnicode(str);
+		}
+		return unicodeTo(str, self.emojiTemplate)
+			.replace(/\t/g, '&nbsp;&nbsp;&nbsp;&nbsp;')
+			.replace(/  /g, '&nbsp;&nbsp;');
+	}
     function textFromHtml(str, self) {
         str = str
             .replace(/&#10;/g, '\n')
@@ -1676,54 +1773,48 @@ document = window.document || {};
         return str;
     }
     function calcButtonPosition() {
-        var self = this,
-            offset = self.editor[0].offsetWidth - self.editor[0].clientWidth,
-            current = parseInt(self.button.css('marginRight'));
-        if (current !== offset) {
-            self.button.css({marginRight: offset});
-            if (self.floatingPicker) {
-                self.picker.css({right: parseInt(self.picker.css('right')) - current + offset});
-            }
-        }
-    }
+		var self = this,
+			offset = self.editor[0].offsetWidth - self.editor[0].clientWidth,
+			current = parseInt(self.button.css('marginRight'));
+		if (current !== offset) {
+			self.button.css({marginRight: offset});
+			if (self.floatingPicker) {
+				self.picker.css({right: parseInt(self.picker.css('right')) - current + offset});
+			}
+		}
+	}
     function lazyLoading() {
-        var self = this;
-        if (!self.sprite && self.lasyEmoji[0] && self.lasyEmoji.eq(0).is(".lazy-emoji")) {
-            var pickerTop = self.picker.offset().top,
-                pickerBottom = pickerTop + self.picker.height() + 20;
-
-            self.lasyEmoji.each(function() {
-                var e = $(this), top = e.offset().top;
-
-                if (top > pickerTop && top < pickerBottom) {
-                    e.attr("src", e.data("src")).removeClass("lazy-emoji");
-                }
-
-                if (top > pickerBottom) {
-                    return false;
-                }
-            });
-            self.lasyEmoji = self.lasyEmoji.filter(".lazy-emoji");
-        }
-    };
+		var self = this;
+		if (!self.sprite && self.lasyEmoji[0]) {
+			var pickerTop = self.picker.offset().top,
+				pickerBottom = pickerTop + self.picker.height() + 20;
+			self.lasyEmoji.each(function() {
+				var e = $(this), top = e.offset().top;
+				if (top > pickerTop && top < pickerBottom) {
+					e.attr("src", e.data("src")).removeClass("lazy-emoji");
+				}
+			})
+			self.lasyEmoji = self.lasyEmoji.filter(".lazy-emoji");
+		}
+	}
     function selector (prefix, skip_dot) {
-        return (skip_dot ? '' : '.') + css_class + (prefix ? ("-" + prefix) : "");
-    }
+		return (skip_dot ? '' : '.') + css_class + (prefix ? ("-" + prefix) : "");
+	}
     function div(prefix) {
-        var parent = $('<div/>', isObject(prefix) ? prefix : {"class" : selector(prefix, true)});
-        $.each(slice.call(arguments).slice(1), function(i, child) {
-            if ($.isFunction(child)) {
-                child = child.call(parent);
-            }
-            if (child) {
-                $(child).appendTo(parent);
-            }
-        });
-        return parent;
-    }
+		var parent = $('<div/>', isObject(prefix) ? prefix : {"class" : selector(prefix, true)});
+		$.each(slice.call(arguments).slice(1), function(i, child) {
+			if ($.isFunction(child)) {
+				child = child.call(parent);
+			}
+			if (child) {
+				$(child).appendTo(parent);
+			}
+		});
+		return parent;
+	}
     function getRecent () {
-        return localStorage.getItem("recent_emojis") || "";
-    }
+		return localStorage.getItem("recent_emojis") || "";
+	}
     function updateRecent(self, show) {
         var emojis = getRecent();
         if (!self.recent || self.recent !== emojis || show) {
@@ -1770,37 +1861,37 @@ document = window.document || {};
         }
     };
     function setRecent(self, emoji) {
-        var recent = getRecent();
-        var emojis = recent.split("|");
+		var recent = getRecent();
+		var emojis = recent.split("|");
 
-        var index = emojis.indexOf(emoji);
-        if (index !== -1) {
-            emojis.splice(index, 1);
-        }
-        emojis.unshift(emoji);
+		var index = emojis.indexOf(emoji);
+		if (index !== -1) {
+			emojis.splice(index, 1);
+		}
+		emojis.unshift(emoji);
 
-        if (emojis.length > 9) {
-            emojis.pop();
-        }
+		if (emojis.length > 9) {
+			emojis.pop();
+		}
 
-        localStorage.setItem("recent_emojis", emojis.join("|"));
+		localStorage.setItem("recent_emojis", emojis.join("|"));
 
-        updateRecent(self);
-    };
+		updateRecent(self);
+	};
 // see https://github.com/Modernizr/Modernizr/blob/master/feature-detects/storage/localstorage.js
     function supportsLocalStorage () {
-        var test = 'test';
-        try {
-            localStorage.setItem(test, test);
-            localStorage.removeItem(test);
-            return true;
-        } catch(e) {
-            return false;
-        }
-    }
+		var test = 'test';
+		try {
+			localStorage.setItem(test, test);
+			localStorage.removeItem(test);
+			return true;
+		} catch(e) {
+			return false;
+		}
+	}
     function init(self, source, options) {
         //calcElapsedTime('init', function() {
-        self.options = options = getOptions(options);
+        options = getOptions(options);
         self.sprite = options.sprite && emojioneSupportMode < 3;
         self.inline = options.inline === null ? source.is("INPUT") : options.inline;
         self.shortnames = options.shortnames;
@@ -1820,20 +1911,7 @@ document = window.document || {};
         }
 
         var sourceValFunc = source.is("TEXTAREA") || source.is("INPUT") ? "val" : "text",
-            editor, button, picker, filters, filtersBtns, searchPanel, emojisList, categories, categoryBlocks, scrollArea,
-            tones = div('tones',
-                options.tones ?
-                    function() {
-                        this.addClass(selector('tones-' + options.tonesStyle, true));
-                        for (var i = 0; i <= 5; i++) {
-                            this.append($("<i/>", {
-                                "class": "btn-tone btn-tone-" + i + (!i ? " active" : ""),
-                                "data-skin": i,
-                                role: "button"
-                            }));
-                        }
-                    } : null
-            ),
+            editor, button, picker, tones, filters, filtersBtns, search, emojisList, categories, scrollArea,
             app = div({
                 "class" : css_class + ((self.standalone) ? " " + css_class + "-standalone " : " ") + (source.attr("class") || ""),
                 role: "application"
@@ -1850,38 +1928,39 @@ document = window.document || {};
             picker = self.picker = div('picker',
                 div('wrapper',
                     filters = div('filters'),
-                    (options.search ?
-                        searchPanel = div('search-panel',
-                            div('search',
-                                options.search ?
-                                function() {
-                                    self.search = $("<input/>", {
-                                        "placeholder": options.searchPlaceholder || "",
-                                        "type": "text",
-                                        "class": "search"
-                                    });
-                                    this.append(self.search);
-                                } : null
-                            ),
-                            tones
-                        ) : null
+                    search = div('search',
+                        options.search ?
+                        function() {
+                            self.search = $("<input/>", {
+                                "placeholder": "SEARCH",
+                                "type": "text",
+                                "class": "search"
+                            });
+                            this.append(self.search);
+                        } : null
+                    ),
+                    tones = div('tones',
+                        function() {
+                            if (options.tones) {
+                                this.addClass(selector('tones-' + options.tonesStyle, true));
+                                for (var i = 0; i <= 5; i++) {
+                                    this.append($("<i/>", {
+                                        "class": "btn-tone btn-tone-" + i + (!i ? " active" : ""),
+                                        "data-skin": i,
+                                        role: "button"
+                                    }));
+                                }
+                            }
+                        }
                     ),
                     scrollArea = div('scroll-area',
-                        options.tones && !options.search ? div('tones-panel',
-                            tones
-                        ) : null,
                         emojisList = div('emojis-list')
                     )
                 )
             ).addClass(selector('picker-position-' + options.pickerPosition, true))
              .addClass(selector('filters-position-' + options.filtersPosition, true))
-             .addClass(selector('search-position-' + options.searchPosition, true))
              .addClass('hidden')
         );
-
-        if (options.search) {
-            searchPanel.addClass(selector('with-search', true));
-        }
 
         self.searchSel = null;
 
@@ -1891,7 +1970,7 @@ document = window.document || {};
             editor.attr(attr, value);
         });
 
-        var mainBlock = div('category-block').attr({"data-tone": 0}).prependTo(emojisList);
+        div('category').attr({"data-tone": 0}).appendTo(emojisList);
 
         $.each(options.filters, function(filter, params) {
             var skin = 0;
@@ -1911,23 +1990,22 @@ document = window.document || {};
             } else {
                 return;
             }
-
             do {
-                var category,
-                    items = params.emoji.replace(/[\s,;]+/g, '|');
-
-                if (skin === 0) {
-                    category = div('category').attr({
-                        name: filter,
-                        "data-tone": skin
-                    }).appendTo(mainBlock);
-                } else {
-                    category = div('category-block').attr({
-                        name: filter,
-                        "data-tone": skin
-                    }).appendTo(emojisList);
+                var parentEl;
+                var categoryAttributes = {
+                    name: filter,
+                    "data-tone": skin
                 }
 
+                if (skin === 0) {
+                    parentEl = emojisList.children('[data-tone="0"]');
+                    categoryAttributes["data-sub-category"] = true;
+                } else {
+                    parentEl = emojisList;
+                }
+
+                var category = div('category').attr(categoryAttributes).appendTo(parentEl),
+                    items = params.emoji.replace(/[\s,;]+/g, '|');
                 if (skin > 0) {
                     category.hide();
                     items = items.split('|').join('_tone' + skin + '|') + '_tone' + skin;
@@ -1955,8 +2033,7 @@ document = window.document || {};
 
         filtersBtns = filters.find(selector("filter"));
         filtersBtns.eq(0).addClass("active");
-        categoryBlocks = emojisList.find(selector("category-block"))
-        categories = emojisList.find(selector("category"))
+        categories = emojisList.find(selector("category"));
 
         self.recentFilter = filtersBtns.filter('[data-filter="recent"]');
         self.recentCategory = categories.filter("[name=recent]");
@@ -2002,7 +2079,6 @@ document = window.document || {};
             keyup: "picker.keyup", keydown: "picker.keydown", keypress: "picker.keypress"});
         attach(self, editor, ["mousedown", "mouseup", "click", "keyup", "keydown", "keypress"]);
         attach(self, picker.find(".emojionearea-filter"), {click: "filter.click"});
-        attach(self, source, {change: "source.change"});
 
         if (options.search) {
             attach(self, self.search, {keyup: "search.keypress", focus: "search.focus", blur: "search.blur"});
@@ -2043,7 +2119,6 @@ document = window.document || {};
             var headerOffset = categories.filter('[name="' + filter.data('filter') + '"]').offset().top,
                 scroll = scrollArea.scrollTop(),
                 offsetTop = scrollArea.offset().top;
-
             scrollArea.stop().animate({
                 scrollTop: headerOffset + scroll - offsetTop - 2
             }, 200, 'swing', function () {
@@ -2064,11 +2139,13 @@ document = window.document || {};
             var skin = tone.addClass("active").data("skin");
             if (skin) {
                 scrollArea.addClass("skinnable");
-                categoryBlocks.hide().filter("[data-tone=" + skin + "]").show();
-                filtersBtns.removeClass("active");//.not('[data-filter="recent"]').eq(0).addClass("active");
+                categories.filter(":not([data-sub-category])").hide().filter("[data-tone=" + skin + "]").show();
+                if (filtersBtns.eq(0).is('.active[data-filter="recent"]')) {
+                    filtersBtns.eq(0).removeClass("active").next().addClass("active");
+                }
             } else {
                 scrollArea.removeClass("skinnable");
-                categoryBlocks.hide().filter("[data-tone=0]").show();
+                categories.filter(":not([data-sub-category])").hide().filter("[data-tone=0]").show();
                 filtersBtns.eq(0).click();
             }
             lazyLoading.call(self);
@@ -2177,7 +2254,7 @@ document = window.document || {};
                 }
             } else {
                 if (!app.is(".focused")) {
-                    editor.trigger("focus");
+                    editor.focus();
                 }
                 event.preventDefault();
             }
@@ -2191,11 +2268,6 @@ document = window.document || {};
                 self.editor.html(self.content = '');
             }
             source[sourceValFunc](self.getText());
-        })
-
-        .on("@source.change", function() {
-            self.setText(source[sourceValFunc]());
-            trigger('change');
         })
 
         .on("@focus", function() {
@@ -2213,9 +2285,9 @@ document = window.document || {};
             if (self.content !== content) {
                 self.content = content;
                 trigger(self, 'change', [self.editor]);
-                source.trigger("blur").trigger("change");
+                source.blur().trigger("change");
             } else {
-                source.trigger("blur");
+                source.blur();
             }
 
             if (options.search) {
@@ -2239,11 +2311,9 @@ document = window.document || {};
                     if (self.recentFilter.hasClass("active")) {
                         self.recentFilter.removeClass("active").next().addClass("active");
                     }
-
                     self.recentCategory.hide();
                     self.recentFilter.hide();
-
-                    categoryBlocks.each(function() {
+                    categories.filter(':not([data-sub-category])').each(function() {
                         var matchEmojis = function(category, activeTone) {
                             var $matched = category.find('.emojibtn[data-name*="' + term + '"]');
                             if ($matched.length === 0) {
@@ -2265,13 +2335,14 @@ document = window.document || {};
                             }
                         }
 
-                        var $block = $(this);
-                        if ($block.data('tone') === 0) {
-                            categories.filter(':not([name="recent"])').each(function() {
+                        var $category = $(this);
+                        matchEmojis($category, activeTone);
+
+                        // If tone 0 category, show/hide matches for tone 0 no matter the active tone
+                        if ($category.data('tone') === 0) {
+                            $category.children(selector("category") + ':not([name="recent"])').each(function() {
                                 matchEmojis($(this), 0);
                             })
-                        } else {
-                            matchEmojis($block, activeTone);
                         }
                     });
                     if (!noListenScroll) {
@@ -2281,10 +2352,12 @@ document = window.document || {};
                     }
                 } else {
                     updateRecent(self, true);
-                    categoryBlocks.filter('[data-tone="' + tones.find("i.active").data("skin") + '"]:not([name="recent"])').show();
-                    $('.emojibtn', categoryBlocks).show();
+                    categories.filter('[data-tone="' + tones.find("i.active").data("skin") + '"]:not([name="recent"])').show();
+                    $('.emojibtn', categories).show();
                     filterBtns.show();
-                    lazyLoading.call(self);
+                    if (!hide) {
+                        lazyLoading.call(self);
+                    }
                 }
             })
 
@@ -2415,9 +2488,7 @@ document = window.document || {};
         isLoading: false
     };
     function loadEmojione(options) {
-        var emojioneVersion = getEmojioneVersion()
         options = getOptions(options);
-
         if (!cdn.isLoading) {
             if (!emojione || getSupportMode(detectVersion(emojione)) < 2) {
                 cdn.isLoading = true;
@@ -2489,35 +2560,35 @@ document = window.document || {};
         });
     };
     var EmojioneArea = function(element, options) {
-        var self = this;
-        loadEmojione(options);
-        eventStorage[self.id = ++unique] = {};
-        possibleEvents[self.id] = {};
-        emojioneReady(function() {
-            init(self, element, options);
-        });
-    };
+		var self = this;
+		loadEmojione(options);
+		eventStorage[self.id = ++unique] = {};
+		possibleEvents[self.id] = {};
+		emojioneReady(function() {
+			init(self, element, options);
+		});
+	};
     function bindEvent(self, event) {
-        event = event.replace(/^@/, '');
-        var id = self.id;
-        if (possibleEvents[id][event]) {
-            $.each(possibleEvents[id][event], function(i, ev) {
-                // ev[0] = element
-                // ev[1] = event
-                // ev[2] = target
-                $.each($.isArray(ev[0]) ? ev[0] : [ev[0]], function(i, el) {
-                    $(el).on(ev[1], function() {
-                        var args = slice.call(arguments),
-                            target = $.isFunction(ev[2]) ? ev[2].apply(self, [event].concat(args)) : ev[2];
-                        if (target) {
-                            trigger(self, event, [target].concat(args));
-                        }
-                    });
-                });
-            });
-            possibleEvents[id][event] = null;
-        }
-    }
+		event = event.replace(/^@/, '');
+		var id = self.id;
+		if (possibleEvents[id][event]) {
+			$.each(possibleEvents[id][event], function(i, ev) {
+				// ev[0] = element
+				// ev[1] = event
+				// ev[2] = target
+				$.each($.isArray(ev[0]) ? ev[0] : [ev[0]], function(i, el) {
+					$(el).on(ev[1], function() {
+						var args = slice.call(arguments),
+							target = $.isFunction(ev[2]) ? ev[2].apply(self, [event].concat(args)) : ev[2];
+						if (target) {
+							trigger(self, event, [target].concat(args));
+						}
+					});
+				});
+			});
+			possibleEvents[id][event] = null;
+		}
+	}
 
     EmojioneArea.prototype.on = function(events, handler) {
         if (events && $.isFunction(handler)) {
@@ -2530,32 +2601,32 @@ document = window.document || {};
         return this;
     };
 
-    EmojioneArea.prototype.off = function(events, handler) {
-        if (events) {
-            var id = this.id;
-            $.each(events.toLowerCase().replace(/_/g, '.').split(' '), function(i, event) {
-                if (eventStorage[id][event] && !/^@/.test(event)) {
-                    if (handler) {
-                        $.each(eventStorage[id][event], function(j, fn) {
-                            if (fn === handler) {
-                                eventStorage[id][event] = eventStorage[id][event].splice(j, 1);
-                            }
-                        });
-                    } else {
-                        eventStorage[id][event] = [];
-                    }
-                }
-            });
-        }
-        return this;
-    };
+	EmojioneArea.prototype.off = function(events, handler) {
+		if (events) {
+			var id = this.id;
+			$.each(events.toLowerCase().replace(/_/g, '.').split(' '), function(i, event) {
+				if (eventStorage[id][event] && !/^@/.test(event)) {
+					if (handler) {
+						$.each(eventStorage[id][event], function(j, fn) {
+							if (fn === handler) {
+								eventStorage[id][event] = eventStorage[id][event].splice(j, 1);
+							}
+						});
+					} else {
+						eventStorage[id][event] = [];
+					}
+				}
+			});
+		}
+		return this;
+	};
 
-    EmojioneArea.prototype.trigger = function() {
-        var args = slice.call(arguments),
-            call_args = [this].concat(args.slice(0,1));
-        call_args.push(args.slice(1));
-        return trigger.apply(this, call_args);
-    };
+	EmojioneArea.prototype.trigger = function() {
+		var args = slice.call(arguments),
+			call_args = [this].concat(args.slice(0,1));
+		call_args.push(args.slice(1));
+		return trigger.apply(this, call_args);
+	};
 
     EmojioneArea.prototype.setFocus = function () {
         var self = this;
@@ -2565,46 +2636,46 @@ document = window.document || {};
         return self;
     };
 
-    EmojioneArea.prototype.setText = function (str) {
-        var self = this;
-        emojioneReady(function () {
-            self.editor.html(htmlFromText(str, self));
-            self.content = self.editor.html();
-            trigger(self, 'change', [self.editor]);
-            calcButtonPosition.apply(self);
-        });
-        return self;
-    }
+	EmojioneArea.prototype.setText = function (str) {
+		var self = this;
+		emojioneReady(function () {
+			self.editor.html(htmlFromText(str, self));
+			self.content = self.editor.html();
+			trigger(self, 'change', [self.editor]);
+			calcButtonPosition.apply(self);
+		});
+		return self;
+	}
 
-    EmojioneArea.prototype.getText = function() {
-        return textFromHtml(this.editor.html(), this);
-    }
+	EmojioneArea.prototype.getText = function() {
+		return textFromHtml(this.editor.html(), this);
+	}
 
-    EmojioneArea.prototype.showPicker = function () {
-        var self = this;
-        if (self._sh_timer) {
-            window.clearTimeout(self._sh_timer);
-        }
-        self.picker.removeClass("hidden");
-        self._sh_timer =  window.setTimeout(function() {
-            self.button.addClass("active");
-        }, 50);
-        trigger(self, "picker.show", [self.picker]);
-        return self;
-    }
+	EmojioneArea.prototype.showPicker = function () {
+		var self = this;
+		if (self._sh_timer) {
+			window.clearTimeout(self._sh_timer);
+		}
+		self.picker.removeClass("hidden");
+		self._sh_timer =  window.setTimeout(function() {
+			self.button.addClass("active");
+		}, 50);
+		trigger(self, "picker.show", [self.picker]);
+		return self;
+	}
 
-    EmojioneArea.prototype.hidePicker = function () {
-        var self = this;
-        if (self._sh_timer) {
-            window.clearTimeout(self._sh_timer);
-        }
-        self.button.removeClass("active");
-        self._sh_timer =  window.setTimeout(function() {
-            self.picker.addClass("hidden");
-        }, 500);
-        trigger(self, "picker.hide", [self.picker]);
-        return self;
-    }
+	EmojioneArea.prototype.hidePicker = function () {
+		var self = this;
+		if (self._sh_timer) {
+			window.clearTimeout(self._sh_timer);
+		}
+		self.button.removeClass("active");
+		self._sh_timer =  window.setTimeout(function() {
+			self.picker.addClass("hidden");
+		}, 500);
+		trigger(self, "picker.hide", [self.picker]);
+		return self;
+	}
 
     EmojioneArea.prototype.enable = function () {
         var self = this;
@@ -2646,8 +2717,6 @@ document = window.document || {};
     $.fn.emojioneArea.defaults = getDefaultOptions();
 
     $.fn.emojioneAreaText = function(options) {
-        options = getOptions(options);
-
         var self = this, pseudoSelf = {
             shortnames: (options && typeof options.shortnames !== 'undefined' ? options.shortnames : true),
             emojiTemplate: '<img alt="{alt}" class="emojione' + (options && options.sprite && emojioneSupportMode < 3 ? '-{uni}" src="' + blankImg : 'emoji" src="{img}') + '"/>'
@@ -2668,11 +2737,10 @@ document = window.document || {};
     };
 
 }, window ) );
-
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2)))
 
 /***/ }),
-/* 37 */
+/* 41 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
@@ -13043,14 +13111,14 @@ return jQuery;
 
 
 /***/ }),
-/* 38 */
+/* 42 */
 /***/ (function(module, exports) {
 
 NodeList.prototype.map = new Array().map;
 window.requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
 
 /***/ }),
-/* 39 */
+/* 43 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -13072,13 +13140,13 @@ window.requestAnimationFrame = window.requestAnimationFrame || window.mozRequest
 });
 
 /***/ }),
-/* 40 */
+/* 44 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(41);
+var content = __webpack_require__(45);
 if(typeof content === 'string') content = [[module.i, content, '']];
 // Prepare cssTransformation
 var transform;
@@ -13103,7 +13171,7 @@ if(false) {
 }
 
 /***/ }),
-/* 41 */
+/* 45 */
 /***/ (function(module, exports, __webpack_require__) {
 
 exports = module.exports = __webpack_require__(0)(undefined);
@@ -13117,7 +13185,7 @@ exports.push([module.i, ".faceMocion { display: none;padding-bottom:8px;padding-
 
 
 /***/ }),
-/* 42 */
+/* 46 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -13161,7 +13229,7 @@ var actions = {
 /* harmony default export */ __webpack_exports__["a"] = ({ namespaced: true, state: state, mutations: mutations, actions: actions });
 
 /***/ }),
-/* 43 */
+/* 47 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -13262,7 +13330,7 @@ var actions = {
 /* harmony default export */ __webpack_exports__["a"] = ({ namespaced: true, state: state, mutations: mutations, actions: actions });
 
 /***/ }),
-/* 44 */
+/* 48 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -13333,7 +13401,7 @@ var actions = {
 /* harmony default export */ __webpack_exports__["a"] = ({ namespaced: true, state: state, mutations: mutations, actions: actions });
 
 /***/ }),
-/* 45 */
+/* 49 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -13349,7 +13417,7 @@ var mutations = {
             });
             if (article) {
                 var index = state.articles.indexOf(article);
-                if (index > -1) state.articles[index] = dataArticle;
+                if (index > -1) state.articles.splice(index, 1, dataArticle);
             } else {
                 state.articles.push(dataArticle);
             }
@@ -13453,7 +13521,7 @@ var actions = {
 /* harmony default export */ __webpack_exports__["a"] = ({ namespaced: true, state: state, mutations: mutations, actions: actions });
 
 /***/ }),
-/* 46 */
+/* 50 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -13574,7 +13642,7 @@ var actions = {
 /* harmony default export */ __webpack_exports__["a"] = ({ namespaced: true, state: state, mutations: mutations, actions: actions });
 
 /***/ }),
-/* 47 */
+/* 51 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -13694,7 +13762,7 @@ var actions = {
 /* harmony default export */ __webpack_exports__["a"] = ({ namespaced: true, state: state, mutations: mutations, actions: actions });
 
 /***/ }),
-/* 48 */
+/* 52 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -13755,7 +13823,7 @@ var actions = {
 /* harmony default export */ __webpack_exports__["a"] = ({ namespaced: true, state: state, mutations: mutations, actions: actions });
 
 /***/ }),
-/* 49 */
+/* 53 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -13789,7 +13857,7 @@ var actions = {
 /* harmony default export */ __webpack_exports__["a"] = ({ namespaced: true, state: state, mutations: mutations, actions: actions });
 
 /***/ }),
-/* 50 */
+/* 54 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -13839,21 +13907,51 @@ function webSocketPlugin() {
                         store.dispatch('users/save', replyedUser);
                         store.dispatch('article/addComment', { id: event.comment.article_id });
                     });
-                    Echo.join('user.online.21').here(function (users) {
-                        console.log('here', users);
+                    Echo.private('App.User.' + store.state.user.user.id).listen('MessageCreatedEvent', function (event) {
+                        event.message = event.data.user.name + ' ' + event.data.user.forename + ' sent you a new message!';
+                        event.isNewsletter = false;
+                        event.id = Math.random();
+                        var user = event.data.user;
+                        delete event.data.user;
+                        event.user = user;
+                        store.dispatch('setting/addNotification', event);
+                        store.dispatch('message/save', event.data);
+                        store.dispatch('users/save', user);
+                    }).listen('NextStep', function (event) {
+                        event.discussionstate.user = event.user;
+                        delete event.user;
+                        event.message = event.discussionstate.user.name + ' ' + event.discussionstate.user.forename + ' proposes you to pass to the next step of discussion!';
+                        event.isNewsletter = false;
+                        event.id = Math.random();
+                        var user = event.discussionstate.user;
+                        delete event.discussionstate.user;
+                        event.user = user;
+                        store.dispatch('setting/addNotification', event);
+                        store.dispatch('discussionstate/save', event.discussionstate);
+                        store.dispatch('users/save', user);
+                    }).listen('RequestCreated', function (event) {
+                        event.request.user = event.user;
+                        delete event.user;
+                        event.message = event.request.user.name + ' ' + event.request.user.forename + ' has sent a request for the town ' + event.request.town;
+                        event.isNewsletter = false;
+                        event.id = Math.random();
+                        var user = event.request.user;
+                        delete event.request.user;
+                        event.user = user;
+                        store.dispatch('setting/addNotification', event);
+                        store.dispatch('boxmessage/save', event.request);
+                        store.dispatch('users/save', user);
+                    });
+                    Echo.join('users.online').here(function (users) {
                         users.map(function (user) {
                             return user.online = true;
                         });
                         store.dispatch('users/save', users);
                     }).joining(function (user) {
-                        console.log('joining', user);
                         user.online = true;
                         store.dispatch('users/save', user);
                     }).leaving(function (user) {
-                        console.log('leaving', user);
                         store.dispatch('users/delete', user);
-                    }).listen('UserOnlineEvent', function (e) {
-                        return console.log('listen', e);
                     });
                 }
             }
@@ -13862,7 +13960,7 @@ function webSocketPlugin() {
 }
 
 /***/ }),
-/* 51 */
+/* 55 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -13912,7 +14010,7 @@ var actions = {
 /* harmony default export */ __webpack_exports__["a"] = ({ namespaced: true, state: state, mutations: mutations, actions: actions });
 
 /***/ }),
-/* 52 */
+/* 56 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -14001,7 +14099,7 @@ var actions = {
 /* harmony default export */ __webpack_exports__["a"] = ({ namespaced: true, state: state, mutations: mutations, actions: actions });
 
 /***/ }),
-/* 53 */
+/* 57 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -14119,7 +14217,7 @@ var actions = {
 /* harmony default export */ __webpack_exports__["a"] = ({ namespaced: true, state: state, mutations: mutations, actions: actions });
 
 /***/ }),
-/* 54 */
+/* 58 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -14129,7 +14227,6 @@ var state = {
 
 var mutations = {
     SAVE: function SAVE(state, data) {
-        console.log(data);
         data.map(function (dataCategory) {
             var user = state.categories.find(function (category) {
                 return category && category.id === dataCategory.id;
@@ -14170,7 +14267,7 @@ var actions = {
 /* harmony default export */ __webpack_exports__["a"] = ({ namespaced: true, state: state, mutations: mutations, actions: actions });
 
 /***/ }),
-/* 55 */
+/* 59 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -14266,10 +14363,191 @@ var actions = {
 /* harmony default export */ __webpack_exports__["a"] = ({ namespaced: true, state: state, mutations: mutations, actions: actions });
 
 /***/ }),
-/* 56 */
+/* 60 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+
+var state = {
+    boxmessages: []
+};
+
+var mutations = {
+    SAVE: function SAVE(state, data) {
+        data.map(function (databoxmessage) {
+            var boxmessage = state.boxmessages.find(function (boxmessage) {
+                return boxmessage && boxmessage.id === databoxmessage.id;
+            });
+            if (boxmessage) {
+                var index = state.boxmessages.indexOf(boxmessage);
+                if (index > -1) state.boxmessages[index] = databoxmessage;
+            } else {
+                state.boxmessages.push(databoxmessage);
+            }
+        });
+        state.boxmessages.sort(function (boxmessage1, boxmessage2) {
+            return boxmessage2.id - boxmessage1.id;
+        });
+    },
+    UPDATE: function UPDATE(state, data) {
+        var boxmessage = state.boxmessages.find(function (boxmessage) {
+            return boxmessage.id === data.id;
+        });
+        var index = state.boxmessages.indexOf(boxmessage);
+        if (index > -1) state.boxmessages.splice(index, 1, data);
+    },
+    DELETE: function DELETE(state, data) {
+        var boxmessage = state.boxmessages.find(function (boxmessage) {
+            return boxmessage.id === data.id;
+        });
+        var key = state.boxmessages.indexOf(boxmessage);
+        state.boxmessages.splice(key, 1);
+    }
+};
+
+var actions = {
+    save: function save(_ref, data) {
+        var commit = _ref.commit;
+
+        if (!Array.isArray(data)) {
+            data = [data];
+        }
+        commit("SAVE", data);
+    },
+    update: function update(_ref2, data) {
+        var commit = _ref2.commit;
+
+        commit("UPDATE", data);
+    },
+    delete: function _delete(_ref3, data) {
+        var commit = _ref3.commit;
+
+        commit("DELETE", data);
+    }
+};
+
+/* harmony default export */ __webpack_exports__["a"] = ({ namespaced: true, state: state, mutations: mutations, actions: actions });
+
+/***/ }),
+/* 61 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+var state = {
+    messages: []
+};
+
+var mutations = {
+    SAVE: function SAVE(state, data) {
+        data.map(function (datamessage) {
+            var message = state.messages.find(function (message) {
+                return message && message.id === datamessage.id;
+            });
+            if (message) {
+                var index = state.messages.indexOf(message);
+                if (index > -1) state.messages.splice(index, 1, datamessage);
+            } else {
+                state.messages.push(datamessage);
+            }
+        });
+        state.messages.sort(function (message1, message2) {
+            return message1.id - message2.id;
+        });
+    },
+    UPDATE: function UPDATE(state, data) {
+        var message = state.messages.find(function (message) {
+            return message.id === data.id;
+        });
+        var index = state.messages.indexOf(message);
+        if (index > -1) state.messages.splice(index, 1, data);
+    },
+    DELETE: function DELETE(state, data) {
+        var message = state.messages.find(function (message) {
+            return message.id === data.id;
+        });
+        var key = state.messages.indexOf(message);
+        state.messages.splice(key, 1);
+    }
+};
+
+var actions = {
+    save: function save(_ref, data) {
+        var commit = _ref.commit;
+
+        if (!Array.isArray(data)) {
+            data = [data];
+        }
+        commit("SAVE", data);
+    },
+    update: function update(_ref2, data) {
+        var commit = _ref2.commit;
+
+        commit("UPDATE", data);
+    },
+    delete: function _delete(_ref3, data) {
+        var commit = _ref3.commit;
+
+        commit("DELETE", data);
+    }
+};
+
+/* harmony default export */ __webpack_exports__["a"] = ({ namespaced: true, state: state, mutations: mutations, actions: actions });
+
+/***/ }),
+/* 62 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+var state = {
+    discussionstates: []
+};
+
+var mutations = {
+    SAVE: function SAVE(state, data) {
+        data.map(function (datadiscussionstate) {
+            var discussionstate = state.discussionstates.find(function (discussionstate) {
+                return discussionstate && discussionstate.id === datadiscussionstate.id;
+            });
+            if (discussionstate) {
+                var index = state.discussionstates.indexOf(discussionstate);
+                if (index > -1) state.discussionstates.splice(index, 1, datadiscussionstate);
+            } else {
+                state.discussionstates.push(datadiscussionstate);
+            }
+        });
+    },
+    UPDATE: function UPDATE(state, data) {
+        var discussionstate = state.discussionstates.find(function (discussionstate) {
+            return discussionstate.id === data.id;
+        });
+        var index = state.discussionstates.indexOf(discussionstate);
+        if (index > -1) state.discussionstates.splice(index, 1, data);
+    }
+};
+
+var actions = {
+    save: function save(_ref, data) {
+        var commit = _ref.commit;
+
+        if (!Array.isArray(data)) {
+            data = [data];
+        }
+        commit("SAVE", data);
+    },
+    update: function update(_ref2, data) {
+        var commit = _ref2.commit;
+
+        commit("UPDATE", data);
+    }
+};
+
+/* harmony default export */ __webpack_exports__["a"] = ({ namespaced: true, state: state, mutations: mutations, actions: actions });
+
+/***/ }),
+/* 63 */
 /***/ (function(module, exports) {
 
 module.exports = ["just now",["%s second ago","%s seconds ago"],["%s minute ago","%s minutes ago"],["%s hour ago","%s hours ago"],["%s day ago","%s days ago"],["%s week ago","%s weeks ago"],["%s month ago","%s months ago"],["%s year ago","%s years ago"]]
 
 /***/ })
-],[31]);
+],[35]);

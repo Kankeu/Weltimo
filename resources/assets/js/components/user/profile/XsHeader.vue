@@ -192,15 +192,18 @@
         border-radius: 50% !important;
         background-color: rgba(0, 0, 0, .4);
         text-align: center;
-        padding-top: 35%;
         color: #fff;
         border-radius: 4px;
         font-size: 18px;
     }
     div:hover > .nbr-photos{
-        display: block
+        display: flex;
+        justify-content: center;
+        align-items: center;
     }
     .nbr-photos:hover{
-        display: block
+        display: flex;
+        justify-content: center;
+        align-items: center;
     }
 </style>

@@ -1,9 +1,15 @@
 <template>
     <v-container grid-list-md text-xs-left fluid>
-        <v-layout row wrap>
-            <v-flex v-for="level,i in levels" :key="i" lg4 xs12>
-                <ps-card :level="level" :texts="texts[i]" :colors="colors[i]"></ps-card>
+        <v-layout>
+            <v-flex sm2 lg0 xs0 v-if="$vuetify.breakpoint.smAndDown"></v-flex>
+            <v-flex>
+                <v-layout row wrap>
+                    <v-flex v-for="level,i in levels" :key="i" lg4 xs12>
+                        <ps-card :level="level" :texts="texts[i]" :colors="colors[i]"></ps-card>
+                    </v-flex>
+                </v-layout>
             </v-flex>
+            <v-flex sm2 xs0 lg0 v-if="$vuetify.breakpoint.smAndDown"></v-flex>
         </v-layout>
     </v-container>
 </template>
@@ -101,8 +107,5 @@
                 ]
             }
         },
-        mounted(){
-
-        }
     }
 </script>

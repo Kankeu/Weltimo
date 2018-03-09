@@ -69,7 +69,7 @@ export default {
         like(event,name){
             let facemotion = (name) ? name : event.target.className
             let emoticon = this.emoticons.find(e=>e.emocion===facemotion)
-            if(emoticon && !this.article.liked){
+            if(emoticon){
                 this.$http.get('user/'+this.name+'/'+this.article.id+'/like/'+emoticon.type).then(response=>{
                     if(response.body.id){
                         this.$store.dispatch("like/save", response.body)
@@ -79,7 +79,7 @@ export default {
             }
         },
         deleteLike(){
-            if(this.article.liked.id){
+            if(this.article.liked && this.article.liked.id){
                 this.$http.delete('user/'+this.name+'/'+this.article.id+'/like').then(response=>{
                     if(response.body.status === 1){
                         this.$store.dispatch("like/delete", this.article.liked)

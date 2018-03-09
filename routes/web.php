@@ -11,13 +11,18 @@
 |
 */
 
+Route::get('login/{provider}', 'LoginController@redirectToProvider');
+Route::get('login/{provider}/callback', 'LoginController@handleProviderCallback');
+Route::post('password/email', 'Auth\ForgotPasswordController@sendResetLinkEmail');
+Route::get('password/reset/{token}', 'Auth\ResetPasswordController@showResetForm')->name('password.reset');
+Route::post('password/reset', 'Auth\ResetPasswordController@reset');
 Route::middleware('AjaxDetecte')->group(function () {
 	Route::resource('sign_in', "InscriptionController",["only"=>["store","update"]]);
 	Route::get('offer', 'OfferController@index');
 	Route::post('avatar','InscriptionController@upload');
-	Route::post('log_in','LoginController@login');
-	Route::get('log_in','LoginController@loginWithToken');
-	Route::get('log_out','LogoutController@logout');
+	Route::post('login','LoginController@login');
+	Route::get('login','LoginController@loginWithToken');
+	Route::get('logout','LogoutController@logout');
 	Route::middleware('auth')->prefix('user')->group(function (){
         Route::prefix('forum')->group(function (){
             Route::resource('topic', 'TopicController');
@@ -62,6 +67,12 @@ Route::middleware('AjaxDetecte')->group(function () {
             Route::get('{type}/{level}', 'BookController@index');
             Route::get('{type}/{level}/{id}', 'BookController@index');
         });
+        Route::get('request/{id}/message', 'MessageController@index');
+        Route::post('request/{id}/message', 'MessageController@store');
+        Route::resource('request','RequestController',['except'=>'index']);
+        Route::get('request', 'RequestController@index');
+        Route::get('request/{id}/discussionstate', 'DiscussionstateController@index');
+        Route::post('request/{id}/discussionstate', 'DiscussionstateController@store');
         Route::post('cover','UserController@cover');
         Route::post('avatar','UserController@avatar');
         // doit toujour etre les dernieres routes
@@ -93,6 +104,7 @@ Route::middleware('AjaxDetecte')->group(function () {
         Route::resource('book', 'BookController');
         Route::resource('user', 'UserController');
         Route::resource('article', 'ArticleController');
+        Route::get('request', 'RequestController@index');
     });
 });
 Route::get('/',function(){

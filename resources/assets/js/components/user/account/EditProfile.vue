@@ -41,6 +41,15 @@
                 maxlength="300"
                 textarea
         ></v-text-field>
+        <v-snackbar
+                :timeout="6000"
+                top
+                right
+                v-model="snackbar"
+        >
+            Profile had been updated!
+            <v-btn flat color="pink" @click.native="snackbar = false">Close</v-btn>
+        </v-snackbar>
         <v-btn color="primary" type="submit" style="margin: 0">Save</v-btn>
     </v-form>
 </template>
@@ -48,6 +57,9 @@
 <script>
     export default{
         $validates: true,
+        data: ()=>({
+            snackbar: false
+        }),
         computed:{
             user(){
                 return this.$store.state.user.user
@@ -61,6 +73,7 @@
                         this.$http.put('user/'+this.user.id,formdata).then((response)=>{
                             if(response.body.id){
                                 this.$store.dispatch("user/update", response.body)
+                                this.snackbar = true
                             }
                         })
                     }

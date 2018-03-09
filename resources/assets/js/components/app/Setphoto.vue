@@ -17,14 +17,16 @@
 </template>
 
 <script>
+    import store from './Store'
     export default{
         data: () => ({
             url: "/img/default/avatar.jpg",
             file: null,
+            store: store,
         }),
         computed:{
             user(){
-                return this.$store.state.user.user
+                return this.store.state.user
             }
         },
         methods:{
@@ -42,14 +44,16 @@
                     formdata.append("avatar",this.file)
                     this.$http.post('/avatar',formdata).then((response)=>{
                         if(response.body.status === 1){
-                            this.$store.dispatch('user/update', {avatar:this.url,confirmated:true})
-                            this.$store.dispatch('msgflash/save', "Congratulations your account has been successfully created. welcome to the Weltimo community!")
+                            this.user.avatar = this.url
+                            this.store.setUser(this.user)
                             this.$emit("stop")
-                            this.$router.push('/user')
+                            window.location.href = window.location.host
+                            window.location.reload()
                         }
                     })
                 }else{
-                    this.$router.push('/user')
+                    window.location.href = window.location.host
+                    window.location.reload()
                 }
             }
         }
