@@ -47,7 +47,6 @@
         <v-btn color="primary" @click.native="save">Continue</v-btn>
         <v-btn @click.native="clear" flat>Cancel</v-btn>
         <br>
-        <v-btn href="/login/facebook" color="primary" outline large>Sign in with Facebook</v-btn>
         <v-btn href="/login/google" color="red" outline large>Sign in with Google</v-btn>
         <v-btn href="/login/github" large>Sign in with Github</v-btn>
     </div>

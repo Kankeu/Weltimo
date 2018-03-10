@@ -66,6 +66,7 @@
                                                 data-vv-name="password"
                                                 data-vv-as="new password"
                                                 name="password"
+                                                @keyup.13.prevent.stop="save"
                                         ></v-text-field>
                                     </v-flex>
                                     <v-flex  v-if="!isPasswordForgot" xs12>
@@ -77,6 +78,7 @@
                                                       v-validate="'required|min:6'"
                                                       data-vv-name="password"
                                                       v-model.trim="data.password"
+                                                      @keyup.13.prevent.stop="login"
                                         ></v-text-field>
                                     </v-flex>
                                     <v-flex xs12>
@@ -154,7 +156,7 @@
                         this.$http.post('/login', this.data).then(response => {
                             if (response.body.id) {
                                 this.dialogLog_on = false
-                                window.location.href = window.location.host
+                                window.location.href =  window.location.protocol+window.location.host
                                 window.location.reload()
                             }else if(response.body.status === 0){
                                 this.error = response.body.message
@@ -191,7 +193,7 @@
                         data['password_confirmation'] = this.data.password
                         this.$http.post('/password/reset', data).then(response => {
                             this.dialogLog_on = false
-                            window.location.href = window.location.host
+                            window.location.href = window.location.protocol+window.location.host
                             window.location.reload()
                             this.clear()
                             this.loading = false
@@ -216,6 +218,8 @@
                 this.dialogLog_on = true
                 this.isPasswordForgot = true
             }
+            this.text = "This site uses cookies to personalize content, to provide social media features and to analyze traffic to the site."
+            this.snackbar = true
         },
         watch:{
             '$route.params.token'(token){

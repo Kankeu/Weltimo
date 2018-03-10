@@ -210,7 +210,6 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 //
 //
 //
-//
 
 
 /* harmony default export */ __webpack_exports__["a"] = ({
@@ -574,20 +573,6 @@ var render = function() {
                           "div",
                           { staticStyle: { "margin-top": "50px" } },
                           [
-                            _c(
-                              "v-btn",
-                              {
-                                attrs: {
-                                  href: "/login/facebook",
-                                  color: "primary",
-                                  outline: "",
-                                  large: ""
-                                }
-                              },
-                              [_vm._v("Log in with Facebook")]
-                            ),
-                            _c("br"),
-                            _vm._v(" "),
                             _c(
                               "v-btn",
                               {

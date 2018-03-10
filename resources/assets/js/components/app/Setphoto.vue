@@ -47,12 +47,12 @@
                             this.user.avatar = this.url
                             this.store.setUser(this.user)
                             this.$emit("stop")
-                            window.location.href = window.location.host
+                            window.location.href =  window.location.protocol+window.location.host
                             window.location.reload()
                         }
                     })
                 }else{
-                    window.location.href = window.location.host
+                    window.location.href =  window.location.protocol+window.location.host
                     window.location.reload()
                 }
             }

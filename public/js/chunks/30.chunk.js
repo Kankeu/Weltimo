@@ -7097,6 +7097,8 @@ var index_esm = {
 //
 //
 //
+//
+//
 
 
 Vue.use(__WEBPACK_IMPORTED_MODULE_0_vee_validate__["a" /* default */]);
@@ -7132,7 +7134,7 @@ Vue.use(__WEBPACK_IMPORTED_MODULE_0_vee_validate__["a" /* default */]);
                     _this.$http.post('/login', _this.data).then(function (response) {
                         if (response.body.id) {
                             _this.dialogLog_on = false;
-                            window.location.href = window.location.host;
+                            window.location.href = window.location.protocol + window.location.host;
                             window.location.reload();
                         } else if (response.body.status === 0) {
                             _this.error = response.body.message;
@@ -7173,7 +7175,7 @@ Vue.use(__WEBPACK_IMPORTED_MODULE_0_vee_validate__["a" /* default */]);
                     data['password_confirmation'] = _this3.data.password;
                     _this3.$http.post('/password/reset', data).then(function (response) {
                         _this3.dialogLog_on = false;
-                        window.location.href = window.location.host;
+                        window.location.href = window.location.protocol + window.location.host;
                         window.location.reload();
                         _this3.clear();
                         _this3.loading = false;
@@ -7198,6 +7200,8 @@ Vue.use(__WEBPACK_IMPORTED_MODULE_0_vee_validate__["a" /* default */]);
             this.dialogLog_on = true;
             this.isPasswordForgot = true;
         }
+        this.text = "This site uses cookies to personalize content, to provide social media features and to analyze traffic to the site.";
+        this.snackbar = true;
     },
 
     watch: {
@@ -7526,6 +7530,19 @@ var render = function() {
                                               "data-vv-as": "new password",
                                               name: "password"
                                             },
+                                            on: {
+                                              keyup: function($event) {
+                                                if (
+                                                  !("button" in $event) &&
+                                                  $event.keyCode !== 13
+                                                ) {
+                                                  return null
+                                                }
+                                                $event.preventDefault()
+                                                $event.stopPropagation()
+                                                _vm.save($event)
+                                              }
+                                            },
                                             model: {
                                               value: _vm.data.password,
                                               callback: function($$v) {
@@ -7575,6 +7592,19 @@ var render = function() {
                                                 "password"
                                               ),
                                               "data-vv-name": "password"
+                                            },
+                                            on: {
+                                              keyup: function($event) {
+                                                if (
+                                                  !("button" in $event) &&
+                                                  $event.keyCode !== 13
+                                                ) {
+                                                  return null
+                                                }
+                                                $event.preventDefault()
+                                                $event.stopPropagation()
+                                                _vm.login($event)
+                                              }
                                             },
                                             model: {
                                               value: _vm.data.password,

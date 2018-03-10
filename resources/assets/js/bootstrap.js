@@ -167,6 +167,7 @@ const router = new vueRouter({
                         {
                             path: '/',
                             component: resolve => require(['./components/user/university/Home.vue'], resolve),
+                            name: "Universities"
                         },
                         {
                             path: 'berlin',

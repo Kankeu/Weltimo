@@ -69,7 +69,7 @@
                             <v-list-tile-action v-if="notification.isFollower">
                                 <v-btn
                                         @click.prevent.stop=""
-                                        :color="'primary'"
+                                        color="primary"
                                         slot="activator"
                                         outline
                                 >
@@ -79,7 +79,7 @@
                             <v-list-tile-action v-if="notification.isNewsletter">
                                 <v-btn
                                         @click.prevent.stop="show(notification)"
-                                        :color="'primary'"
+                                        color="primary"
                                         slot="activator"
                                 >Show
                                 </v-btn>
@@ -560,7 +560,18 @@
                 articles : [],
                 article: {},
                 drawerUsers: false,
-                searchItems: [],
+                searchItems: [
+                    {name:'berlin',isUni:true},
+                    {name:'ilmenau',isUni:true},
+                    {name:'bochum',isUni:true},
+                    {name:'bremen',isUni:true},
+                    {name:'clausthal',isUni:true},
+                    {name:'mannheim',isUni:true},
+                    {name:'kaiserslautern',isUni:true},
+                    {name:'paderborn',isUni:true},
+                    {name:'munich',isUni:true},
+                    {name:'siegen',isUni:true}
+                ],
                 selectedUser: null,
                 mini: false
             }
@@ -586,7 +597,7 @@
                 this.$http.get('/logout',).then(response => {
                     if (response.body.status === 1) {
                         this.$store.dispatch("user/delete")
-                        window.location.href = window.location.host
+                        window.location.href =  window.location.protocol+window.location.host
                         window.location.reload()
                     }
                 })
@@ -660,7 +671,11 @@
             },
             selectedUser(data){
                 if(data.length>0){
-                    this.$router.push('/profile/'+data[0].value)
+                    if(data[0].isUni){
+                        this.$router.push('/university/'+data[0].name)
+                    }else{
+                        this.$router.push('/profile/'+data[0].value)
+                    }
                 }
             },
             '$vuetify.breakpoint.smAndUp'(data){

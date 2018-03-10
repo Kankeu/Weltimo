@@ -126,7 +126,6 @@ webpackJsonp([13],{
 //
 //
 //
-//
 
 
 
@@ -460,12 +459,12 @@ var state = function () {
                         _this.user.avatar = _this.url;
                         _this.store.setUser(_this.user);
                         _this.$emit("stop");
-                        window.location.href = window.location.host;
+                        window.location.href = window.location.protocol + window.location.host;
                         window.location.reload();
                     }
                 });
             } else {
-                window.location.href = window.location.host;
+                window.location.href = window.location.protocol + window.location.host;
                 window.location.reload();
             }
         }
@@ -1316,19 +1315,6 @@ var render = function() {
       ),
       _vm._v(" "),
       _c("br"),
-      _vm._v(" "),
-      _c(
-        "v-btn",
-        {
-          attrs: {
-            href: "/login/facebook",
-            color: "primary",
-            outline: "",
-            large: ""
-          }
-        },
-        [_vm._v("Sign in with Facebook")]
-      ),
       _vm._v(" "),
       _c(
         "v-btn",
